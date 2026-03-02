@@ -84,8 +84,22 @@ def _soil_depth_total_mm(domain_root: Path, fallback_mm: float = 200.0) -> float
     return total if total > 0 else fallback_mm
 
 
-def _percentile(s: pd.Series) -> pd.Series:
-    return s.rank(method="average", pct=True) * 100.0
+def _calendar_percentile(dates: pd.Series, values: pd.Series) -> pd.Series:
+    d = pd.to_datetime(dates)
+    v = pd.to_numeric(values, errors="coerce")
+
+    # Use day-of-year for daily data and month-of-year for monthly data.
+    dd = d.sort_values().diff().dt.days.dropna()
+    if len(dd) > 0 and float(dd.median()) <= 2.0:
+        key = d.dt.dayofyear
+    else:
+        key = d.dt.month
+
+    out = pd.Series(np.nan, index=v.index, dtype=float)
+    for k in key.dropna().unique():
+        idx = key == k
+        out.loc[idx] = v.loc[idx].rank(method="average", pct=True) * 100.0
+    return out
 
 
 def _standardized_from_percentile(p: pd.Series) -> pd.Series:
@@ -152,12 +166,12 @@ def _load_monthly(paths: Paths) -> pd.DataFrame:
     finally:
         ds.close()
 
-    df["smi_percent"] = _percentile(df["sm"])
+    df["smi_percent"] = _calendar_percentile(df["date"], df["sm"])
     df["ssi"] = _standardized_from_percentile(df["smi_percent"])
-    df["recharge_percent"] = _percentile(df["recharge"])
-    df["runoff_percent"] = _percentile(df["runoff"])
-    df["pet_percent"] = _percentile(df["pet"])
-    df["et_percent"] = _percentile(df["et"])
+    df["recharge_percent"] = _calendar_percentile(df["date"], df["recharge"])
+    df["runoff_percent"] = _calendar_percentile(df["date"], df["runoff"])
+    df["pet_percent"] = _calendar_percentile(df["date"], df["pet"])
+    df["et_percent"] = _calendar_percentile(df["date"], df["et"])
     df["aridity_index"] = df["pet"] / df["precip"].replace(0, np.nan)
     return df
 
@@ -221,7 +235,7 @@ def _load_daily_discharge(paths: Paths) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     monthly = daily.resample("MS", on="date").agg({"qsim": ["mean", "min", "max", "std"], "qobs": ["mean"]}).reset_index()
     monthly.columns = ["date", "qsim_monthly_mean", "qsim_monthly_min", "qsim_monthly_max", "qsim_monthly_std", "qobs_monthly_mean"]
-    monthly["discharge_percent"] = _percentile(monthly["qsim_monthly_mean"])
+    monthly["discharge_percent"] = _calendar_percentile(monthly["date"], monthly["qsim_monthly_mean"])
     monthly["sdi"] = _standardized_from_percentile(monthly["discharge_percent"])
     return daily, monthly
 

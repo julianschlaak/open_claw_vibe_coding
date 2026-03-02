@@ -61,6 +61,21 @@ def _spatial_mean_any(ds: nc.Dataset, candidates: list[str], n_time: int) -> np.
     return np.full(n_time, np.nan)
 
 
+def _calendar_percentile(dates: pd.Series, values: pd.Series) -> pd.Series:
+    d = pd.to_datetime(dates)
+    v = pd.to_numeric(values, errors="coerce")
+    dd = d.sort_values().diff().dt.days.dropna()
+    if len(dd) > 0 and float(dd.median()) <= 2.0:
+        key = d.dt.dayofyear
+    else:
+        key = d.dt.month
+    out = pd.Series(np.nan, index=v.index, dtype=float)
+    for k in key.dropna().unique():
+        idx = key == k
+        out.loc[idx] = v.loc[idx].rank(method="average", pct=True) * 100.0
+    return out
+
+
 def load_data(mhm_output_dir: Path, fallback_results_dir: Path | None = None) -> pd.DataFrame:
     mhm_nc = mhm_output_dir / "mHM_Fluxes_States.nc"
     q_nc = mhm_output_dir / "discharge.nc"
@@ -173,7 +188,7 @@ def plot_lag_correlation(df: pd.DataFrame, out_file: Path):
 def plot_matrix_drought_index(df: pd.DataFrame, plot_file: Path, csv_file: Path):
     data = df.copy()
     for c in ["sm", "recharge", "discharge"]:
-        data[f"{c}_pct"] = data[c].rank(pct=True) * 100
+        data[f"{c}_pct"] = _calendar_percentile(data["date"], data[c])
     data["sm_norm"] = data["sm_pct"] / 100
     data["recharge_norm"] = data["recharge_pct"].shift(1) / 100
     data["discharge_norm"] = data["discharge_pct"].shift(2) / 100
