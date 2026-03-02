@@ -85,15 +85,13 @@ def load_data(mhm_output_dir: Path, fallback_results_dir: Path | None = None) ->
     try:
         time = _to_datetime(ds.variables["time"])
         n_time = len(time)
-        depth_mm = _soil_depth_total_mm(_domain_root_from_output(mhm_output_dir), fallback_mm=200.0)
-        swc_lall = _spatial_mean_any(ds, ["SWC_Lall"], n_time)
-        if not np.isnan(swc_lall).all():
+        swc_top = _spatial_mean_any(ds, ["SWC_L01", "SWC_L1"], n_time)
+        if np.isnan(swc_top).all():
+            depth_mm = _soil_depth_total_mm(_domain_root_from_output(mhm_output_dir), fallback_mm=200.0)
+            swc_lall = _spatial_mean_any(ds, ["SWC_Lall"], n_time)
             sm_vol = swc_lall / depth_mm
         else:
-            swc_l1 = _spatial_mean_any(ds, ["SWC_L01", "SWC_L1"], n_time)
-            swc_l2 = _spatial_mean_any(ds, ["SWC_L02", "SWC_L2"], n_time)
-            swc_l3 = _spatial_mean_any(ds, ["SWC_L03", "SWC_L3"], n_time)
-            sm_vol = (np.nan_to_num(swc_l1, nan=0.0) + np.nan_to_num(swc_l2, nan=0.0) + np.nan_to_num(swc_l3, nan=0.0)) / depth_mm
+            sm_vol = swc_top / 200.0
 
         precip = _spatial_mean_any(ds, ["pre", "preEffect"], n_time)
         recharge = _spatial_mean_any(ds, ["recharge", "L1_percol"], n_time)

@@ -127,24 +127,21 @@ def _load_monthly(paths: Paths) -> pd.DataFrame:
         time = _to_datetime(ds.variables["time"])
         n_time = len(time)
 
-        depth_mm = _soil_depth_total_mm(_domain_root_from_output(paths.output_dir), fallback_mm=200.0)
-
-        swc_lall = _spatial_mean_any(ds, ["SWC_Lall"], n_time)
-        if not np.isnan(swc_lall).all():
+        swc_top = _spatial_mean_any(ds, ["SWC_L01", "SWC_L1"], n_time)
+        if np.isnan(swc_top).all():
+            depth_mm = _soil_depth_total_mm(_domain_root_from_output(paths.output_dir), fallback_mm=200.0)
+            swc_lall = _spatial_mean_any(ds, ["SWC_Lall"], n_time)
             sm_vol = swc_lall / depth_mm
         else:
-            swc_l1 = _spatial_mean_any(ds, ["SWC_L01", "SWC_L1"], n_time)
-            swc_l2 = _spatial_mean_any(ds, ["SWC_L02", "SWC_L2"], n_time)
-            swc_l3 = _spatial_mean_any(ds, ["SWC_L03", "SWC_L3"], n_time)
-            sm_vol = (np.nan_to_num(swc_l1, nan=0.0) + np.nan_to_num(swc_l2, nan=0.0) + np.nan_to_num(swc_l3, nan=0.0)) / depth_mm
+            sm_vol = swc_top / 200.0
 
         df = pd.DataFrame(
             {
                 "date": time,
                 "sm": sm_vol,
-                "sm_l1": _spatial_mean_any(ds, ["SWC_L01", "SWC_L1"], n_time) / depth_mm,
-                "sm_l2": _spatial_mean_any(ds, ["SWC_L02", "SWC_L2"], n_time) / depth_mm,
-                "sm_l3": _spatial_mean_any(ds, ["SWC_L03", "SWC_L3"], n_time) / depth_mm,
+                "sm_l1": _spatial_mean_any(ds, ["SWC_L01", "SWC_L1"], n_time) / 200.0,
+                "sm_l2": _spatial_mean_any(ds, ["SWC_L02", "SWC_L2"], n_time) / 200.0,
+                "sm_l3": _spatial_mean_any(ds, ["SWC_L03", "SWC_L3"], n_time) / 200.0,
                 "recharge": _spatial_mean(ds, "recharge"),
                 "runoff": _spatial_mean(ds, "Q"),
                 "pet": _spatial_mean_any(ds, ["PET"], n_time),
