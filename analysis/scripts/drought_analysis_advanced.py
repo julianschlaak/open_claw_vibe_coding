@@ -241,11 +241,24 @@ def plot_matrix_drought_index(df: pd.DataFrame, plot_file: Path, csv_file: Path)
     data[["date", "matrix_drought_index", "matrix_class", "sm_norm", "recharge_norm", "discharge_norm"]].to_csv(csv_file, index=False)
 
 
+def _clip_period(df: pd.DataFrame, start_year: int | None, end_year: int | None) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = df.copy()
+    if start_year is not None:
+        out = out[out["date"] >= pd.Timestamp(f"{start_year}-01-01")]
+    if end_year is not None:
+        out = out[out["date"] <= pd.Timestamp(f"{end_year}-12-31")]
+    return out
+
+
 def main():
     parser = argparse.ArgumentParser(description="Advanced drought analysis v3.0")
     parser.add_argument("--domain", choices=["test_domain", "catchment_custom"], default="test_domain")
     parser.add_argument("--mhm-output-dir", default=None)
     parser.add_argument("--catchment-name", default=None)
+    parser.add_argument("--start-year", type=int, default=None)
+    parser.add_argument("--end-year", type=int, default=None)
     args = parser.parse_args()
 
     if args.domain == "test_domain":
@@ -260,6 +273,7 @@ def main():
     results_dir = REPO / "analysis" / "results" / catchment
 
     df = load_data(output_dir, fallback_results_dir=results_dir)
+    df = _clip_period(df, args.start_year, args.end_year)
     plot_lag_correlation(df, plot_dir / "09_lag_correlation.png")
     plot_matrix_drought_index(df, plot_dir / "10_matrix_drought_index.png", results_dir / "matrix_drought_index.csv")
 

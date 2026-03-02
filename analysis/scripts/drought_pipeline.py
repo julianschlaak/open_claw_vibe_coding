@@ -394,11 +394,24 @@ def _create_summary_report(df: pd.DataFrame, paths: Paths) -> None:
     (paths.results_dir / "analysis_summary.md").write_text("\n".join(lines))
 
 
+def _clip_period(df: pd.DataFrame, start_year: int | None, end_year: int | None) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = df.copy()
+    if start_year is not None:
+        out = out[out["date"] >= pd.Timestamp(f"{start_year}-01-01")]
+    if end_year is not None:
+        out = out[out["date"] <= pd.Timestamp(f"{end_year}-12-31")]
+    return out
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Drought pipeline v3.0")
     parser.add_argument("--domain", choices=["test_domain", "catchment_custom"], default="test_domain")
     parser.add_argument("--mhm-output-dir", default=None)
     parser.add_argument("--catchment-name", default=None)
+    parser.add_argument("--start-year", type=int, default=None)
+    parser.add_argument("--end-year", type=int, default=None)
     args = parser.parse_args()
 
     if args.domain == "test_domain":
@@ -418,6 +431,9 @@ def main() -> None:
 
     monthly = _load_monthly(paths)
     daily, monthly_q = _load_daily_discharge(paths)
+    monthly = _clip_period(monthly, args.start_year, args.end_year)
+    monthly_q = _clip_period(monthly_q, args.start_year, args.end_year)
+    daily = _clip_period(daily, args.start_year, args.end_year)
 
     for c in ["qsim_monthly_mean", "qsim_monthly_min", "qsim_monthly_max", "qsim_monthly_std", "discharge_percent", "sdi"]:
         if c in monthly.columns:
