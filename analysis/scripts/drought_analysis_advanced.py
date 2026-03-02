@@ -30,9 +30,25 @@ plt.rcParams['figure.titlesize'] = 14
 
 REPO = Path(__file__).resolve().parents[2]
 
-def load_data(mhm_output_dir: Path) -> pd.DataFrame:
+def load_data(mhm_output_dir: Path, fallback_normal_results_dir: Path | None = None) -> pd.DataFrame:
     """Load monthly mHM data."""
-    ds = nc.Dataset(mhm_output_dir / "mHM_Fluxes_States.nc")
+    mhm_nc = mhm_output_dir / "mHM_Fluxes_States.nc"
+    q_nc = mhm_output_dir / "discharge.nc"
+    if (not mhm_nc.exists() or not q_nc.exists()) and fallback_normal_results_dir is not None:
+        cached = fallback_normal_results_dir / "monthly_drought_indices.csv"
+        if cached.exists():
+            df = pd.read_csv(cached, parse_dates=["date"])
+            required = ["date", "precip", "sm", "recharge", "runoff", "pet"]
+            for col in required:
+                if col not in df.columns:
+                    raise KeyError(f"Cached fallback is missing required column: {col}")
+            if "qsim_monthly_mean" in df.columns:
+                df["discharge"] = df["qsim_monthly_mean"]
+            elif "discharge" not in df.columns:
+                df["discharge"] = np.nan
+            return df[["date", "precip", "sm", "recharge", "runoff", "pet", "discharge"]].sort_values("date")
+
+    ds = nc.Dataset(mhm_nc)
     var_names = set(ds.variables.keys())
     
     time = nc.num2date(ds.variables["time"][:], 
@@ -78,7 +94,7 @@ def load_data(mhm_output_dir: Path) -> pd.DataFrame:
     ds.close()
     
     # Add discharge
-    ds_q = nc.Dataset(mhm_output_dir / "discharge.nc")
+    ds_q = nc.Dataset(q_nc)
     qsim_var = [n for n in ds_q.variables if n.startswith('Qsim_')][0]
     q_time = nc.num2date(ds_q.variables["time"][:],
                          units=ds_q.variables["time"].units)
@@ -371,6 +387,12 @@ def main():
     """Run advanced drought analysis."""
     parser = argparse.ArgumentParser(description="Advanced drought analysis")
     parser.add_argument(
+        "--domain",
+        choices=["test_domain", "catchment_custom"],
+        default=None,
+        help="Convenience domain selector",
+    )
+    parser.add_argument(
         "--mhm-output-dir",
         default=str(REPO / "code" / "mhm" / "test_domain" / "output_b1"),
         help="Path to mHM output directory containing mHM_Fluxes_States.nc and discharge.nc",
@@ -382,6 +404,14 @@ def main():
     )
     args = parser.parse_args()
 
+    # Domain shortcut overrides defaults when selected.
+    if args.domain == "test_domain":
+        args.mhm_output_dir = str(REPO / "code" / "mhm" / "test_domain" / "output_b1")
+        args.analysis_subdir = "test_domain"
+    elif args.domain == "catchment_custom":
+        args.mhm_output_dir = str(REPO / "code" / "mhm" / "catchment_custom" / "output_90410700")
+        args.analysis_subdir = "custom_catchment"
+
     mhm_output_dir = Path(args.mhm_output_dir)
     plot_dir = REPO / "analysis" / "plots" / args.analysis_subdir / "advanced"
     results_dir = REPO / "analysis" / "results" / args.analysis_subdir / "advanced"
@@ -392,7 +422,8 @@ def main():
     
     # Load data
     print("\nLoading data...")
-    df = load_data(mhm_output_dir)
+    fallback_normal_results_dir = REPO / "analysis" / "results" / args.analysis_subdir / "normal"
+    df = load_data(mhm_output_dir, fallback_normal_results_dir)
     print(f"  Loaded {len(df)} records")
     
     # Priority 1: Lag correlation

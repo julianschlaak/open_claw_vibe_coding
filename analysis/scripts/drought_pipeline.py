@@ -158,7 +158,15 @@ def _calculate_sgi(series: pd.Series) -> pd.Series:
 
 def _load_monthly(paths: Paths) -> pd.DataFrame:
     """Load monthly mHM outputs and calculate drought indices."""
-    ds = nc.Dataset(paths.output_dir / "mHM_Fluxes_States.nc")
+    nc_file = paths.output_dir / "mHM_Fluxes_States.nc"
+    if not nc_file.exists():
+        cached = paths.results_dir / "monthly_drought_indices.csv"
+        if cached.exists():
+            df = pd.read_csv(cached, parse_dates=["date"])
+            return df
+        raise FileNotFoundError(f"Missing {nc_file} and no cached file at {cached}")
+
+    ds = nc.Dataset(nc_file)
     try:
         time = _to_datetime(ds.variables["time"])
         n_time = len(time)
@@ -194,7 +202,21 @@ def _load_monthly(paths: Paths) -> pd.DataFrame:
 
 def _load_daily_discharge(paths: Paths) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Load daily discharge and aggregate to monthly."""
-    ds = nc.Dataset(paths.output_dir / "discharge.nc")
+    nc_file = paths.output_dir / "discharge.nc"
+    if not nc_file.exists():
+        cached_daily = paths.results_dir / "daily_discharge.csv"
+        if cached_daily.exists():
+            daily = pd.read_csv(cached_daily, parse_dates=["date"])
+            monthly = daily.resample("MS", on="date").agg({
+                "qsim": ["mean", "min", "max", "std"]
+            }).reset_index()
+            monthly.columns = ["date", "qsim_monthly_mean", "qsim_monthly_min", "qsim_monthly_max", "qsim_monthly_std"]
+            monthly["discharge_percent"] = _percentile(monthly["qsim_monthly_mean"])
+            monthly["sdi"] = _standardized_from_percentile(monthly["discharge_percent"])
+            return daily, monthly
+        raise FileNotFoundError(f"Missing {nc_file} and no cached file at {cached_daily}")
+
+    ds = nc.Dataset(nc_file)
     try:
         # Find Qsim variable
         qsim_var = next(name for name in ds.variables if name.startswith("Qsim_"))
@@ -519,6 +541,12 @@ def main() -> None:
     """Main execution function."""
     parser = argparse.ArgumentParser(description="Drought pipeline (normal plots)")
     parser.add_argument(
+        "--domain",
+        choices=["test_domain", "catchment_custom"],
+        default=None,
+        help="Convenience domain selector",
+    )
+    parser.add_argument(
         "--mhm-output-dir",
         default="code/mhm/test_domain/output_b1",
         help="Path to mHM output directory containing mHM_Fluxes_States.nc and discharge.nc",
@@ -529,6 +557,14 @@ def main() -> None:
         help="Domain folder under analysis/plots and analysis/results",
     )
     args = parser.parse_args()
+
+    # Domain shortcut overrides defaults when selected.
+    if args.domain == "test_domain":
+        args.mhm_output_dir = "code/mhm/test_domain/output_b1"
+        args.domain_subdir = "test_domain"
+    elif args.domain == "catchment_custom":
+        args.mhm_output_dir = "code/mhm/catchment_custom/output_90410700"
+        args.domain_subdir = "custom_catchment"
 
     paths = _paths(args.mhm_output_dir, args.domain_subdir)
     paths.results_dir.mkdir(parents=True, exist_ok=True)
@@ -554,6 +590,24 @@ def main() -> None:
         on="date",
         how="left",
     )
+
+    if "discharge_percent" not in merged.columns:
+        if "discharge_percent_x" in merged.columns:
+            merged["discharge_percent"] = merged["discharge_percent_x"]
+        elif "discharge_percent_y" in merged.columns:
+            merged["discharge_percent"] = merged["discharge_percent_y"]
+    if "sdi" not in merged.columns:
+        if "sdi_x" in merged.columns:
+            merged["sdi"] = merged["sdi_x"]
+        elif "sdi_y" in merged.columns:
+            merged["sdi"] = merged["sdi_y"]
+
+    if "discharge_percent" not in merged.columns or merged["discharge_percent"].isna().all():
+        if "qsim_monthly_mean" in merged.columns:
+            merged["discharge_percent"] = _percentile(merged["qsim_monthly_mean"])
+    if "sdi" not in merged.columns or merged["sdi"].isna().all():
+        if "discharge_percent" in merged.columns:
+            merged["sdi"] = _standardized_from_percentile(merged["discharge_percent"])
     
     # Classify drought
     merged["drought_class"] = merged.apply(_classify_drought, axis=1)
