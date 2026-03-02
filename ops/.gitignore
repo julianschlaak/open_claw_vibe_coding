@@ -1,0 +1,9 @@
+# Runtime queue data
+jobs/*.json
+!jobs/.gitkeep
+jobs/processed/*.json
+!jobs/processed/.gitkeep
+status/*.json
+!status/.gitkeep
+logs/*.log
+!logs/.gitkeep
