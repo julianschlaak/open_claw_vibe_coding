@@ -4,11 +4,12 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 JOBS_DIR="$REPO_ROOT/ops/jobs"
 PROCESSED_DIR="$JOBS_DIR/processed"
+INVALID_DIR="$JOBS_DIR/invalid"
 STATUS_DIR="$REPO_ROOT/ops/status"
 LOGS_DIR="$REPO_ROOT/ops/logs"
 LOCK_FILE="/tmp/openclaw_bridge.lock"
 
-mkdir -p "$PROCESSED_DIR" "$STATUS_DIR" "$LOGS_DIR"
+mkdir -p "$PROCESSED_DIR" "$INVALID_DIR" "$STATUS_DIR" "$LOGS_DIR"
 
 exec 9>"$LOCK_FILE"
 flock -n 9 || { echo "worker locked, another instance is running"; exit 3; }
@@ -19,18 +20,28 @@ if [[ -z "$job_file" ]]; then
   exit 0
 fi
 
-job_id="$(python3 - <<PY "$job_file"
+if ! job_meta="$(python3 - <<'PY' "$job_file"
 import json, sys
-obj = json.load(open(sys.argv[1]))
-print(obj["job_id"])
+path = sys.argv[1]
+obj = json.load(open(path))
+job_id = obj.get("job_id")
+job_type = obj.get("type") or obj.get("job_type")
+if not job_id:
+    raise SystemExit("missing required field: job_id")
+if not job_type:
+    raise SystemExit("missing required field: type")
+print(job_id)
+print(job_type)
 PY
-)"
-job_type="$(python3 - <<PY "$job_file"
-import json, sys
-obj = json.load(open(sys.argv[1]))
-print(obj["type"])
-PY
-)"
+)"; then
+  invalid_name="$(basename "$job_file")"
+  printf '{"status":"failed","reason":"invalid job schema","job_file":"%s"}\n' "$invalid_name" > "$LOGS_DIR/${invalid_name%.json}.log"
+  mv "$job_file" "$INVALID_DIR/$invalid_name"
+  echo "skipped invalid job: $invalid_name"
+  exit 2
+fi
+job_id="$(printf '%s\n' "$job_meta" | sed -n '1p')"
+job_type="$(printf '%s\n' "$job_meta" | sed -n '2p')"
 
 status_file="$STATUS_DIR/${job_id}.json"
 log_file="$LOGS_DIR/${job_id}.log"
@@ -62,7 +73,8 @@ run_job() {
       domain="$(python3 - <<PY "$job_file"
 import json, sys
 obj = json.load(open(sys.argv[1]))
-print(obj["params"].get("domain", ""))
+p = obj.get("params", {})
+print(p.get("domain") or obj.get("domain", ""))
 PY
 )"
       bash "$REPO_ROOT/ops/bin/run_mhm.sh" "$domain"
@@ -72,7 +84,7 @@ PY
       read -r domain start_year end_year < <(python3 - <<PY "$job_file"
 import json, sys
 obj = json.load(open(sys.argv[1]))
-p = obj["params"]
+p = obj.get("params", {})
 print(p.get("domain", ""), p.get("start_year", ""), p.get("end_year", ""))
 PY
 )
@@ -83,7 +95,8 @@ PY
       domain="$(python3 - <<PY "$job_file"
 import json, sys
 obj = json.load(open(sys.argv[1]))
-print(obj["params"].get("domain", "catchment_custom"))
+p = obj.get("params", {})
+print(p.get("domain") or obj.get("domain", "catchment_custom"))
 PY
 )"
       bash "$REPO_ROOT/ops/bin/run_verify.sh" "$domain"
