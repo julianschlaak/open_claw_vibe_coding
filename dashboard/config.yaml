@@ -1,0 +1,26 @@
+default_theme: dark
+
+colors:
+  dark:
+    bg: "#0E1117"
+    card: "#1E1E1E"
+    text: "#FAFAFA"
+    text_secondary: "#A0A0A0"
+    border: "rgba(255,255,255,0.12)"
+    shadow: "0 10px 30px rgba(0,0,0,0.30)"
+  light:
+    bg: "#F5F7FB"
+    card: "#FFFFFF"
+    text: "#101828"
+    text_secondary: "#475467"
+    border: "rgba(16,24,40,0.12)"
+    shadow: "0 8px 24px rgba(16,24,40,0.12)"
+
+accents:
+  dry: "#FF4B4B"
+  normal: "#00C851"
+  warn: "#F5A623"
+
+ui:
+  radius: "12px"
+  blur: "10px"
