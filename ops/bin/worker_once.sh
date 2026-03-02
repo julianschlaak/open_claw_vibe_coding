@@ -78,6 +78,16 @@ PY
 )
       bash "$REPO_ROOT/ops/bin/run_analysis.sh" "$domain" "$start_year" "$end_year"
       ;;
+    verify)
+      local domain
+      domain="$(python3 - <<PY "$job_file"
+import json, sys
+obj = json.load(open(sys.argv[1]))
+print(obj["params"].get("domain", "catchment_custom"))
+PY
+)"
+      bash "$REPO_ROOT/ops/bin/run_verify.sh" "$domain"
+      ;;
     commit_push)
       python3 - <<PY "$job_file" "$REPO_ROOT/ops/.commit_args"
 import json, sys, pathlib

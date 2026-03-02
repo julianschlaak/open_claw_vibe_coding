@@ -7,7 +7,7 @@
     "job_id": {"type": "string", "minLength": 1},
     "type": {
       "type": "string",
-      "enum": ["run_mhm", "run_analysis", "commit_push", "healthcheck"]
+      "enum": ["run_mhm", "run_analysis", "commit_push", "healthcheck", "verify"]
     },
     "params": {"type": "object"},
     "created_at": {"type": "string", "minLength": 1}

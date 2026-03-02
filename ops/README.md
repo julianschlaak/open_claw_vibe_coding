@@ -37,6 +37,13 @@ Minimal example:
 
 ## Supported Job Types
 - `healthcheck`
+- `verify`:
+  - params: optional `domain` (`test_domain` or `catchment_custom`, default `catchment_custom`)
+  - validates:
+    - volumetric soil moisture plausibility in results
+    - discharge validation data/code markers
+    - flat plot folder structure
+    - 10 plot files per domain
 - `run_mhm`:
   - params: `domain` (`test_domain` or `catchment_custom`)
 - `run_analysis`:

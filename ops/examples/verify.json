@@ -1,0 +1,8 @@
+{
+  "job_id": "job_verify_20260302_001",
+  "type": "verify",
+  "params": {
+    "domain": "catchment_custom"
+  },
+  "created_at": "2026-03-02T17:05:00Z"
+}
