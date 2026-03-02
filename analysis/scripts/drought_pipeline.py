@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple
@@ -33,14 +34,16 @@ class Paths:
     plot_dir: Path
 
 
-def _paths() -> Paths:
+def _paths(mhm_output_dir: str, domain_subdir: str) -> Paths:
     repo = Path(__file__).resolve().parents[2]
-    output_dir = repo / "code" / "mhm" / "test_domain" / "output_b1"
+    output_dir = Path(mhm_output_dir)
+    if not output_dir.is_absolute():
+        output_dir = repo / output_dir
     return Paths(
         repo=repo,
         output_dir=output_dir,
-        results_dir=repo / "analysis" / "results",
-        plot_dir=repo / "analysis" / "plots",
+        results_dir=repo / "analysis" / "results" / domain_subdir / "normal",
+        plot_dir=repo / "analysis" / "plots" / domain_subdir / "normal",
     )
 
 
@@ -502,7 +505,7 @@ def _create_summary_report(df: pd.DataFrame, paths: Paths) -> None:
         summary_lines.append(f"- {cls}: {count} Monate ({pct:.1f}%)")
     
     summary_lines.extend(["", "## Erstellte Plots", ""])
-    summary_lines.append("Alle Plots befinden sich im Verzeichnis `analysis/plots/`")
+    summary_lines.append(f"Alle Plots befinden sich im Verzeichnis `{paths.plot_dir}`")
     
     # Write summary
     summary_path = paths.results_dir / "analysis_summary.md"
@@ -514,7 +517,20 @@ def _create_summary_report(df: pd.DataFrame, paths: Paths) -> None:
 
 def main() -> None:
     """Main execution function."""
-    paths = _paths()
+    parser = argparse.ArgumentParser(description="Drought pipeline (normal plots)")
+    parser.add_argument(
+        "--mhm-output-dir",
+        default="code/mhm/test_domain/output_b1",
+        help="Path to mHM output directory containing mHM_Fluxes_States.nc and discharge.nc",
+    )
+    parser.add_argument(
+        "--domain-subdir",
+        default="test_domain",
+        help="Domain folder under analysis/plots and analysis/results",
+    )
+    args = parser.parse_args()
+
+    paths = _paths(args.mhm_output_dir, args.domain_subdir)
     paths.results_dir.mkdir(parents=True, exist_ok=True)
     paths.plot_dir.mkdir(parents=True, exist_ok=True)
     

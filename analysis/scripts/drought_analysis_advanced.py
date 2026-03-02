@@ -383,8 +383,8 @@ def main():
     args = parser.parse_args()
 
     mhm_output_dir = Path(args.mhm_output_dir)
-    plot_dir = REPO / "analysis" / "advanced" / args.analysis_subdir / "plots"
-    results_dir = REPO / "analysis" / "advanced" / args.analysis_subdir / "results"
+    plot_dir = REPO / "analysis" / "plots" / args.analysis_subdir / "advanced"
+    results_dir = REPO / "analysis" / "results" / args.analysis_subdir / "advanced"
 
     print("=" * 60)
     print("ADVANCED DROUGHT ANALYSIS")

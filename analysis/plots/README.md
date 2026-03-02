@@ -1,24 +1,29 @@
-# Erweiterte Dürre-Plots: Aussagekraft
+# Plot-Struktur
 
-## 01_saisonale_dürre.png
-- Inhalt: Boxplot der monatlichen SMI-Percentile (Monat 1-12 über alle Jahre).
-- Aussagekraft: Identifiziert saisonal dürreanfällige Monate (niedrige Median-/Quartilwerte).
+Alle Plot-Ergebnisse liegen unter `analysis/plots/` nach Domain getrennt:
 
-## 02_extremereignisse.png
-- Inhalt: Tageszeitreihe von Qsim mit Schwellen Q5 (Dürre) und Q95 (Nässe), farblich markiert.
-- Aussagekraft: Zeigt Häufigkeit, Dauer und zeitliche Cluster extremer Trocken- und Nassphasen.
+- `analysis/plots/test_domain/normal/`
+- `analysis/plots/test_domain/advanced/`
+- `analysis/plots/custom_catchment/normal/`
+- `analysis/plots/custom_catchment/advanced/`
 
-## 03_korrelationsmatrix.png
-- Inhalt: Scatter-Plots für SMI vs Recharge, SMI vs Abfluss, Recharge vs Abfluss inkl. Pearson-r.
-- Aussagekraft: Quantifiziert physikalische Kopplung zwischen Bodenfeuchte, Grundwasserneubildung und Abfluss.
+Zusätzlich:
 
-## 04_raeumliche_heatmap.png
-- Inhalt: Heatmap der Zeitentwicklung für SM_L01, SM_L02, SM_Lall.
-- Aussagekraft: Visualisiert vertikale Dürre-Dynamik zwischen oberen, tieferen und aggregierten Bodenschichten.
+- `analysis/plots/test_domain/legacy/`
+  - archivierte, ältere flache Plot-Outputs (vor der Domain-Struktur)
 
-## 05_dürredauer_histogramm.png
-- Inhalt: Histogramm der Dürre-Eventdauer (aufeinanderfolgende Tage mit SMI < 20, daily proxy).
-- Aussagekraft: Charakterisiert typische Dürredauern und das Auftreten langanhaltender Ereignisse.
+## Plot-Typen
 
-## Methodischer Hinweis
-- Für die Eventdauer auf Tagesbasis wurde monatlicher SMI auf Tagesauflösung vorwärts fortgeschrieben.
+### normal
+- `01_drought_timeseries.png`
+- `02_heatmap_smi_discrete.png`
+- `03_heatmap_recharge_discrete.png`
+- `04_heatmap_discharge_discrete.png`
+- `05_discharge_analysis.png`
+- `06_correlation_matrix.png`
+- `07_drought_duration.png`
+- `08_seasonal_boxplots.png`
+
+### advanced
+- `09_lag_correlation_analysis.png`
+- `10_matrix_drought_index.png`
