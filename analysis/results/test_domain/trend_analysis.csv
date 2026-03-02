@@ -1,0 +1,4 @@
+metric,mann_kendall_tau,p_value,sens_slope,trend_per_decade,significance
+SMI,0.12155415958157881,0.2694564051597773,0.0,0.0,not_significant
+drought_frequency,,,,,insufficient_data
+intensity,,,,,insufficient_data
