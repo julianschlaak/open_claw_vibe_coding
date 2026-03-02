@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://git.ufz.de/chs/HPC-Fortran-module-loads.git
+	branch = v2.2
+	commit = 95ea68e669d0c9e3268ab59c319f11f11acca287
+	parent = 3f115ccf46b1fd3e18491bebca0fa22c49fe4612
+	method = merge
+	cmdver = 0.4.3
