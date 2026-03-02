@@ -1,15 +1,15 @@
 # Dürre-Analyse Zusammenfassung
 
-**Analyse-Datum:** 2026-03-02 15:31
+**Analyse-Datum:** 2026-03-02 15:48
 **Zeitraum:** 1990-01-01 bis 1993-12-01
 
 ## Statistische Kennzahlen
 
 ### Bodenfeuchte
-- Mittelwert: 0.7893 m³/m³
-- Standardabweichung: 0.1183
-- Minimum: 0.4233 (1990-01-01)
-- Maximum: 0.9520 (1991-01-01)
+- Mittelwert: 0.3519 m³/m³
+- Standardabweichung: 0.0816
+- Minimum: 0.2147 (1990-08-01)
+- Maximum: 0.4609 (1991-01-01)
 
 ### Recharge
 - Mittelwert: 12.32 mm/Tag
@@ -22,11 +22,11 @@
 - SSI < -2 (schwere Dürre): 1 Monate
 
 ### Klassifikation
-- normal_or_wet: 35 Monate (72.9%)
-- mild_drought: 4 Monate (8.3%)
-- moderate_drought: 4 Monate (8.3%)
+- normal_or_wet: 36 Monate (75.0%)
+- mild_drought: 3 Monate (6.2%)
+- moderate_drought: 3 Monate (6.2%)
+- extreme_drought: 3 Monate (6.2%)
 - severe_drought: 3 Monate (6.2%)
-- extreme_drought: 2 Monate (4.2%)
 
 ## Erstellte Plots
 

@@ -1,6 +1,6 @@
 # Dürre-Analyse Zusammenfassung
 
-**Analyse-Datum:** 2026-03-02 15:32
+**Analyse-Datum:** 2026-03-02 15:48
 **Zeitraum:** 1990-01-01 bis 1993-12-01
 
 ## Statistische Kennzahlen

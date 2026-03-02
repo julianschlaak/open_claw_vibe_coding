@@ -170,13 +170,31 @@ def _load_monthly(paths: Paths) -> pd.DataFrame:
     try:
         time = _to_datetime(ds.variables["time"])
         n_time = len(time)
+        def _volumetric(
+            storage_candidates: list[str],
+            volumetric_candidates: list[str],
+            n_steps: int,
+            layer_thickness_mm: float = 200.0,
+        ) -> np.ndarray:
+            # Preferred: storage [mm] converted to volumetric water content [m3/m3].
+            storage = _spatial_mean_any(ds, storage_candidates, n_steps)
+            if not np.isnan(storage).all():
+                return storage / layer_thickness_mm
+            # Fallback: already volumetric variable.
+            return _spatial_mean_any(ds, volumetric_candidates, n_steps)
+
+        sm_l1_vol = _volumetric(["SWC_L01", "SWC_L1"], ["SM_L01", "SM_L1"], n_time)
+        sm_l2_vol = _volumetric(["SWC_L02", "SWC_L2"], ["SM_L02", "SM_L2"], n_time)
+        sm_l3_vol = _volumetric(["SWC_L03", "SWC_L3"], ["SM_L03", "SM_L3", "SM_Lall"], n_time)
+
         df = pd.DataFrame(
             {
                 "date": time,
-                "sm": _spatial_mean(ds, "SM_Lall"),
-                "sm_l1": _spatial_mean_any(ds, ["SM_L1", "SM_L01"], n_time),
-                "sm_l2": _spatial_mean_any(ds, ["SM_L2", "SM_L02"], n_time),
-                "sm_l3": _spatial_mean_any(ds, ["SM_L3", "SM_L03", "SM_Lall"], n_time),
+                # Requested: SWC_L01 converted to volumetric moisture [m3/m3].
+                "sm": sm_l1_vol,
+                "sm_l1": sm_l1_vol,
+                "sm_l2": sm_l2_vol,
+                "sm_l3": sm_l3_vol,
                 "recharge": _spatial_mean(ds, "recharge"),
                 "runoff": _spatial_mean(ds, "Q"),
                 "pet": _spatial_mean_any(ds, ["PET"], n_time),
@@ -207,10 +225,13 @@ def _load_daily_discharge(paths: Paths) -> Tuple[pd.DataFrame, pd.DataFrame]:
         cached_daily = paths.results_dir / "daily_discharge.csv"
         if cached_daily.exists():
             daily = pd.read_csv(cached_daily, parse_dates=["date"])
+            if "qobs" not in daily.columns:
+                daily["qobs"] = np.nan
             monthly = daily.resample("MS", on="date").agg({
-                "qsim": ["mean", "min", "max", "std"]
+                "qsim": ["mean", "min", "max", "std"],
+                "qobs": ["mean"],
             }).reset_index()
-            monthly.columns = ["date", "qsim_monthly_mean", "qsim_monthly_min", "qsim_monthly_max", "qsim_monthly_std"]
+            monthly.columns = ["date", "qsim_monthly_mean", "qsim_monthly_min", "qsim_monthly_max", "qsim_monthly_std", "qobs_monthly_mean"]
             monthly["discharge_percent"] = _percentile(monthly["qsim_monthly_mean"])
             monthly["sdi"] = _standardized_from_percentile(monthly["discharge_percent"])
             return daily, monthly
@@ -220,20 +241,23 @@ def _load_daily_discharge(paths: Paths) -> Tuple[pd.DataFrame, pd.DataFrame]:
     try:
         # Find Qsim variable
         qsim_var = next(name for name in ds.variables if name.startswith("Qsim_"))
+        qobs_var = next((name for name in ds.variables if name.startswith("Qobs_")), None)
         time = _to_datetime(ds.variables["time"])
         qsim = np.asarray(ds.variables[qsim_var][:], dtype=float)
+        qobs = np.asarray(ds.variables[qobs_var][:], dtype=float) if qobs_var else np.full_like(qsim, np.nan)
     finally:
         ds.close()
 
-    daily = pd.DataFrame({"date": time, "qsim": qsim})
+    daily = pd.DataFrame({"date": time, "qsim": qsim, "qobs": qobs})
     daily["year"] = daily["date"].dt.year
     daily["month"] = daily["date"].dt.month
     
     # Aggregate to monthly
     monthly = daily.resample("MS", on="date").agg({
-        "qsim": ["mean", "min", "max", "std"]
+        "qsim": ["mean", "min", "max", "std"],
+        "qobs": ["mean"],
     }).reset_index()
-    monthly.columns = ["date", "qsim_monthly_mean", "qsim_monthly_min", "qsim_monthly_max", "qsim_monthly_std"]
+    monthly.columns = ["date", "qsim_monthly_mean", "qsim_monthly_min", "qsim_monthly_max", "qsim_monthly_std", "qobs_monthly_mean"]
     monthly["discharge_percent"] = _percentile(monthly["qsim_monthly_mean"])
     monthly["sdi"] = _standardized_from_percentile(monthly["discharge_percent"])
     
@@ -352,21 +376,49 @@ def _plot_discharge_validation(daily_df: pd.DataFrame, out_file: Path) -> None:
     """Plot discharge with performance metrics."""
     fig, axes = plt.subplots(2, 1, figsize=(14, 8), constrained_layout=True)
     
-    # Daily discharge
-    axes[0].plot(daily_df["date"], daily_df["qsim"], color="#3498db", linewidth=0.8, alpha=0.7)
-    axes[0].set_title("Simulierter Abfluss (täglich)", fontweight='bold')
+    # Daily discharge: simulated + observed (if available)
+    axes[0].plot(daily_df["date"], daily_df["qsim"], color="#3498db", linewidth=0.8, alpha=0.8, label="Qsim")
+    has_qobs = "qobs" in daily_df.columns and not daily_df["qobs"].isna().all()
+    if has_qobs:
+        axes[0].plot(daily_df["date"], daily_df["qobs"], color="#e74c3c", linewidth=0.8, alpha=0.7, label="Qobs")
+    axes[0].set_title("Abfluss (täglich): Qsim vs Qobs", fontweight='bold')
     axes[0].set_ylabel("Abfluss [m³/s]")
+    axes[0].legend(loc="upper right")
     axes[0].grid(alpha=0.3)
+
+    if has_qobs:
+        metrics = _calculate_metrics(daily_df["qsim"].to_numpy(), daily_df["qobs"].to_numpy())
+        metrics_text = (
+            f"KGE: {metrics['KGE']:.3f}\n"
+            f"r: {metrics['r']:.3f}\n"
+            f"RMSE: {metrics['RMSE']:.2f}\n"
+            f"MAE: {metrics['MAE']:.2f}\n"
+            f"Mean(Qsim): {np.nanmean(daily_df['qsim']):.2f}\n"
+            f"Mean(Qobs): {np.nanmean(daily_df['qobs']):.2f}"
+        )
+        axes[0].text(
+            0.02,
+            0.98,
+            metrics_text,
+            transform=axes[0].transAxes,
+            va="top",
+            ha="left",
+            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.8),
+            fontsize=9,
+        )
     
     # Monthly statistics
     monthly = daily_df.resample("MS", on="date").agg({
-        "qsim": ["mean", "min", "max", "std"]
+        "qsim": ["mean", "min", "max", "std"],
+        "qobs": ["mean"],
     }).reset_index()
-    monthly.columns = ["date", "mean", "min", "max", "std"]
+    monthly.columns = ["date", "mean", "min", "max", "std", "obs_mean"]
     
     axes[1].fill_between(monthly["date"], monthly["min"], monthly["max"], 
                           alpha=0.2, color="#3498db", label="Min-Max Spanne")
-    axes[1].plot(monthly["date"], monthly["mean"], color="#2980b9", linewidth=1.5, label="Mittelwert")
+    axes[1].plot(monthly["date"], monthly["mean"], color="#2980b9", linewidth=1.5, label="Qsim Mittelwert")
+    if has_qobs:
+        axes[1].plot(monthly["date"], monthly["obs_mean"], color="#e74c3c", linewidth=1.5, label="Qobs Mittelwert")
     axes[1].set_title("Monatliche Abfluss-Statistik", fontweight='bold')
     axes[1].set_ylabel("Abfluss [m³/s]")
     axes[1].set_xlabel("Datum")
@@ -584,6 +636,12 @@ def main() -> None:
     print(f"  Loaded {len(daily_discharge)} daily discharge records")
     
     # Merge data
+    # If monthly data came from cached CSV, it may already contain discharge-derived columns.
+    for col in ["qsim_monthly_mean", "qsim_monthly_min", "qsim_monthly_max", "qsim_monthly_std",
+                "discharge_percent", "sdi", "qobs_monthly_mean"]:
+        if col in monthly.columns:
+            monthly = monthly.drop(columns=[col])
+
     merged = monthly.merge(
         monthly_discharge[["date", "qsim_monthly_mean", "qsim_monthly_min", 
                            "qsim_monthly_max", "qsim_monthly_std", "discharge_percent", "sdi"]],
