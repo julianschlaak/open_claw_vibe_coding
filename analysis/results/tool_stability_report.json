@@ -1,0 +1,278 @@
+{
+  "timestamp": 1772451601,
+  "session_key": "agent:main:main",
+  "repeats_per_tool": 10,
+  "summary": {
+    "write": {
+      "attempts": 10,
+      "successes": 4,
+      "failures": 6,
+      "success_rate": 40.0,
+      "reasons": {
+        "missing_expected_token": 2,
+        "ok": 4,
+        "exception:RuntimeError": 4
+      }
+    },
+    "exec": {
+      "attempts": 10,
+      "successes": 0,
+      "failures": 10,
+      "success_rate": 0.0,
+      "reasons": {
+        "exception:RuntimeError": 10
+      }
+    },
+    "sessions_spawn": {
+      "attempts": 10,
+      "successes": 0,
+      "failures": 10,
+      "success_rate": 0.0,
+      "reasons": {
+        "exception:RuntimeError": 10
+      }
+    }
+  },
+  "attempt_details": [
+    {
+      "tool": "write",
+      "attempt": 1,
+      "ok": false,
+      "reason": "missing_expected_token",
+      "run_id": "codex-write-1-4d98edda",
+      "expected_token": "TOOLTEST_WRITE_1_f66514"
+    },
+    {
+      "tool": "write",
+      "attempt": 2,
+      "ok": true,
+      "reason": "ok",
+      "run_id": "codex-write-2-7fee6517",
+      "expected_token": "TOOLTEST_WRITE_2_10603e"
+    },
+    {
+      "tool": "write",
+      "attempt": 3,
+      "ok": true,
+      "reason": "ok",
+      "run_id": "codex-write-3-718d72da",
+      "expected_token": "TOOLTEST_WRITE_3_162ca6"
+    },
+    {
+      "tool": "write",
+      "attempt": 4,
+      "ok": true,
+      "reason": "ok",
+      "run_id": "codex-write-4-1918848d",
+      "expected_token": "TOOLTEST_WRITE_4_cec455"
+    },
+    {
+      "tool": "write",
+      "attempt": 5,
+      "ok": true,
+      "reason": "ok",
+      "run_id": "codex-write-5-09fa8f20",
+      "expected_token": "TOOLTEST_WRITE_5_0d88b3"
+    },
+    {
+      "tool": "write",
+      "attempt": 6,
+      "ok": false,
+      "reason": "missing_expected_token",
+      "run_id": "codex-write-6-28bab144",
+      "expected_token": "TOOLTEST_WRITE_6_ef60c5"
+    },
+    {
+      "tool": "write",
+      "attempt": 7,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "write",
+      "attempt": 8,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "write",
+      "attempt": 9,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "write",
+      "attempt": 10,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 1,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 2,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 3,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 4,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 5,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 6,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 7,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 8,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 9,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "exec",
+      "attempt": 10,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 1,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 2,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 3,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 4,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 5,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 6,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 7,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 8,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 9,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    },
+    {
+      "tool": "sessions_spawn",
+      "attempt": 10,
+      "ok": false,
+      "reason": "exception:RuntimeError",
+      "run_id": "",
+      "expected_token": ""
+    }
+  ]
+}

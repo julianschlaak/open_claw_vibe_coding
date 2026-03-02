@@ -1,0 +1,47 @@
+{
+  "q5": 37.15073220760854,
+  "q95": 380.82094970933304,
+  "extreme_days": {
+    "below_q5": 73,
+    "above_q95": 73,
+    "total_days": 1461
+  },
+  "drought_events": {
+    "count": 5,
+    "durations_days": [
+      59,
+      61,
+      61,
+      61,
+      31
+    ],
+    "mean_duration_days": 54.6,
+    "median_duration_days": 61.0,
+    "max_duration_days": 61
+  },
+  "correlations_pearson": {
+    "smi_percent": {
+      "smi_percent": 1.0,
+      "recharge": 0.6503096370349023,
+      "runoff": 0.6173804250840769
+    },
+    "recharge": {
+      "smi_percent": 0.6503096370349023,
+      "recharge": 1.0,
+      "runoff": 0.9496876990694834
+    },
+    "runoff": {
+      "smi_percent": 0.6173804250840769,
+      "recharge": 0.9496876990694834,
+      "runoff": 1.0
+    }
+  },
+  "notes": {
+    "daily_smi_method": "Monthly SMI percentiles were forward-filled to daily resolution for duration analysis.",
+    "layers_used_for_heatmap": [
+      "SM_L01",
+      "SM_L02",
+      "SM_Lall"
+    ]
+  }
+}
