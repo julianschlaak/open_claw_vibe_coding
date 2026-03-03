@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #0e1117;
+  color: #fafafa;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.card {
+  @apply rounded-xl border border-white/10 bg-card shadow-lg;
+}
+
+.badge {
+  @apply rounded-full px-3 py-1 text-xs font-semibold;
+}
+
+.table-cell {
+  @apply px-3 py-2 border-b border-white/10 text-sm;
+}
