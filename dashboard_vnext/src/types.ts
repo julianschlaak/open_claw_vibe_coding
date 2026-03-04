@@ -1,5 +1,10 @@
 export interface DroughtDataPoint {
   date: string;
+  precip: number | null;
+  pet: number | null;
+  soil_moisture: number | null;
+  recharge: number | null;
+  runoff: number | null;
   spi_1: number | null;
   spi_3: number | null;
   spi_6: number | null;

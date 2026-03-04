@@ -240,6 +240,11 @@ def build_domain(domain: str) -> dict:
     out_df = merged[
         [
             "date",
+            "precip",
+            "pet",
+            "sm",
+            "recharge",
+            "runoff",
             "spi_1",
             "spi_3",
             "spi_6",
@@ -260,6 +265,11 @@ def build_domain(domain: str) -> dict:
         points.append(
             {
                 "date": pd.Timestamp(r["date"]).strftime("%Y-%m-%d"),
+                "precip": None if pd.isna(r["precip"]) else float(r["precip"]),
+                "pet": None if pd.isna(r["pet"]) else float(r["pet"]),
+                "soil_moisture": None if pd.isna(r["sm"]) else float(r["sm"]),
+                "recharge": None if pd.isna(r["recharge"]) else float(r["recharge"]),
+                "runoff": None if pd.isna(r["runoff"]) else float(r["runoff"]),
                 "spi_1": None if pd.isna(r["spi_1"]) else float(r["spi_1"]),
                 "spi_3": None if pd.isna(r["spi_3"]) else float(r["spi_3"]),
                 "spi_6": None if pd.isna(r["spi_6"]) else float(r["spi_6"]),
