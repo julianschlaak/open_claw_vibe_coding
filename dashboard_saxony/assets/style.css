@@ -1,0 +1,44 @@
+:root {
+  --primary: #1f6f8b;
+  --secondary: #ff7f11;
+  --success: #2a9d8f;
+  --warning: #f4a261;
+  --danger: #b00020;
+  --background: #f7f7f2;
+  --card-bg: #ffffff;
+  --text: #1f2933;
+}
+
+.main > div {
+  padding-top: 1.2rem;
+}
+
+.stTabs [data-baseweb="tab-list"] {
+  gap: 8px;
+}
+
+.stTabs [data-baseweb="tab"] {
+  height: 48px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+div[data-testid="stMetric"] {
+  background: var(--card-bg);
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+
+div[data-testid="stMetricLabel"],
+div[data-testid="stMetricValue"],
+div[data-testid="stMetricDelta"] {
+  color: #111827 !important;
+}
+
+.dashboard-note {
+  color: #475569;
+  font-size: 0.92rem;
+}

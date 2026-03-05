@@ -1,0 +1,30 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"name": "Chemnitz2_0p0625"},
+      "geometry": {"type": "Polygon", "coordinates": [[[12.7,50.65],[13.1,50.65],[13.1,50.95],[12.7,50.95],[12.7,50.65]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Wesenitz2_0p0625"},
+      "geometry": {"type": "Polygon", "coordinates": [[[13.5,50.9],[14.0,50.9],[14.0,51.25],[13.5,51.25],[13.5,50.9]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Parthe_0p0625"},
+      "geometry": {"type": "Polygon", "coordinates": [[[12.15,51.15],[12.7,51.15],[12.7,51.45],[12.15,51.45],[12.15,51.15]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "Wyhra_0p0625"},
+      "geometry": {"type": "Polygon", "coordinates": [[[12.2,50.7],[12.7,50.7],[12.7,51.05],[12.2,51.05],[12.2,50.7]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "saxony_0p0625"},
+      "geometry": {"type": "Polygon", "coordinates": [[[11.7,50.2],[15.2,50.2],[15.2,51.7],[11.7,51.7],[11.7,50.2]]]}
+    }
+  ]
+}
