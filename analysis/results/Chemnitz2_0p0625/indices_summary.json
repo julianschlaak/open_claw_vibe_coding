@@ -1,0 +1,64 @@
+{
+  "catchment": "Chemnitz2_0p0625",
+  "gauge_id": "0090410700",
+  "date_range": {
+    "start": "2005-01-01 00:00:00",
+    "end": "2020-12-31 00:00:00",
+    "days": 5844
+  },
+  "indices_calculated": [
+    "smi",
+    "smi_l01",
+    "smi_l02",
+    "r_pctl",
+    "q_pctl",
+    "mdi",
+    "spi_1",
+    "spi_3",
+    "spi_6",
+    "spei_1",
+    "spei_3",
+    "spei_6",
+    "sdi_3",
+    "sdi_6"
+  ],
+  "drought_summary": {
+    "smi": {
+      "normal_or_wet": 4749,
+      "mild_drought": 730,
+      "moderate_drought": 365
+    },
+    "r_pctl": {
+      "normal_or_wet": 4749,
+      "mild_drought": 730,
+      "moderate_drought": 365
+    },
+    "q_pctl": {
+      "normal_or_wet": 4753,
+      "mild_drought": 721,
+      "moderate_drought": 370
+    },
+    "mdi": {
+      "normal_or_wet": 5338,
+      "mild_drought": 337,
+      "moderate_drought": 109,
+      "unknown": 60
+    }
+  },
+  "thresholds": {
+    "extreme_drought": 2.0,
+    "severe_drought": 5.0,
+    "moderate_drought": 10.0,
+    "mild_drought": 20.0
+  },
+  "mdi_weights": {
+    "smi": 0.4,
+    "recharge": 0.3,
+    "discharge": 0.3
+  },
+  "methodology": {
+    "percentile_method": "empirical_ranking",
+    "calendar_basis": "day_of_year_for_daily_data",
+    "seasonal_bias": "removed"
+  }
+}

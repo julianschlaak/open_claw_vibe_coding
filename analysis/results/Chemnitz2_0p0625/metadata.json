@@ -1,0 +1,29 @@
+{
+  "catchment": "Chemnitz2_0p0625",
+  "gauge_id": "0090410700",
+  "kge": 0.745,
+  "priority": "high",
+  "temporal_resolution": "daily",
+  "date_range": {
+    "start": "2005-01-01 00:00:00",
+    "end": "2020-12-31 00:00:00",
+    "days": 5844
+  },
+  "columns": [
+    "date",
+    "precip",
+    "pet",
+    "sm_l01",
+    "sm_l02",
+    "sm_lall",
+    "recharge",
+    "runoff",
+    "qsim",
+    "qobs"
+  ],
+  "soil_depths_mm": {
+    "L01": 250.0,
+    "L02": 350.0,
+    "LALL": 600.0
+  }
+}
