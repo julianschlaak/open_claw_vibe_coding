@@ -47,3 +47,18 @@ def clip_points_to_saxony(df: pd.DataFrame, lat_col: str = "lat", lon_col: str =
     """Return boolean mask for points inside or on Saxony boundary."""
     sax_geom = get_saxony_boundary_gdf().geometry.union_all()
     return df.apply(lambda r: sax_geom.covers(Point(float(r[lon_col]), float(r[lat_col]))), axis=1)
+
+
+def clip_grid_to_saxony(grid: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Clip raster cell polygons to Saxony boundary and remove empty pieces."""
+    sax_geom = get_saxony_boundary_gdf().geometry.union_all()
+    out = grid.copy()
+    out["__source_index"] = out.index
+    keep = out.geometry.intersects(sax_geom)
+    out = out.loc[keep].copy()
+    out["geometry"] = out.geometry.intersection(sax_geom)
+    out = out.loc[~out.geometry.is_empty].copy()
+    out = out.loc[out.geometry.area > 0].copy()
+    out = out.reset_index(drop=True)
+    out.set_crs("EPSG:4326", inplace=True)
+    return out

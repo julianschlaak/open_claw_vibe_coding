@@ -8,7 +8,7 @@ import netCDF4 as nc
 import numpy as np
 import pandas as pd
 from shapely.geometry import box
-from utils.geo_utils import clip_points_to_saxony, get_saxony_boundary_gdf
+from utils.geo_utils import clip_grid_to_saxony, get_saxony_boundary_gdf
 
 
 def _repo_root() -> Path:
@@ -46,6 +46,42 @@ def _build_grid(lon: np.ndarray, lat: np.ndarray, valid_mask: np.ndarray) -> gpd
 
     grid = gpd.GeoDataFrame(rows, crs="EPSG:4326")
     return grid
+
+
+def _build_regular_saxony_grid(boundary: gpd.GeoDataFrame, resolution: float = 0.0625, edge_buffer_factor: float = 0.55) -> gpd.GeoDataFrame:
+    """Build a regular raster over Saxony and clip cells to boundary.
+
+    The small buffer helps retain edge cells that would otherwise create visual gaps.
+    """
+    sax = boundary.geometry.union_all()
+    minx, miny, maxx, maxy = sax.bounds
+
+    cols = int(np.ceil((maxx - minx) / resolution))
+    rows = int(np.ceil((maxy - miny) / resolution))
+
+    cells = []
+    edge_buffer = resolution * edge_buffer_factor
+    sax_for_intersection = sax.buffer(edge_buffer)
+
+    for i in range(cols):
+        for j in range(rows):
+            x0 = minx + i * resolution
+            y0 = miny + j * resolution
+            cell = box(x0, y0, x0 + resolution, y0 + resolution)
+            if not cell.intersects(sax_for_intersection):
+                continue
+            clipped = cell.intersection(sax)
+            if clipped.is_empty or clipped.area <= 0:
+                continue
+            cells.append(
+                {
+                    "lon": x0 + resolution / 2.0,
+                    "lat": y0 + resolution / 2.0,
+                    "geometry": clipped,
+                }
+            )
+
+    return gpd.GeoDataFrame(cells, crs="EPSG:4326").reset_index(drop=True)
 
 
 def _compute_indices_from_sm(sm_3d: np.ndarray, dates: pd.DatetimeIndex, valid_mask: np.ndarray) -> Dict[str, np.ndarray]:
@@ -89,18 +125,36 @@ def _load_raster_data() -> Dict:
         grid = _build_grid(lon, lat, valid_mask)
         idx = _compute_indices_from_sm(sm_lall, dates, valid_mask)
 
-        # Hard clip to Saxony polygon (data-level clip, not visual only).
-        inside_mask = clip_points_to_saxony(grid, lat_col="lat", lon_col="lon").to_numpy()
-        grid = grid.loc[inside_mask].reset_index(drop=True)
-        nfk = idx["nfk"][:, inside_mask]
-        sm_vol = idx["sm_vol"][:, inside_mask]
-        smi = idx["smi"][:, inside_mask]
+        # Exact polygon clipping for original model cells.
+        grid = clip_grid_to_saxony(grid)
+        source_indices = grid["__source_index"].to_numpy(dtype=int) if "__source_index" in grid.columns else np.array([], dtype=int)
+        if "__source_index" in grid.columns:
+            grid = grid.drop(columns=["__source_index"])
 
         boundary = get_saxony_boundary_gdf()
 
+        # Build complete regular Saxony grid and map each cell to nearest source model cell.
+        # This removes uncovered gaps while preserving the model pattern.
+        full_grid = _build_regular_saxony_grid(boundary, resolution=0.0625, edge_buffer_factor=0.60)
+        src_lon = grid["lon"].to_numpy(dtype=float)
+        src_lat = grid["lat"].to_numpy(dtype=float)
+        tgt_lon = full_grid["lon"].to_numpy(dtype=float)
+        tgt_lat = full_grid["lat"].to_numpy(dtype=float)
+
+        d2 = (tgt_lon[:, None] - src_lon[None, :]) ** 2 + (tgt_lat[:, None] - src_lat[None, :]) ** 2
+        nearest_src_idx = np.argmin(d2, axis=1).astype(int)
+
+        source_values_nfk = idx["nfk"][:, source_indices]
+        source_values_sm_vol = idx["sm_vol"][:, source_indices]
+        source_values_smi = idx["smi"][:, source_indices]
+
+        nfk = source_values_nfk[:, nearest_src_idx]
+        sm_vol = source_values_sm_vol[:, nearest_src_idx]
+        smi = source_values_smi[:, nearest_src_idx]
+
         return {
             "dates": dates,
-            "grid": grid,
+            "grid": full_grid,
             "boundary": boundary,
             "valid_mask": valid_mask,
             "nfk": nfk,

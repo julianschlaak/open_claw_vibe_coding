@@ -8,7 +8,17 @@ import plotly.graph_objects as go
 
 def create_timeseries_plot(df: pd.DataFrame, x: str, y: str, title: str, y_label: str):
     fig = px.line(df, x=x, y=y, title=title, labels={x: "Date", y: y_label})
-    fig.update_layout(template="plotly_white", margin=dict(l=20, r=20, t=45, b=20), height=390)
+    fig.update_layout(
+        template="plotly_dark",
+        margin=dict(l=16, r=12, t=42, b=18),
+        height=330,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(15,23,42,0.45)",
+        title=dict(font=dict(size=18)),
+    )
+    fig.update_traces(line=dict(width=2.2))
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(gridcolor="rgba(148,163,184,0.25)")
     return fig
 
 
