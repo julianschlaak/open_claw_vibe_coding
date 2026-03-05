@@ -27,6 +27,12 @@ def _find_fluxes_nc() -> Path:
     raise FileNotFoundError("No mHM_Fluxes_States.nc found for saxony_0p0625")
 
 
+def _find_dem_asc() -> Path | None:
+    repo = _repo_root()
+    p = repo / "code" / "mhm" / "set_up" / "saxony_0p0625" / "mhm_setup" / "morph" / "dem.asc"
+    return p if p.exists() else None
+
+
 def _to_datetime(time_var) -> pd.DatetimeIndex:
     t = nc.num2date(time_var[:], units=time_var.units, calendar=getattr(time_var, "calendar", "standard"))
     return pd.to_datetime([x.isoformat() for x in t])
@@ -111,6 +117,62 @@ def _compute_indices_from_sm(sm_3d: np.ndarray, dates: pd.DatetimeIndex, valid_m
     return {"nfk": nfk, "sm_vol": sm_vol, "smi": smi}
 
 
+def _load_hillshade_overlay() -> Dict | None:
+    """Create subtle RGBA hillshade from DEM ASCII grid."""
+    dem_path = _find_dem_asc()
+    if dem_path is None:
+        return None
+
+    with dem_path.open("r", encoding="utf-8") as f:
+        header = {}
+        for _ in range(6):
+            parts = f.readline().strip().split()
+            if len(parts) >= 2:
+                header[parts[0].lower()] = float(parts[-1])
+
+    ncols = int(header.get("ncols", 0))
+    nrows = int(header.get("nrows", 0))
+    xll = float(header.get("xllcorner", 0.0))
+    yll = float(header.get("yllcorner", 0.0))
+    cell = float(header.get("cellsize", 0.0))
+    nodata = float(header.get("nodata_value", -9999.0))
+    if ncols <= 0 or nrows <= 0 or cell <= 0:
+        return None
+
+    dem = np.loadtxt(dem_path, skiprows=6, dtype=np.float32)
+    if dem.shape != (nrows, ncols):
+        return None
+    dem[dem <= nodata + 1e-6] = np.nan
+
+    # Hillshade (azimuth 315°, altitude 45°)
+    dy, dx = np.gradient(dem, cell, cell)
+    slope = np.pi / 2.0 - np.arctan(np.sqrt(dx * dx + dy * dy))
+    aspect = np.arctan2(-dx, dy)
+    az = np.deg2rad(315.0)
+    alt = np.deg2rad(45.0)
+    hs = np.sin(alt) * np.sin(slope) + np.cos(alt) * np.cos(slope) * np.cos(az - aspect)
+    hs = np.clip(hs, 0, 1)
+
+    # Normalize visible range, keep subtle transparency
+    p2, p98 = np.nanpercentile(hs, [2, 98])
+    hs = (hs - p2) / max(1e-6, (p98 - p2))
+    hs = np.clip(hs, 0, 1)
+    gray = (hs * 255).astype(np.uint8)
+
+    rgba = np.zeros((nrows, ncols, 4), dtype=np.uint8)
+    rgba[..., 0] = gray
+    rgba[..., 1] = gray
+    rgba[..., 2] = gray
+    rgba[..., 3] = np.where(np.isfinite(dem), 70, 0).astype(np.uint8)
+
+    minx = xll
+    maxx = xll + ncols * cell
+    miny = yll
+    maxy = yll + nrows * cell
+    bounds = [[miny, minx], [maxy, maxx]]
+    return {"rgba": rgba, "bounds": bounds}
+
+
 def _load_raster_data() -> Dict:
     p = _find_fluxes_nc()
     ds = nc.Dataset(p)
@@ -178,6 +240,7 @@ def _load_multi_index_timeseries() -> pd.DataFrame:
 
 def load_saxony_data() -> Dict:
     raster = _load_raster_data()
+    hillshade = _load_hillshade_overlay()
     smi_ts = _load_multi_index_timeseries()
 
     # Raster-MDI proxy (cell-wise): 0.4*SMI + 0.3*lag30 + 0.3*lag60.
@@ -200,6 +263,7 @@ def load_saxony_data() -> Dict:
         "region": "Sachsen (gesamt)",
     })
     raster["mdi"] = mdi
+    raster["hillshade"] = hillshade
 
     return {
         "raster": raster,

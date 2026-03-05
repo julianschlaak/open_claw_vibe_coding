@@ -10,7 +10,18 @@
 }
 
 .main > div {
-  padding-top: 1.2rem;
+  padding-top: 0.35rem;
+  padding-bottom: 0.5rem;
+}
+
+div.block-container {
+  padding-top: 0.6rem;
+  padding-bottom: 0.8rem;
+}
+
+h1, h2, h3 {
+  margin-top: 0.2rem !important;
+  margin-bottom: 0.55rem !important;
 }
 
 .stTabs [data-baseweb="tab-list"] {
@@ -29,7 +40,7 @@ div[data-testid="stMetric"] {
   background: var(--card-bg);
   border: 1px solid #9ca3af;
   border-radius: 10px;
-  padding: 0.5rem;
+  padding: 0.35rem 0.5rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
@@ -80,8 +91,8 @@ div[role="radiogroup"] {
   border: 1px solid #7b8794;
   border-left: 6px solid #1f6f8b;
   border-radius: 12px;
-  padding: 0.9rem 1rem;
-  margin: 0.2rem 0 0.8rem 0;
+  padding: 0.65rem 0.85rem;
+  margin: 0.1rem 0 0.55rem 0;
 }
 
 .cv-label {
@@ -94,7 +105,7 @@ div[role="radiogroup"] {
 
 .cv-value {
   color: #0f172a;
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 800;
   line-height: 1.1;
   margin-top: 0.1rem;
@@ -110,15 +121,15 @@ div[role="radiogroup"] {
 .plot-frame {
   border: 1px solid #334155;
   border-radius: 12px;
-  padding: 0.3rem 0.3rem 0.1rem 0.3rem;
+  padding: 0.2rem 0.25rem 0.05rem 0.25rem;
   background: rgba(15, 23, 42, 0.18);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .condition-note {
   border: 1px solid #6b7280;
   border-radius: 10px;
-  padding: 0.7rem 0.85rem;
+  padding: 0.55rem 0.7rem;
   background: rgba(148, 163, 184, 0.14);
 }
 
@@ -141,4 +152,30 @@ div[role="radiogroup"] {
   color: #e2e8f0;
   font-size: 0.9rem;
   line-height: 1.35;
+}
+
+@media (max-width: 900px) {
+  .main > div {
+    padding-top: 0.2rem;
+    padding-bottom: 0.35rem;
+  }
+  h1 {
+    font-size: 2rem !important;
+  }
+  h2 {
+    font-size: 1.7rem !important;
+  }
+  div[data-testid="stMetric"] {
+    padding: 0.3rem 0.45rem;
+  }
+  .current-value-card {
+    padding: 0.55rem 0.65rem;
+    margin-bottom: 0.45rem;
+  }
+  .cv-value {
+    font-size: 1.5rem;
+  }
+  .plot-frame {
+    margin-bottom: 0.4rem;
+  }
 }

@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from folium.plugins import Draw
+from folium.raster_layers import ImageOverlay
 from shapely.geometry import shape
 from streamlit_folium import st_folium
 
@@ -55,6 +56,7 @@ if "selected_cell_ids" not in st.session_state:
 # Sidebar
 st.sidebar.header("⚙️ Einstellungen")
 st.sidebar.selectbox("Region", ["Sachsen (gesamt)"], index=0)
+mobile_layout = st.sidebar.toggle("Mobile-Layout", value=False, help="Kompakteres Layout fuer Smartphone")
 default_date = pd.Timestamp("2018-08-15")
 if default_date < all_dates.min() or default_date > all_dates.max():
     default_date = all_dates.min()
@@ -99,21 +101,41 @@ if "view_mode" not in st.session_state:
 st.markdown("**Ansicht waehlen**")
 bar = st.container()
 with bar:
-    bcols = st.columns(len(VIEW_OPTIONS))
-    for i, opt in enumerate(VIEW_OPTIONS):
-        with bcols[i]:
-            selected = st.session_state.view_mode == opt
-            if st.button(opt, key=f"view_btn_{i}", use_container_width=True, type="primary" if selected else "secondary"):
-                st.session_state.view_mode = opt
+    if mobile_layout:
+        top = st.columns(2)
+        mid = st.columns(2)
+        bot = st.columns(1)
+        rows = [top, mid, bot]
+        idx = 0
+        for row in rows:
+            for col in row:
+                if idx >= len(VIEW_OPTIONS):
+                    break
+                opt = VIEW_OPTIONS[idx]
+                with col:
+                    selected = st.session_state.view_mode == opt
+                    if st.button(opt, key=f"view_btn_m_{idx}", use_container_width=True, type="primary" if selected else "secondary"):
+                        st.session_state.view_mode = opt
+                idx += 1
+    else:
+        bcols = st.columns(len(VIEW_OPTIONS))
+        for i, opt in enumerate(VIEW_OPTIONS):
+            with bcols[i]:
+                selected = st.session_state.view_mode == opt
+                if st.button(opt, key=f"view_btn_{i}", use_container_width=True, type="primary" if selected else "secondary"):
+                    st.session_state.view_mode = opt
 
 view = st.session_state.view_mode
+MAP_HEIGHT = 460 if mobile_layout else 600
+PLOT_HEIGHT = 260 if mobile_layout else 330
 
 NFK_CLASSES = [
-    {"range": "< 30%", "label": "Trockenstress", "description": "Pflanzen leiden unter Wassermangel", "color": "#d73027"},
-    {"range": "30-50%", "label": "Warnung", "description": "Beginnender Trockenstress", "color": "#fc8d59"},
-    {"range": "50-70%", "label": "Optimal", "description": "Ideale Wasserversorgung", "color": "#fee08b"},
-    {"range": "70-85%", "label": "Feucht", "description": "Ausreichend Wasser verfuegbar", "color": "#91bfdb"},
-    {"range": "> 85%", "label": "Gesaettigt", "description": "Nahe Feldkapazitaet", "color": "#4575b4"},
+    {"range": "< 10%", "label": "Extremer Trockenstress", "description": "Kritischer Wassermangel", "color": "#8e0e2a"},
+    {"range": "10-<30%", "label": "Trockenstress", "description": "Deutlicher Wassermangel", "color": "#d73027"},
+    {"range": "30-<50%", "label": "Leichter Trockenstress", "description": "Stress fuer empfindliche Pflanzen", "color": "#fc8d59"},
+    {"range": "50-<70%", "label": "Ausreichend", "description": "Ausreichende Wasserversorgung", "color": "#fee08b"},
+    {"range": "70-<90%", "label": "Gute Versorgung", "description": "Gute Wasserversorgung", "color": "#91bfdb"},
+    {"range": ">= 90%", "label": "Sehr feucht", "description": "Moeglicher Sauerstoffmangel", "color": "#4575b4"},
 ]
 
 SMI_CLASSES = [
@@ -134,11 +156,10 @@ MDI_CLASSES = [
 ]
 
 SMVOL_CLASSES = [
-    {"range": "<12", "label": "Sehr trocken", "description": "Niedriger Wassergehalt", "color": "#d73027"},
-    {"range": "12-20", "label": "Trocken", "description": "Defizit in der Wurzelzone", "color": "#fc8d59"},
-    {"range": "20-28", "label": "Mittel", "description": "Uebergangsbereich", "color": "#fee08b"},
-    {"range": "28-36", "label": "Feucht", "description": "Gute Wasserversorgung", "color": "#91bfdb"},
-    {"range": ">=36", "label": "Sehr feucht", "description": "Nahe Saettigung", "color": "#4575b4"},
+    {"range": "< 15 Vol.%", "label": "Sehr trocken", "description": "Pflanzen welken, kritischer Bereich", "color": "#8e0e2a"},
+    {"range": "15-25 Vol.%", "label": "Trocken", "description": "Reduzierte Verfuegbarkeit", "color": "#d73027"},
+    {"range": "25-40 Vol.%", "label": "Optimal/Feucht", "description": "Nutzbare Feldkapazitaet fuer viele Pflanzen", "color": "#fee08b"},
+    {"range": "> 40 Vol.%", "label": "Sehr feucht/Nass", "description": "Saettigung, Risiko von Sauerstoffmangel", "color": "#4575b4"},
 ]
 
 max_cell_id = max(0, len(raster["grid"]) - 1)
@@ -166,15 +187,17 @@ def nearest_cell_id(lat: float, lon: float) -> tuple[int, float, float]:
 
 
 def nfk_class(v: float) -> tuple[str, str]:
+    if v < 10:
+        return "Extremer Trockenstress (<10%)", "#8e0e2a"
     if v < 30:
-        return "Trockenstress (<30%)", "#d73027"
+        return "Trockenstress (10-<30%)", "#d73027"
     if v < 50:
-        return "Warnung (30-50%)", "#fc8d59"
+        return "Leichter Trockenstress (30-<50%)", "#fc8d59"
     if v < 70:
-        return "Optimal (50-70%)", "#fee08b"
-    if v < 85:
-        return "Feucht (70-85%)", "#91bfdb"
-    return "Gesaettigt (>85%)", "#4575b4"
+        return "Ausreichend (50-<70%)", "#fee08b"
+    if v < 90:
+        return "Gute Versorgung (70-<90%)", "#91bfdb"
+    return "Sehr feucht (>=90%)", "#4575b4"
 
 
 def smi_class(v: float) -> tuple[str, str]:
@@ -192,15 +215,13 @@ def smi_class(v: float) -> tuple[str, str]:
 
 
 def smvol_class(v: float) -> tuple[str, str]:
-    if v < 12:
-        return "<12", "#d73027"
-    if v < 20:
-        return "12-20", "#fc8d59"
-    if v < 28:
-        return "20-28", "#fee08b"
-    if v < 36:
-        return "28-36", "#91bfdb"
-    return ">=36", "#4575b4"
+    if v < 15:
+        return "Sehr trocken (<15 Vol.%)", "#8e0e2a"
+    if v < 25:
+        return "Trocken (15-25 Vol.%)", "#d73027"
+    if v < 40:
+        return "Optimal/Feucht (25-40 Vol.%)", "#fee08b"
+    return "Sehr feucht/Nass (>40 Vol.%)", "#4575b4"
 
 
 def mdi_class(v: float) -> tuple[str, str]:
@@ -362,7 +383,7 @@ def show_condition_text(metric_key: str, value: float, cls_text: str):
     )
 
 
-def render_raster(metric: str, height: int = 560):
+def render_raster(metric: str, height: int = MAP_HEIGHT):
     i = t_index(selected_date)
     grid = raster["grid"].copy()
 
@@ -385,7 +406,33 @@ def render_raster(metric: str, height: int = 560):
     grid["color"] = classes.apply(lambda x: x[1])
 
     center = raster["boundary"].geometry.iloc[0].centroid
-    m = folium.Map(location=[center.y, center.x], zoom_start=7.9, tiles="CartoDB dark_matter", control_scale=True)
+    minx, miny, maxx, maxy = raster["boundary"].total_bounds
+    pad = 0.18 if mobile_layout else 0.30
+    min_zoom_level = 6.6 if mobile_layout else 7.9
+    m = folium.Map(
+        location=[center.y, center.x],
+        zoom_start=7.9,
+        tiles="CartoDB dark_matter",
+        control_scale=True,
+        max_bounds=True,
+        min_zoom=min_zoom_level,
+        min_lat=miny - pad,
+        max_lat=maxy + pad,
+        min_lon=minx - pad,
+        max_lon=maxx + pad,
+    )
+    m.fit_bounds([[miny - pad, minx - pad], [maxy + pad, maxx + pad]])
+
+    if raster.get("hillshade") is not None:
+        hs = raster["hillshade"]
+        ImageOverlay(
+            image=hs["rgba"],
+            bounds=hs["bounds"],
+            opacity=0.22,
+            interactive=False,
+            cross_origin=False,
+            zindex=1,
+        ).add_to(m)
 
     cities = {
         "Dresden": (51.05, 13.74),
@@ -408,9 +455,9 @@ def render_raster(metric: str, height: int = 560):
             "fillColor": f["properties"]["color"],
             "color": "#2c3e50",
             "weight": 0.8,
-            "fillOpacity": 0.68,
+            "fillOpacity": 0.56,
         },
-        highlight_function=lambda f: {"weight": 1.4, "fillOpacity": 0.82},
+        highlight_function=lambda f: {"weight": 1.4, "fillOpacity": 0.72},
         tooltip=folium.GeoJsonTooltip(fields=["value", "class", "lat", "lon"], aliases=["Wert", "Klasse", "lat", "lon"]),
     ).add_to(m)
 
@@ -518,20 +565,20 @@ if view == "🌱 nFK":
     st.info(
         "%nFK beschreibt den Anteil des fuer Pflanzen verfuegbaren Bodenwassers. "
         "Berechnet wird relativ zur Speicherkapazitaet zwischen Feldkapazitaet und Welkepunkt. "
-        "Werte unter 30% deuten auf Trockenstress, Werte ueber 70% auf gute Versorgung. "
+        "Werte unter 30% deuten auf Trockenstress, ab 70% ist die Versorgung meist gut; ab 90% steigt das Risiko fuer Sauerstoffmangel. "
         "Quelle: KA5 (2005), Allen et al. (1998, FAO-56)."
     )
-    c1, c2 = st.columns([2.5, 1.5])
-    with c1:
+    def _left():
         render_raster("nfk")
         legend_table("Farblegende nFK (%)", [(f"{c['range']}", c["color"]) for c in NFK_CLASSES])
         class_table("Klassengrenzen nFK", NFK_CLASSES)
-    with c2:
+    def _right():
         m = metric_series("nfk")
         cv = current_value("nfk")
         cv_class = nfk_class(cv)[0]
         show_current_value_card("Aktueller nFK-Wert", cv, "%", cv_class)
         fig = create_timeseries_plot(m, "date", "value", f"nFK Zeitreihe - {m['selection'].iloc[0]}", "%nFK")
+        fig.update_layout(height=PLOT_HEIGHT)
         fig.add_hline(y=30, line_dash="dash", line_color="#b00020", annotation_text="Trockenstress")
         fig.add_hline(y=50, line_dash="dash", line_color="#f18f01", annotation_text="Beginnender Stress")
         st.markdown('<div class="plot-frame">', unsafe_allow_html=True)
@@ -539,6 +586,15 @@ if view == "🌱 nFK":
         st.markdown("</div>", unsafe_allow_html=True)
         legend_table("2. Legende nFK", [(f"{c['range']}", c["color"]) for c in NFK_CLASSES])
         show_condition_text("nfk", cv, cv_class)
+    if mobile_layout:
+        _left()
+        _right()
+    else:
+        c1, c2 = st.columns([2.5, 1.5])
+        with c1:
+            _left()
+        with c2:
+            _right()
 
 elif view == "💧 Vol. Bodenfeuchte":
     st.header("Volumetrische Bodenfeuchte (Vol.%) - Raster")
@@ -548,24 +604,31 @@ elif view == "💧 Vol. Bodenfeuchte":
         "Im Dashboard wird der gesamte Wurzelraum abgebildet und taeglich aktualisiert. "
         "Quelle: Samaniego et al. (2013), mHM Dokumentation."
     )
-    legend_table("Legende Vol.-SM-Klassen (Vol.%)", [
-        ("<12", "#d73027"), ("12-20", "#fc8d59"), ("20-28", "#fee08b"), ("28-36", "#91bfdb"), (">=36", "#4575b4")
-    ])
-    c1, c2 = st.columns([2.5, 1.5])
-    with c1:
+    legend_table("Legende Vol.-SM-Klassen (Vol.%)", [(c["range"], c["color"]) for c in SMVOL_CLASSES])
+    def _left():
         render_raster("sm_vol")
         class_table("Klassengrenzen Vol.-SM", SMVOL_CLASSES)
-    with c2:
+    def _right():
         m = metric_series("sm_vol")
         cv = current_value("sm_vol")
         cv_class = smvol_class(cv)[0]
         show_current_value_card("Aktuelle Bodenfeuchte", cv, " Vol.%", cv_class)
         fig = create_timeseries_plot(m, "date", "value", f"Vol. Bodenfeuchte - {m['selection'].iloc[0]}", "Vol.%")
+        fig.update_layout(height=PLOT_HEIGHT)
         st.markdown('<div class="plot-frame">', unsafe_allow_html=True)
         st.plotly_chart(fig, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
         legend_table("2. Legende Vol.-SM", [(f"{c['range']}", c["color"]) for c in SMVOL_CLASSES])
         show_condition_text("sm_vol", cv, cv_class)
+    if mobile_layout:
+        _left()
+        _right()
+    else:
+        c1, c2 = st.columns([2.5, 1.5])
+        with c1:
+            _left()
+        with c2:
+            _right()
 
 elif view == "📊 SMI":
     st.header("Soil Moisture Index (SMI) - Raster")
@@ -575,23 +638,32 @@ elif view == "📊 SMI":
         "Die Perzentil-Methode ist robust, weil sie keine feste Verteilungsannahme benoetigt. "
         "Quelle: Van Loon & Van Lanen (2012), Samaniego et al. (2013)."
     )
-    c1, c2 = st.columns([2.5, 1.5])
-    with c1:
+    def _left():
         render_raster("smi")
         legend_table("Farblegende SMI", [(f"{c['range']}", c["color"]) for c in SMI_CLASSES])
         class_table("Klassengrenzen SMI", SMI_CLASSES)
-    with c2:
+    def _right():
         m = metric_series("smi")
         cv = current_value("smi")
         cv_class = smi_class(cv)[0]
         show_current_value_card("Aktueller SMI-Wert", cv, "", cv_class)
         fig = create_timeseries_plot(m, "date", "value", f"SMI Zeitreihe - {m['selection'].iloc[0]}", "SMI")
+        fig.update_layout(height=PLOT_HEIGHT)
         fig.add_hline(y=20, line_dash="dash", line_color="#f18f01", annotation_text="Drought threshold")
         st.markdown('<div class="plot-frame">', unsafe_allow_html=True)
         st.plotly_chart(fig, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
         legend_table("2. Legende SMI", [(f"{c['range']}", c["color"]) for c in SMI_CLASSES])
         show_condition_text("smi", cv, cv_class)
+    if mobile_layout:
+        _left()
+        _right()
+    else:
+        c1, c2 = st.columns([2.5, 1.5])
+        with c1:
+            _left()
+        with c2:
+            _right()
 
 elif view == "🎯 Multi-Index":
     st.header("Multi-Index Vergleich")
@@ -604,9 +676,8 @@ elif view == "🎯 Multi-Index":
     st.markdown("**Klicke auf die MDI-Karte, um Radar und Statistiken zu aktualisieren.**")
     legend_table("Farblegende MDI", [(f"{c['range']}", c["color"]) for c in MDI_CLASSES])
 
-    c_map, c_radar = st.columns([2.5, 1.5])
-    with c_map:
-        render_raster("mdi", height=500)
+    def _left():
+        render_raster("mdi", height=420 if mobile_layout else 500)
         class_table("Klassengrenzen MDI", MDI_CLASSES)
 
     if st.session_state.clicked_cell_id is None:
@@ -624,13 +695,22 @@ elif view == "🎯 Multi-Index":
         st.success(f"Zelle: {st.session_state.clicked_cell_id} | Datum: {st.session_state.clicked_date}")
         radar = radar_data_for_selection()
 
-    with c_radar:
+    def _right():
         cv = current_value("mdi")
         cv_class = mdi_class(cv)[0]
         show_current_value_card("Aktueller MDI-Wert", cv, "", cv_class)
         st.plotly_chart(create_radar_plot(radar), use_container_width=True, key=f"radar_{st.session_state.clicked_cell_id}_{st.session_state.clicked_date}")
         legend_table("2. Legende MDI", [(f"{c['range']}", c["color"]) for c in MDI_CLASSES])
         show_condition_text("mdi", cv, cv_class)
+    if mobile_layout:
+        _left()
+        _right()
+    else:
+        c_map, c_radar = st.columns([2.5, 1.5])
+        with c_map:
+            _left()
+        with c_radar:
+            _right()
 
     st.subheader("Zeitreihen-Vergleich")
     st.plotly_chart(create_multiindex_timeseries(idx_df), use_container_width=True)

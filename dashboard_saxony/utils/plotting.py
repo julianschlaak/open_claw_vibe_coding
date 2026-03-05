@@ -6,12 +6,12 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
-def create_timeseries_plot(df: pd.DataFrame, x: str, y: str, title: str, y_label: str):
+def create_timeseries_plot(df: pd.DataFrame, x: str, y: str, title: str, y_label: str, height: int = 330):
     fig = px.line(df, x=x, y=y, title=title, labels={x: "Date", y: y_label})
     fig.update_layout(
         template="plotly_dark",
         margin=dict(l=16, r=12, t=42, b=18),
-        height=330,
+        height=height,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(15,23,42,0.45)",
         title=dict(font=dict(size=18)),
