@@ -1,0 +1,32 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# NetCDF data files (large binary)
+*.nc
+
+# Dashboard dependencies
+dashboard_vnext/node_modules/
+dashboard_vnext/dist/
+dashboard_vnext/*.tsbuildinfo
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large mHM morph files (exceeds GitHub 100MB limit)
+*.tif
