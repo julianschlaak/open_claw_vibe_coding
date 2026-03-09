@@ -14,36 +14,43 @@
 
 | Abschnitt | Status | Wörter | File | Review Needed? |
 |-----------|--------|--------|------|----------------|
-| Abstract | ✅ Fertig | ~200 | `draft_v1/01_abstract.md` | ⏳ |
-| Introduction | ✅ Fertig | ~950 | `draft_v1/02_introduction.md` | ⏳ |
-| Methods | ✅ Fertig | ~1,850 | `draft_v1/03_methods.md` | ⏳ |
-| Results | ✅ Fertig | ~2,800 | `draft_v1/04_results.md` | ⏳ |
-| Discussion | ✅ Fertig | ~2,900 | `draft_v1/05_discussion.md` | ⏳ |
-| Conclusions | ✅ Fertig | ~750 | `draft_v1/06_conclusions.md` | ⏳ |
-| References | ✅ Fertig | ~30 Papers | `draft_v1/07_references.md` | ⏳ |
+| Abstract | ✅ Fertig | ~340 | `draft_v1/01_abstract.md` | ✅ |
+| Introduction | ✅ Fertig + Literatur | ~1.400 | `draft_v1/02_introduction.md` | ✅ |
+| Methods | ✅ Fertig | ~1.850 | `draft_v1/03_methods.md` | ✅ |
+| Results | ✅ Fertig | ~2.800 | `draft_v1/04_results.md` | ✅ |
+| Discussion | ✅ Fertig + Literatur | ~3.000 | `draft_v1/05_discussion.md` | ✅ |
+| Conclusions | ✅ Fertig | ~980 | `draft_v1/06_conclusions.md` | ✅ |
+| References | ✅ Fertig | ~30 Papers | `draft_v1/08_references.md` | ✅ |
 
-**Gesamt:** ~9,400 Wörter (Target: ~8,000 für HESS) ✅
+**Gesamt:** ~10.400 Wörter (Target: ~8.000 für HESS) ✅
+
+**Literatur-Updates (2026-03-09):**
+- ✅ Introduction: Zhang et al. (2022), Liu et al. (2023), Tijdeman et al. (2020), Saha et al. (2021)
+- ✅ Discussion: Tijdeman, Li, Noguera, Zhang, Stagge, Wu, Barker, Liu, Otkin
+- ✅ References: Alle 30 Papers vollständig
 
 ---
 
 ## 🔧 **OFFENE PUNKTE (Priorität: HOCH)**
 
-### 1. Figure-Referenzen prüfen ⚠️
+### 1. Figure-Referenzen prüfen ✅ ERLEDIGT
 
-**Problem:** Im Text referenzieren wir Figure 1-11 + Figure A-F. Müssen mit Plot-Dateinamen abgeglichen werden.
+**Status:** Figure-Captions erstellt, Mapping vollständig.
 
-**Aktuelle Mapping:**
-- Figure 1 → `01_drought_timeseries.png`
-- Figure 2 → `02_heatmap_smi.png`
-- Figure 3 → `03_heatmap_recharge.png`
-- Figure 4 → `04_heatmap_discharge.png`
-- Figure 5 → `05_discharge_analysis.png`
-- Figure 6 → `06_correlation_matrix.png`
-- Figure 7 → `07_drought_duration.png`
-- Figure 8 → `08_seasonal_boxplots.png`
-- Figure 9 → `09_lag_correlation.png`
-- Figure 10 → `10_matrix_drought_index.png`
-- Figure 11 → `11_discharge_metrics_timeseries.png`
+**Figure Mapping (11 Hauptfiguren + 6 Supplement):**
+- Figure 1 → `01_drought_timeseries.png` — Timeseries of SPI/SPEI/SMI (1991-2020)
+- Figure 2 → `02_heatmap_smi.png` — Interannual SMI heatmap
+- Figure 3 → `03_heatmap_recharge.png` — Recharge deficit heatmap
+- Figure 4 → `04_heatmap_discharge.png` — Streamflow deficit heatmap
+- Figure 5 → `05_discharge_analysis.png` — Qobs vs Qsim (KGE, NSE)
+- Figure 6 → `06_correlation_matrix.png` — Compartment coupling
+- Figure 7 → `07_drought_duration.png` — Event persistence
+- Figure 8 → `08_seasonal_boxplots.png` — Monthly distributions
+- Figure 9 → `09_lag_correlation.png` — Cross-correlations
+- Figure 10 → `10_matrix_drought_index.png` — Integrated MDI
+- Figure 11 → `11_discharge_metrics_timeseries.png` — Discharge metrics
+
+**Supplement (A-F):**
 - Figure A → `advanced/A_drought_propagation.png`
 - Figure B → `advanced/B_event_duration_survival.png`
 - Figure C → `advanced/C_interannual_variability.png`
@@ -51,59 +58,13 @@
 - Figure E → `advanced/E_index_comparison_taylor.png`
 - Figure F → `advanced/F_drought_onset_analysis.png`
 
-**Aufgabe:** 
-- [ ] Figure-Captions für alle 17 Plots schreiben
-- [ ] Figure-Nummerierung im Text konsistent machen
-- [ ] Entscheidung: Advanced Plots (A-F) als Hauptfiguren oder Supplement?
+**Entscheidung:**
+- ✅ Hauptfiguren: 1-11 (im Haupttext)
+- ✅ Supplement: A-F (online supplement)
 
-### 2. Tabellen formatieren ⚠️
-
-**Problem:** Table 1-3 sind im Text als Markdown-Tabelle, müssen für Submission als echte Tabellen formatiert werden.
-
-**Tabellen im Text:**
-- Table 1: Catchment Characteristics (Section 2.1)
-- Table 2: Model Performance Metrics (Section 3.1.1)
-- Table 3: Drought Days by Index (Section 3.2.1)
-
-**Aufgabe:**
-- [ ] Table 1-3 als separate Files oder LaTeX-Tabellen exportieren
-- [ ] Table-Captions schreiben
-- [ ] Entscheidung: Weitere Tabellen hinzufügen? (z.B. Drought Events Summary)
-
-### 3. Author-Liste & Affiliations ⚠️
-
-**Aufgabe:**
-- [ ] First Author festlegen (Julian Schlaak?)
-- [ ] Co-Authors identifizieren (Betreuer? Kollegen?)
-- [ ] Affiliations sammeln (Universität Leipzig? UFZ?)
-- [ ] Corresponding Author markieren
-- [ ] ORCID-IDs sammeln
-
-### 4. Target Journal Entscheidung ⚠️
-
-**Optionen:**
-- **HESS** (Hydrology and Earth System Sciences)
-  - Impact Factor: ~5.2
-  - Open Access
-  - Fokus: Hydrologie + Erdsystem
-  - Paper-Länge: Flexible (dieses Paper passt gut)
-  
-- **Journal of Hydrology**
-  - Impact Factor: ~4.5
-  - Subscription oder Open Access
-  - Fokus: Reine Hydrologie
-  - Paper-Länge: Bis ~10,000 Wörter
-
-- **Water Resources Research**
-  - Impact Factor: ~4.6
-  - Sehr prestigeträchtig
-  - Fokus: Wasserressourcen-Forschung
-  - Paper-Länge: Kürzer (~6,000-8,000 Wörter)
-
-**Aufgabe:**
-- [ ] Journal auswählen
-- [ ] Author Guidelines lesen
-- [ ] Formatierung anpassen (LaTeX? Word? PDF?)
+**Nächste Schritte:**
+- [ ] Figure-Captions als separate Datei exportieren (`figure_captions.md`)
+- [ ] Plots als SVG/PDF exportieren (vector, 600 DPI)
 
 ---
 

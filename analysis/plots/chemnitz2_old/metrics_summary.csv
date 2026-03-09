@@ -1,0 +1,24 @@
+Metrik,Wert
+KGE,0.7580
+NSE,0.6867
+r,0.8288
+RMSE,4.3566
+MAE,1.9428
+Bias,0.0802
+PBIAS,1.2077
+
+# Bodenfeuchte-Statistiken
+SWC_P1_mean,0.2956
+SWC_P1_std,0.0631
+SWC_P1_min,0.1736
+SWC_P1_max,0.3861
+SWC_P2_mean,nan
+SWC_P2_std,nan
+SWC_P2_min,nan
+SWC_P2_max,nan
+
+# Jahres-AET Statistik
+AET_mean,702.90
+AET_std,39.29
+AET_min,607.16
+AET_max,802.18
