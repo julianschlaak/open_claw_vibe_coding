@@ -894,54 +894,23 @@ def analyze_multiple_dds(results_paths: List[Tuple[str, str]]) -> Dict:
 # DASHBOARD INTEGRATION
 # =============================================================================
 
-def render_dds_analysis_tab():
-    """Streamlit tab content for DDS analysis."""
-    import streamlit as st
-    
-    st.header("🔧 mHM DDS Kalibrierungs-Analyse")
-    st.markdown("**Dynamically Dimensioned Search (DDS) Optimierung für mHM Re-Crit**")
-    
-    catchments = [
-        ("Parthe_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/parthe_0p0625/dds_results.out"),
-        ("Goeltzsch2_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/goeltzsch2_0p0625/dds_results.out"),
-    ]
-    
-    existing = [(name, path) for name, path in catchments if Path(path).exists()]
-    
-    if not existing:
-        st.error("Keine DDS-Ergebnisse gefunden!")
-        st.stop()
-    
-    st.success(f"{len(existing)} Catchments mit DDS-Kalibrierung gefunden")
-    
-    mode = st.radio("📊 Analyse-Modus", ["Einzel-Catchment", "Mehrere Catchments (Vergleich)"], horizontal=True)
-    
-    if mode == "Einzel-Catchment":
-        selected = st.selectbox("Catchment auswählen", options=[name for name, _ in existing], index=0)
-        path = next(p for n, p in existing if n == selected)
-        
-        try:
-            result = parse_dds_results(path, selected)
-            df = result['df']
-            st.success(f"DDS-Daten geladen: {len(df)} Iterationen, {result['n_params']} Parameter")
-        except Exception as e:
-            st.error(f"Fehler: {e}")
-            st.stop()
-        
-        summary = create_improvement_summary(df)
-        
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            st.metric("Start-Objektiv", f"{summary['initial']:.4f}")
-        with c2:
-            st.metric("End-Objektiv", f"{summary['final']:.4f}")
-        with c3:
-            st.metric("Verbesserung", f"{summary['improvement_pct']:.1f}%")
-        with c4:
-            st.metric("Iterationen", str(summary['iterations']))
-        
-        st.subheader("🎯 Parameter-Sensitivitätsanalyse")
-        st.markdown("""
+# Translations dictionary
+TRANSLATIONS = {
+    'de': {
+        'header': "🔧 mHM DDS Kalibrierungs-Analyse",
+        'subtitle': "**Dynamically Dimensioned Search (DDS) Optimierung für mHM Re-Crit**",
+        'mode_label': "📊 Analyse-Modus",
+        'mode_single': "Einzel-Catchment",
+        'mode_multi': "Mehrere Catchments (Vergleich)",
+        'no_dds': "Keine DDS-Ergebnisse gefunden!",
+        'found_catchments': "{} Catchments mit DDS-Kalibrierung gefunden",
+        'select_catchment': "Catchment auswählen",
+        'start_objective': "Start-Objektiv",
+        'end_objective': "End-Objektiv",
+        'improvement': "Verbesserung",
+        'iterations': "Iterationen",
+        'sensitivity_title': "🎯 Parameter-Sensitivitätsanalyse",
+        'sensitivity_info': """
         **Wie funktioniert die Sensitivitätsanalyse?**
         
         - **Korrelation:** Wie stark ändert sich das Ziel bei Parameter-Änderung?
@@ -952,7 +921,146 @@ def render_dds_analysis_tab():
         - Top-Parameter haben größten Einfluss auf Modell-Performance
         - Niedrige Sensitivität = Parameter kann kaum kalibriert werden
         - Gruppen-Vergleich zeigt welche Prozesse am wichtigsten sind
-        """)
+        """,
+        'sensitivity_not_available': "Sensitivitätsanalyse nicht verfügbar (ungenügende Daten)",
+        'group_sensitivity_not_available': "Gruppen-Sensitivität nicht verfügbar",
+        'error_analysis': "Fehler bei der Analyse: {}",
+        'show_basic': "Zeige nur Basis-Konvergenz...",
+        'parameter_evolution': "📈 Parameter-Evolution (mit wissenschaftlichen Namen)",
+        'final_params': "📋 Finale Parameter & Metriken",
+        'multi_compare': "🔬 Vergleich: Mehrere Einzugsgebiete",
+        'convergence_compare': "📈 Konvergenz-Vergleich",
+        'sensitivity_compare': "🎯 Sensitivitätsanalyse-Vergleich",
+        'sensitivity_compare_info': "Zeigt die Top 10 sensitivsten Parameter für jedes Catchment im direkten Vergleich",
+        'top_sensitivity': "📊 {} - Top 10 Sensitivste Parameter",
+        'param_changes': "📋 Parameter-Änderungen: Initial → Final",
+        'param_changes_not_available': "Parameter-Änderungen nicht verfügbar",
+        'performance_compare': "📊 Performance-Vergleich",
+        'performance_not_available': "Performance-Metriken nicht verfügbar",
+        'methodology': "📖 DDS Methodik & Interpretation",
+        'export': "💾 Export",
+        'download_csv': "📥 DDS Results CSV",
+        'lang_switch': "🌐 Sprache / Language",
+        'lang_de': "🇩🇪 Deutsch",
+        'lang_en': "🇬🇧 English",
+    },
+    'en': {
+        'header': "🔧 mHM DDS Calibration Analysis",
+        'subtitle': "**Dynamically Dimensioned Search (DDS) Optimization for mHM Re-Crit**",
+        'mode_label': "📊 Analysis Mode",
+        'mode_single': "Single Catchment",
+        'mode_multi': "Multiple Catchments (Comparison)",
+        'no_dds': "No DDS results found!",
+        'found_catchments': "{} catchments with DDS calibration found",
+        'select_catchment': "Select catchment",
+        'start_objective': "Start Objective",
+        'end_objective': "End Objective",
+        'improvement': "Improvement",
+        'iterations': "Iterations",
+        'sensitivity_title': "🎯 Parameter Sensitivity Analysis",
+        'sensitivity_info': """
+        **How does sensitivity analysis work?**
+        
+        - **Correlation:** How much does the objective change with parameter variation?
+        - **Range:** What is the parameter value range?
+        - **Sensitivity Score:** |Correlation| × Range → Higher = More influential
+        
+        **Interpretation:**
+        - Top parameters have greatest influence on model performance
+        - Low sensitivity = Parameter hardly identifiable
+        - Group comparison shows which processes are most important
+        """,
+        'sensitivity_not_available': "Sensitivity analysis not available (insufficient data)",
+        'group_sensitivity_not_available': "Group sensitivity not available",
+        'error_analysis': "Analysis error: {}",
+        'show_basic': "Showing basic convergence only...",
+        'parameter_evolution': "📈 Parameter Evolution (with scientific names)",
+        'final_params': "📋 Final Parameters & Metrics",
+        'multi_compare': "🔬 Comparison: Multiple Catchments",
+        'convergence_compare': "📈 Convergence Comparison",
+        'sensitivity_compare': "🎯 Sensitivity Analysis Comparison",
+        'sensitivity_compare_info': "Shows top 10 most sensitive parameters for each catchment in direct comparison",
+        'top_sensitivity': "📊 {} - Top 10 Most Sensitive Parameters",
+        'param_changes': "📋 Parameter Changes: Initial → Final",
+        'param_changes_not_available': "Parameter changes not available",
+        'performance_compare': "📊 Performance Comparison",
+        'performance_not_available': "Performance metrics not available",
+        'methodology': "📖 DDS Methodology & Interpretation",
+        'export': "💾 Export",
+        'download_csv': "📥 Download DDS Results CSV",
+        'lang_switch': "🌐 Sprache / Language",
+        'lang_de': "🇩🇪 Deutsch",
+        'lang_en': "🇬🇧 English",
+    }
+}
+
+
+def render_dds_analysis_tab():
+    """Streamlit tab content for DDS analysis."""
+    import streamlit as st
+    
+    # Language switcher at the top
+    col_lang, col_space = st.columns([1, 4])
+    with col_lang:
+        language = st.selectbox(
+            TRANSLATIONS['de']['lang_switch'],
+            options=['de', 'en'],
+            format_func=lambda x: TRANSLATIONS[x]['lang_de'] if x == 'de' else TRANSLATIONS[x]['lang_en'],
+            index=0
+        )
+    
+    t = TRANSLATIONS[language]
+    
+    st.header(t['header'])
+    st.markdown(t['subtitle'])
+    
+    catchments = [
+        ("Parthe_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/parthe_0p0625/dds_results.out"),
+        ("Goeltzsch2_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/goeltzsch2_0p0625/dds_results.out"),
+    ]
+    
+    existing = [(name, path) for name, path in catchments if Path(path).exists()]
+    
+    if not existing:
+        st.error(t['no_dds'])
+        st.stop()
+    
+    st.success(t['found_catchments'].format(len(existing)))
+    
+    mode = st.radio(t['mode_label'], [t['mode_single'], t['mode_multi']], horizontal=True)
+    
+    if mode == t['mode_single']:
+        selected = st.selectbox(t['select_catchment'], options=[name for name, _ in existing], index=0)
+        path = next(p for n, p in existing if n == selected)
+        
+        try:
+            result = parse_dds_results(path, selected)
+            df = result['df']
+            if language == 'de':
+                st.success(f"DDS-Daten geladen: {len(df)} Iterationen, {result['n_params']} Parameter")
+            else:
+                st.success(f"DDS data loaded: {len(df)} iterations, {result['n_params']} parameters")
+        except Exception as e:
+            if language == 'de':
+                st.error(f"Fehler: {e}")
+            else:
+                st.error(f"Error: {e}")
+            st.stop()
+        
+        summary = create_improvement_summary(df)
+        
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.metric(t['start_objective'], f"{summary['initial']:.4f}")
+        with c2:
+            st.metric(t['end_objective'], f"{summary['final']:.4f}")
+        with c3:
+            st.metric(t['improvement'], f"{summary['improvement_pct']:.1f}%")
+        with c4:
+            st.metric(t['iterations'], str(summary['iterations']))
+        
+        st.subheader(t['sensitivity_title'])
+        st.markdown(t['sensitivity_info'])
         
         try:
             analysis = analyze_single_dds(path, selected)
@@ -960,28 +1068,29 @@ def render_dds_analysis_tab():
             if analysis['figures'].get('sensitivity_ranking'):
                 st.plotly_chart(analysis['figures']['sensitivity_ranking'], use_container_width=True)
             else:
-                st.warning("Sensitivitätsanalyse nicht verfügbar (ungenügende Daten)")
+                st.warning(t['sensitivity_not_available'])
             
             c1, c2 = st.columns(2)
             with c1:
                 if analysis['figures'].get('group_sensitivity'):
                     st.plotly_chart(analysis['figures']['group_sensitivity'], use_container_width=True)
                 else:
-                    st.info("Gruppen-Sensitivität nicht verfügbar")
+                    st.info(t['group_sensitivity_not_available'])
             with c2:
                 st.plotly_chart(analysis['figures']['convergence'], use_container_width=True)
         except Exception as e:
-            st.error(f"Fehler bei der Analyse: {e}")
-            st.info("Zeige nur Basis-Konvergenz...")
+            st.error(t['error_analysis'].format(e))
+            st.info(t['show_basic'])
             result = parse_dds_results(path, selected)
             summary = create_improvement_summary(result['df'])
-            st.plotly_chart(create_convergence_plot(result['df'], f"{selected} - Konvergenz"), use_container_width=True)
+            conv_title = f"{selected} - Konvergenz" if language == 'de' else f"{selected} - Convergence"
+            st.plotly_chart(create_convergence_plot(result['df'], conv_title), use_container_width=True)
         
-        st.subheader("📈 Parameter-Evolution (mit wissenschaftlichen Namen)")
+        st.subheader(t['parameter_evolution'])
         st.plotly_chart(analysis['figures']['parameter_evolution'], use_container_width=True)
         
         st.divider()
-        st.subheader("📋 Finale Parameter & Metriken")
+        st.subheader(t['final_params'])
         
         nml_path = Path(path).parent / 'FinalParam.nml'
         if nml_path.exists():
@@ -993,34 +1102,47 @@ def render_dds_analysis_tab():
         if out_path.exists():
             final_metrics = parse_final_param_out(out_path)
             if final_metrics:
-                metrics_df = pd.DataFrame(list(final_metrics.items()), columns=['Metrik', 'Wert'])
+                if language == 'de':
+                    metrics_df = pd.DataFrame(list(final_metrics.items()), columns=['Metrik', 'Wert'])
+                else:
+                    metrics_df = pd.DataFrame(list(final_metrics.items()), columns=['Metric', 'Value'])
                 st.dataframe(metrics_df, height=300, use_container_width=True)
     
-    else:
-        st.subheader("🔬 Vergleich: Mehrere Einzugsgebiete")
+    else:  # mode == t['mode_multi']
+        st.subheader(t['multi_compare'])
         
         results = [parse_dds_results(path, name) for name, path in existing]
         
         # Summary table
-        comp_df = pd.DataFrame([{
-            'Catchment': r['name'],
-            'Iterationen': r['iterations'],
-            'Parameter': r['n_params'],
-            'Start': f"{r['df']['objective'].iloc[0]:.4f}",
-            'Ende': f"{r['df']['objective'].iloc[-1]:.4f}",
-            'Verbesserung': f"{((r['df']['objective'].iloc[0] - r['df']['objective'].iloc[-1]) / r['df']['objective'].iloc[0] * 100):.1f}%"
-        } for r in results])
+        if language == 'de':
+            comp_df = pd.DataFrame([{
+                'Catchment': r['name'],
+                'Iterationen': r['iterations'],
+                'Parameter': r['n_params'],
+                'Start': f"{r['df']['objective'].iloc[0]:.4f}",
+                'Ende': f"{r['df']['objective'].iloc[-1]:.4f}",
+                'Verbesserung': f"{((r['df']['objective'].iloc[0] - r['df']['objective'].iloc[-1]) / r['df']['objective'].iloc[0] * 100):.1f}%"
+            } for r in results])
+        else:
+            comp_df = pd.DataFrame([{
+                'Catchment': r['name'],
+                'Iterations': r['iterations'],
+                'Parameters': r['n_params'],
+                'Start': f"{r['df']['objective'].iloc[0]:.4f}",
+                'End': f"{r['df']['objective'].iloc[-1]:.4f}",
+                'Improvement': f"{((r['df']['objective'].iloc[0] - r['df']['objective'].iloc[-1]) / r['df']['objective'].iloc[0] * 100):.1f}%"
+            } for r in results])
         
         st.dataframe(comp_df, use_container_width=True)
         
-        st.subheader("📈 Konvergenz-Vergleich")
+        st.subheader(t['convergence_compare'])
         fig = create_convergence_comparison(results)
         if fig:
             st.plotly_chart(fig, use_container_width=True)
         
         st.divider()
-        st.subheader("🎯 Sensitivitätsanalyse-Vergleich")
-        st.info("Zeigt die Top 10 sensitivsten Parameter für jedes Catchment im direkten Vergleich")
+        st.subheader(t['sensitivity_compare'])
+        st.info(t['sensitivity_compare_info'])
         
         # Sensitivity comparison for each catchment
         sensitivity_results = {}
@@ -1033,32 +1155,33 @@ def render_dds_analysis_tab():
         if fig:
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.warning("Sensitivitätsanalyse nicht verfügbar")
+            st.warning(t['sensitivity_not_available'])
         
         # Show individual sensitivity rankings
         for name, sens_df in sensitivity_results.items():
-            st.subheader(f"📊 {name} - Top 10 Sensitivste Parameter")
+            st.subheader(t['top_sensitivity'].format(name))
             fig = create_sensitivity_ranking_plot(sens_df, top_n=10)
             if fig:
                 st.plotly_chart(fig, use_container_width=True)
         
         st.divider()
-        st.subheader("📋 Parameter-Änderungen: Initial → Final")
+        st.subheader(t['param_changes'])
         fig = create_parameter_change_table(results)
         if fig:
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.info("Parameter-Änderungen nicht verfügbar")
+            st.info(t['param_changes_not_available'])
         
-        st.subheader("📊 Performance-Vergleich")
+        st.subheader(t['performance_compare'])
         fig = create_metrics_comparison_table(results)
         if fig:
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.info("Performance-Metriken nicht verfügbar")
+            st.info(t['performance_not_available'])
     
-    with st.expander("📖 DDS Methodik & Interpretation"):
-        st.markdown("""
+    with st.expander(t['methodology']):
+        if language == 'de':
+            st.markdown("""
 ### 🔬 Dynamically Dimensioned Search (DDS)
 
 **Algorithmus:** Globale Optimierung für hydrologische Modelle
@@ -1090,14 +1213,48 @@ def render_dds_analysis_tab():
 - **Top-Parameter:** Sollten priorisiert kalibriert werden
 - **Niedrige Sensitivität:** Parameter kaum identifizierbar
 - **Gruppen-Vergleich:** Welche Prozesse dominieren?
-        """)
+            """)
+        else:
+            st.markdown("""
+### 🔬 Dynamically Dimensioned Search (DDS)
+
+**Algorithm:** Global optimization for hydrological models
+
+**Principle:**
+1. Start with all parameters (full dimension)
+2. Random perturbation with normal distribution
+3. Dimensionality reduces over time
+4. Only improvements are accepted
+
+**Parameter Groups (mHM 5.13.2):**
+- **Snow (1-9):** Snow melt, temperature thresholds
+- **Soil (10-26):** Soil storage, PTF, infiltration
+- **Direct Runoff (27):** Impervious areas
+- **PET (28-30):** Potential evapotranspiration
+- **Interflow (31-35):** Subsurface flow
+- **Percolation (36-38):** Groundwater recharge
+- **Routing (39):** River routing
+- **Geology (40-54):** Geology parameters
+
+### 🎯 Sensitivity Analysis
+
+**Calculation:**
+- Correlation between parameter and objective function
+- Multiplied by parameter range
+- Higher score = Greater influence
+
+**Interpretation:**
+- **Top parameters:** Should be prioritized in calibration
+- **Low sensitivity:** Parameter hardly identifiable
+- **Group comparison:** Which processes dominate?
+            """)
     
     st.divider()
-    st.subheader("💾 Export")
+    st.subheader(t['export'])
     
-    if mode == "Einzel-Catchment":
+    if mode == t['mode_single']:
         csv_data = df.to_csv(index=False)
-        st.download_button("📥 DDS Results CSV", data=csv_data.encode("utf-8"), file_name=f"{selected}_dds_results.csv", mime="text/csv")
+        st.download_button(t['download_csv'], data=csv_data.encode("utf-8"), file_name=f"{selected}_dds_results.csv", mime="text/csv")
 
 
 if __name__ == "__main__":
