@@ -21,6 +21,13 @@ from utils.discharge_plots import (
     create_seasonal_discharge_plot,
     load_chemnitz2_discharge,
 )
+from utils.dds_analysis import (
+    analyze_dds_calibration,
+    parse_dds_results,
+    create_convergence_plot,
+    create_improvement_summary,
+    render_dds_analysis_tab,
+)
 from utils.plotting import (
     create_corr_heatmap,
     create_multiindex_timeseries,
@@ -103,7 +110,7 @@ with dcol2:
 
 selected_date = st.session_state.selected_date
 
-VIEW_OPTIONS = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "🌊 Chemnitz2 Discharge", "📚 Wissenschaft & Quellen"]
+VIEW_OPTIONS = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "🌊 Chemnitz2 Discharge", "🔧 Parthe DDS", "📚 Wissenschaft & Quellen"]
 if "view_mode" not in st.session_state:
     st.session_state.view_mode = "📊 SMI"
 
@@ -897,6 +904,9 @@ elif view == "🌊 Chemnitz2 Discharge":
 - Zeigt saisonale Muster und Modellabweichungen
             """
         )
+
+elif view == "🔧 Parthe DDS":
+    render_dds_analysis_tab()
 
 else:
     st.header("📚 Wissenschaft & Quellen")
