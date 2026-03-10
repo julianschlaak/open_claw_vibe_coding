@@ -196,8 +196,8 @@ with dcol2:
 
 selected_date = st.session_state.selected_date
 
-VIEW_OPTIONS_DE = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "🌊 Chemnitz2 Abfluss", "🔧 Parthe DDS", "📚 Wissenschaft & Quellen"]
-VIEW_OPTIONS_EN = ["🌱 nFK", "💧 Vol. Soil Moisture", "📊 SMI", "🎯 Multi-Index", "🌊 Chemnitz2 Discharge", "🔧 Parthe DDS", "📚 Science & Sources"]
+VIEW_OPTIONS_DE = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "🌊 Discharge (6 Catchments)", "🌊 Chemnitz2 Abfluss (alt)", "🔧 Parthe DDS", "📚 Wissenschaft & Quellen"]
+VIEW_OPTIONS_EN = ["🌱 nFK", "💧 Vol. Soil Moisture", "📊 SMI", "🎯 Multi-Index", "🌊 Discharge (6 Catchments)", "🌊 Chemnitz2 Discharge (legacy)", "🔧 Parthe DDS", "📚 Science & Sources"]
 
 VIEW_OPTIONS = VIEW_OPTIONS_DE if st.session_state.language == 'de' else VIEW_OPTIONS_EN
 
@@ -832,43 +832,103 @@ elif view == "🎯 Multi-Index":
         corr_cols = [c for c in ["smi", "r_pctl", "q_pctl", "mdi", "spi_3", "spei_3"] if c in idx_df.columns]
         st.plotly_chart(create_corr_heatmap(idx_df, corr_cols), use_container_width=True)
 
-elif view == "🌊 Chemnitz2 Discharge":
-    st.header("🌊 Chemnitz2 Catchment — Discharge Analysis")
+elif view == "🌊 Discharge Analysis (6 Catchments)":
+    st.header("🌊 Discharge Analysis — Alle 6 Catchments")
     st.markdown(
-        "**Wissenschaftliche Auswertung von Abflussdaten (Qobs, Qsim) für das Chemnitz2-Einzugsgebiet**\n\n"
-        "Datenquellen: CAMELS-DE (Qobs), mHM 5.13.2 (Qsim), 2005–2020"
+        "**Wissenschaftliche Auswertung von Abflussdaten (Qobs, Qsim) für alle kalibrierten Einzugsgebiete**\n\n"
+        "Datenquellen: CAMELS-DE (Qobs), mHM 5.13.2 (Qsim), 1991–2020\n\n"
+        "⚠️ **Hinweis:** Simulationen für 1991-2020 laufen gerade. Daten werden automatisch geladen, sobald verfügbar."
     )
     
-    # Load data
-    @st.cache_data
-    def _load_chemnitz2():
-        return load_chemnitz2_discharge()
-    
-    try:
-        chemnitz_df = _load_chemnitz2()
-        st.success(f"Daten geladen: {len(chemnitz_df)} Tage (2005–2020)")
-    except Exception as e:
-        st.error(f"Fehler beim Laden der Daten: {e}")
-        st.stop()
+    # Define all 6 catchments
+    CATCHMENTS_DISCHARGE = [
+        ("Parthe", "parthe_0p0625"),
+        ("Goeltzsch2", "goeltzsch2_0p0625"),
+        ("Chemnitz2", "chemnitz2_0p0625"),
+        ("Wesenitz2", "wesenitz2_0p0625"),
+        ("Wyhra", "wyhra_0p0625"),
+        ("Zwoenitz1", "zwoenitz1_0p0625"),
+    ]
     
     # Sidebar controls
     st.sidebar.header("⚙️ Discharge Einstellungen")
     
-    # Year filter
+    # Catchment selector
+    selected_catchment_name, selected_catchment_id = st.sidebar.selectbox(
+        "Einzugsgebiet auswählen",
+        options=CATCHMENTS_DISCHARGE,
+        format_func=lambda x: x[0]
+    )
+    
+    # Year filter (1991-2020)
     selected_years = st.sidebar.multiselect(
         "Jahre auswählen",
-        options=list(range(2005, 2021)),
+        options=list(range(1991, 2021)),
         default=[2018, 2019, 2020],
-        help="Zeitraum für die Analyse"
+        help="Zeitraum für die Analyse (1991-2020)"
     )
     
     if not selected_years:
         st.warning("Bitte mindestens ein Jahr auswählen.")
         st.stop()
     
-    # Filter data
-    chemnitz_df["year"] = chemnitz_df["date"].dt.year
-    df_filtered = chemnitz_df[chemnitz_df["year"].isin(selected_years)].copy()
+    # Load data for selected catchment
+    @st.cache_data
+    def _load_discharge_data(catchment_id: str):
+        """Load discharge data for a specific catchment."""
+        from pathlib import Path
+        runs_dir = Path("/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs")
+        discharge_file = runs_dir / catchment_id / "output" / "daily_discharge.out"
+        
+        if not discharge_file.exists():
+            return None
+        
+        # Parse daily_discharge.out
+        import pandas as pd
+        data = []
+        with open(discharge_file, 'r') as f:
+            for line in f:
+                if line.startswith('#') or not line.strip():
+                    continue
+                parts = line.split()
+                if len(parts) >= 3:
+                    try:
+                        date_str = parts[0]
+                        qobs = float(parts[1])
+                        qsim = float(parts[2])
+                        data.append({'date': date_str, 'qobs': qobs, 'qsim': qsim})
+                    except (ValueError, IndexError):
+                        continue
+        
+        if not data:
+            return None
+        
+        df = pd.DataFrame(data)
+        df['date'] = pd.to_datetime(df['date'])
+        return df
+    
+    try:
+        discharge_df = _load_discharge_data(selected_catchment_id)
+        
+        if discharge_df is None or len(discharge_df) == 0:
+            st.warning(
+                f"⏳ **Daten für {selected_catchment_name} noch nicht verfügbar.**\n\n"
+                f"Die mHM-Simulation für dieses Catchment wurde noch nicht abgeschlossen.\n\n"
+                f"**Erwarteter Pfad:**\n"
+                f"`/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/{selected_catchment_id}/output/daily_discharge.out`\n\n"
+                f"Bitte warte bis die Simulation abgeschlossen ist."
+            )
+            st.stop()
+        
+        # Filter by year
+        discharge_df["year"] = discharge_df["date"].dt.year
+        df_filtered = discharge_df[discharge_df["year"].isin(selected_years)].copy()
+        
+        st.success(f"✅ Daten geladen: {len(df_filtered)} Tage ({selected_catchment_name}, {min(selected_years)}–{max(selected_years)})")
+        
+    except Exception as e:
+        st.error(f"❌ Fehler beim Laden der Daten: {e}")
+        st.stop()
     
     st.sidebar.markdown(f"**Datensatz:** {len(df_filtered)} Tage")
     
@@ -880,7 +940,8 @@ elif view == "🌊 Chemnitz2 Discharge":
         "Residuals": "Residuen-Analyse (Qobs - Qsim)",
         "Metrics": "Modellgüte-Metriken (KGE, NSE, r, PBIAS)",
         "Low-Flow": "Niedrigwasser-Analyse (Q7Q10, Dürre-Ereignisse)",
-        "Seasonal": "Saisonale Abflussmuster (Monats-Boxplots)"
+        "Seasonal": "Saisonale Abflussmuster (Monats-Boxplots)",
+        "Comparison (All 6)": "Vergleich aller 6 Catchments (KGE, NSE, Q-Regime)"
     }
     
     selected_plot = st.selectbox(
@@ -957,18 +1018,24 @@ elif view == "🌊 Chemnitz2 Discharge":
     st.divider()
     st.subheader("💾 Datenexport")
     
-    csv_data = df_filtered[["date", "qobs", "qsim", "smi", "mdi"]].to_csv(index=False)
+    csv_data = df_filtered[["date", "qobs", "qsim"]].to_csv(index=False)
     st.download_button(
-        "📥 CSV Download (Qobs, Qsim, SMI, MDI)",
+        "📥 CSV Download (Qobs, Qsim)",
         data=csv_data.encode("utf-8"),
-        file_name=f"chemnitz2_discharge_{'-'.join(map(str, selected_years))}.csv",
+        file_name=f"{selected_catchment_id}_discharge_{'-'.join(map(str, selected_years))}.csv",
         mime="text/csv"
     )
     
     # Scientific info
     with st.expander("📖 Methodik & Interpretation"):
         st.markdown(
-            """
+            f"""
+### Catchment: {selected_catchment_name}
+- **ID:** {selected_catchment_id}
+- **Periode:** 1991-2020 (30 Jahre)
+- **Qobs:** CAMELS-DE (beobachtet)
+- **Qsim:** mHM 5.13.2 (simuliert)
+
 ### Hydrograph
 - **Blau**: Beobachteter Abfluss (CAMELS-DE)
 - **Orange**: Simulierter Abfluss (mHM 5.13.2)
@@ -997,9 +1064,18 @@ elif view == "🌊 Chemnitz2 Discharge":
 
 ### Seasonal
 - Monatsweise Boxplots
+
+### Comparison (All 6)
+- Vergleich aller 6 kalibrierten Catchments
+- KGE/NSE im direkten Vergleich
+- Abfluss-Regime-Typen
 - Zeigt saisonale Muster und Modellabweichungen
             """
         )
+
+elif view == "🌊 Chemnitz2 Discharge":
+    st.info("⚠️ Diese View wird aktualisiert. Bitte nutze '🌊 Discharge Analysis (6 Catchments)' für alle Einzugsgebiete.")
+    st.warning("Deprecated: Use the new multi-catchment discharge view instead.")
 
 elif view == "🔧 Parthe DDS":
     render_dds_analysis_tab()
