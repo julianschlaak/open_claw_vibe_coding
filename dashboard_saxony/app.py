@@ -100,17 +100,32 @@ APP_TRANSLATIONS = {
 
 t = APP_TRANSLATIONS[st.session_state.language]
 
-# Language selector at top
-col_lang, col_space = st.columns([1, 5])
-with col_lang:
-    st.selectbox(
-        t['lang_label'],
+# Language selector at top right (prominent)
+st.markdown("""
+<style>
+.lang-selector-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: -20px;
+    z-index: 1000;
+    position: relative;
+}
+</style>
+""", unsafe_allow_html=True)
+
+lang_col, space_col = st.columns([1, 4])
+with lang_col:
+    new_lang = st.selectbox(
+        "🌐 Language",
         options=['de', 'en'],
-        format_func=lambda x: APP_TRANSLATIONS[x]['lang_de'] if x == 'de' else APP_TRANSLATIONS[x]['lang_en'],
+        format_func=lambda x: "🇩🇪 Deutsch" if x == 'de' else "🇬🇧 English",
         index=0 if st.session_state.language == 'de' else 1,
-        key='lang_selector',
-        on_change=lambda: setattr(st.session_state, 'language', st.session_state.lang_selector)
+        key='global_lang_selector',
+        label_visibility="collapsed"
     )
+    if new_lang != st.session_state.language:
+        st.session_state.language = new_lang
+        st.rerun()
 
 st.title(t['title'])
 st.markdown(t['subtitle'])

@@ -999,16 +999,8 @@ def render_dds_analysis_tab():
     """Streamlit tab content for DDS analysis."""
     import streamlit as st
     
-    # Language switcher at the top
-    col_lang, col_space = st.columns([1, 4])
-    with col_lang:
-        language = st.selectbox(
-            TRANSLATIONS['de']['lang_switch'],
-            options=['de', 'en'],
-            format_func=lambda x: TRANSLATIONS[x]['lang_de'] if x == 'de' else TRANSLATIONS[x]['lang_en'],
-            index=0
-        )
-    
+    # Use global language state from main app
+    language = st.session_state.language
     t = TRANSLATIONS[language]
     
     st.header(t['header'])
