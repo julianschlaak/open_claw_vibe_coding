@@ -1,12 +1,10 @@
 """
-Scientific DDS Calibration Analysis for mHM Re-Crit (Parthe_0p0625)
+Scientific DDS Calibration Analysis for mHM Re-Crit (Multiple Catchments)
 
 Analyzes DDS (Dynamically Dimensioned Search) optimization results:
-- Convergence plots
-- Parameter evolution
-- Parallel coordinates
-- Final parameter set analysis
-- Performance metrics
+- Single catchment: Convergence, parameter evolution, parallel coordinates
+- Multi-calculation: Comparison between catchments
+- Scientific explanations of calibration process
 
 Based on:
 - dds_results.out: DDS optimization log (200 iterations, 54 parameters)
@@ -27,28 +25,54 @@ from pathlib import Path
 
 
 # =============================================================================
+# PARAMETER GROUPS (mHM 5.13.2)
+# =============================================================================
+
+PARAM_GROUPS = {
+    'Soil (1-12)': list(range(1, 13)),      # Soil storage capacities
+    'Routing (13-20)': list(range(13, 21)),  # mRM routing parameters
+    'Groundwater (21-30)': list(range(21, 31)), # Groundwater storage
+    'Surface (31-40)': list(range(31, 41)),   # Surface runoff
+    'Evapotranspiration (41-50)': list(range(41, 51)), # ET parameters
+    'Precipitation/Snow (51-54)': list(range(51, 55)), # Snow/Precip correction
+}
+
+PARAM_DESCRIPTIONS = {
+    'param_01': 'FC1: Field capacity, layer 1 [mm]',
+    'param_02': 'WP1: Wilting point, layer 1 [mm]',
+    'param_03': 'FC2: Field capacity, layer 2 [mm]',
+    'param_04': 'WP2: Wilting point, layer 2 [mm]',
+    'param_05': 'FC3: Field capacity, layer 3 [mm]',
+    'param_06': 'WP3: Wilting point, layer 3 [mm]',
+    'param_13': 'c_z: Manning coefficient overland flow',
+    'param_14': 'c_l: Manning coefficient channel flow',
+    'param_21': 'K_GW1: Groundwater recession constant, shallow',
+    'param_22': 'K_GW2: Groundwater recession constant, deep',
+    'param_31': 'C_R: Surface runoff coefficient',
+    'param_41': 'C_T: Temperature correction for ET',
+    'param_51': 'P_corr: Precipitation correction factor',
+    'param_52': 'T_snow: Snow-rain threshold [°C]',
+}
+
+
+# =============================================================================
 # DDS RESULTS PARSING
 # =============================================================================
 
-def parse_dds_results(filepath: str) -> pd.DataFrame:
+def parse_dds_results(filepath: str, catchment_name: str = None) -> Dict:
     """
     Parse dds_results.out file.
     
-    Format:
-    # iter   bestf   (bestx(j),j=1,nopt)
-    0   1.2848...   0.3658... 1.3110... ...
-    
     Returns
     -------
-    pd.DataFrame
-        Columns: iteration, objective, param_1, param_2, ..., param_54
+    dict
+        {'name': catchment_name, 'df': DataFrame, 'path': filepath}
     """
     rows = []
     
-    with open(filepath, 'r') as f:
+    with open(filepath, 'r', encoding='latin-1') as f:
         lines = f.readlines()
     
-    # Skip header lines (start with #)
     data_lines = [l for l in lines if not l.strip().startswith('#')]
     
     for line in data_lines:
@@ -65,21 +89,24 @@ def parse_dds_results(filepath: str) -> pd.DataFrame:
             row[f'param_{i+1:02d}'] = p
         rows.append(row)
     
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    
+    return {
+        'name': catchment_name or Path(filepath).parent.name,
+        'df': df,
+        'path': filepath,
+        'iterations': len(df),
+        'n_params': len(df.columns) - 2
+    }
 
 
 def parse_final_param_nml(filepath: str) -> Dict[str, float]:
-    """
-    Parse FinalParam.nml (mhm_parameter.nml format).
-    
-    Extracts parameter names and values.
-    """
+    """Parse FinalParam.nml (mhm_parameter.nml format)."""
     params = {}
     
     with open(filepath, 'r', encoding='latin-1') as f:
         content = f.read()
     
-    # Pattern: parameter_name = value
     pattern = r'(\w+)\s*=\s*([\d.E+-]+)'
     matches = re.findall(pattern, content)
     
@@ -93,14 +120,10 @@ def parse_final_param_nml(filepath: str) -> Dict[str, float]:
 
 
 def parse_final_param_out(filepath: str) -> Dict[str, float]:
-    """
-    Parse FinalParam.out (model performance metrics).
-    
-    Expected metrics: KGE, NSE, r, PBIAS, etc.
-    """
+    """Parse FinalParam.out (model performance metrics)."""
     metrics = {}
     
-    with open(filepath, 'r') as f:
+    with open(filepath, 'r', encoding='latin-1') as f:
         lines = f.readlines()
     
     for line in lines:
@@ -121,49 +144,35 @@ def parse_final_param_out(filepath: str) -> Dict[str, float]:
 # VISUALIZATION FUNCTIONS
 # =============================================================================
 
-def create_convergence_plot(df: pd.DataFrame, title: str = "DDS Convergence") -> go.Figure:
+def create_convergence_comparison(results_list: List[Dict]) -> go.Figure:
     """
-    Plot objective function value over iterations.
+    Compare convergence of multiple catchments.
     """
     fig = go.Figure()
     
-    # Best objective value
-    fig.add_trace(
-        go.Scatter(
-            x=df['iteration'],
-            y=df['objective'],
-            mode='lines',
-            name='Best Objective',
-            line=dict(color='#1f77b4', width=2.5),
-            hovertemplate='<b>Iteration: %{x}</b><br>Objective: %{y:.4f}<extra></extra>'
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+    
+    for i, result in enumerate(results_list):
+        df = result['df']
+        color = colors[i % len(colors)]
+        
+        fig.add_trace(
+            go.Scatter(
+                x=df['iteration'],
+                y=df['objective'],
+                mode='lines',
+                name=f"{result['name']} ({result['iterations']} iter)",
+                line=dict(color=color, width=2.5),
+                hovertemplate=f"<b>{result['name']}</b><br>Iteration: %{{x}}<br>Objective: %{{y:.4f}}<extra></extra>"
+            )
         )
-    )
     
-    # Improvement annotations
-    initial_obj = df['objective'].iloc[0]
-    final_obj = df['objective'].iloc[-1]
-    improvement = ((initial_obj - final_obj) / initial_obj) * 100
-    
-    fig.add_annotation(
-        x=len(df) // 2,
-        y=final_obj,
-        text=f"Improvement: {improvement:.1f}%",
-        showarrow=True,
-        arrowhead=2,
-        ax=0,
-        ay=-40,
-        bgcolor="rgba(255, 255, 255, 0.8)",
-        bordercolor="#1f77b4",
-        borderwidth=1
-    )
-    
-    # Layout
     fig.update_layout(
         title=dict(
-            text=title,
+            text="🔬 DDS Konvergenz-Vergleich: Mehrere Einzugsgebiete",
             font=dict(size=14, weight='bold', color='#ffffff')
         ),
-        height=400,
+        height=500,
         showlegend=True,
         legend=dict(
             orientation="h",
@@ -176,7 +185,7 @@ def create_convergence_plot(df: pd.DataFrame, title: str = "DDS Convergence") ->
         ),
         hovermode="x unified",
         template="plotly_dark",
-        margin=dict(l=60, r=40, t=80, b=50),
+        margin=dict(l=60, r=40, t=100, b=50),
         plot_bgcolor="rgba(30, 30, 30, 1)",
         paper_bgcolor="rgba(30, 30, 30, 1)",
         font=dict(color="#ffffff", size=11)
@@ -186,63 +195,152 @@ def create_convergence_plot(df: pd.DataFrame, title: str = "DDS Convergence") ->
         title_text="Iteration",
         showgrid=True,
         gridcolor="rgba(255, 255, 255, 0.1)",
-        tickcolor="rgba(255, 255, 255, 0.3)",
         linecolor="rgba(255, 255, 255, 0.3)"
     )
     
     fig.update_yaxes(
-        title_text="Objective Function [-]",
+        title_text="Objective Function (KGE-basiert) [-]",
         showgrid=True,
         gridcolor="rgba(255, 255, 255, 0.1)",
-        zeroline=True,
-        zerolinecolor="rgba(255, 255, 255, 0.2)",
         linecolor="rgba(255, 255, 255, 0.3)"
     )
     
     return fig
 
 
-def create_parameter_evolution_plot(df: pd.DataFrame, n_params: int = 10) -> go.Figure:
-    """
-    Plot evolution of top N parameters over iterations.
-    """
-    # Select first N parameters (or most important ones)
-    param_cols = [f'param_{i:02d}' for i in range(1, n_params + 1)]
+def create_convergence_plot(df: pd.DataFrame, title: str = "DDS Convergence") -> go.Figure:
+    """Plot objective function value over iterations."""
+    fig = go.Figure()
     
-    fig = make_subplots(
-        rows=5, cols=2,
-        shared_xaxes=True,
-        vertical_spacing=0.03,
-        subplot_titles=[f"Param {i:02d}" for i in range(1, n_params + 1)]
+    fig.add_trace(
+        go.Scatter(
+            x=df['iteration'],
+            y=df['objective'],
+            mode='lines',
+            name='Best Objective',
+            line=dict(color='#1f77b4', width=2.5),
+            hovertemplate='<b>Iteration: %{x}</b><br>Objective: %{y:.4f}<extra></extra>'
+        )
     )
     
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-              '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+    # Improvement annotation
+    initial_obj = df['objective'].iloc[0]
+    final_obj = df['objective'].iloc[-1]
+    improvement = ((initial_obj - final_obj) / initial_obj) * 100
     
-    for i, col in enumerate(param_cols):
-        row = (i // 2) + 1
-        c = (i % 2) + 1
-        
-        fig.add_trace(
-            go.Scatter(
-                x=df['iteration'],
-                y=df[col],
-                mode='lines',
-                name=f"Param {i+1:02d}",
-                line=dict(color=colors[i], width=1.5),
-                showlegend=False
-            ),
-            row=row, col=c
-        )
+    fig.add_annotation(
+        x=len(df) // 2,
+        y=final_obj,
+        text=f"Verbesserung: {improvement:.1f}%",
+        showarrow=True,
+        arrowhead=2,
+        ax=0,
+        ay=-40,
+        bgcolor="rgba(255, 255, 255, 0.8)",
+        bordercolor="#1f77b4",
+        borderwidth=1
+    )
     
     fig.update_layout(
-        height=800,
+        title=dict(text=title, font=dict(size=14, weight='bold', color='#ffffff')),
+        height=400,
+        showlegend=True,
+        template="plotly_dark",
+        margin=dict(l=60, r=40, t=80, b=50),
+        plot_bgcolor="rgba(30, 30, 30, 1)",
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        font=dict(color="#ffffff", size=11)
+    )
+    
+    fig.update_xaxes(title_text="Iteration", showgrid=True, gridcolor="rgba(255, 255, 255, 0.1)")
+    fig.update_yaxes(title_text="Objective Function [-]", showgrid=True, gridcolor="rgba(255, 255, 255, 0.1)")
+    
+    return fig
+
+
+def create_parameter_group_evolution(df: pd.DataFrame, group_name: str, param_indices: List[int]) -> go.Figure:
+    """
+    Plot evolution of a parameter group (e.g., soil parameters 1-12).
+    """
+    fig = go.Figure()
+    
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+              '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+              '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5']
+    
+    for i, param_idx in enumerate(param_indices):
+        col = f'param_{param_idx:02d}'
+        if col in df.columns:
+            fig.add_trace(
+                go.Scatter(
+                    x=df['iteration'],
+                    y=df[col],
+                    mode='lines',
+                    name=f"P{param_idx:02d}",
+                    line=dict(color=colors[i % len(colors)], width=1.5),
+                    opacity=0.8
+                )
+            )
+    
+    fig.update_layout(
+        title=f"📊 {group_name} — Parameter-Evolution",
+        height=400,
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        template="plotly_dark",
+        margin=dict(l=60, r=40, t=80, b=50),
+        plot_bgcolor="rgba(30, 30, 30, 1)",
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        font=dict(color="#ffffff", size=10)
+    )
+    
+    fig.update_xaxes(title_text="Iteration", showgrid=True, gridcolor="rgba(255, 255, 255, 0.1)")
+    fig.update_yaxes(title_text="Parameter Value [-]", showgrid=True, gridcolor="rgba(255, 255, 255, 0.1)")
+    
+    return fig
+
+
+def create_faceted_parameter_groups(df: pd.DataFrame) -> go.Figure:
+    """
+    Create faceted plot showing all parameter groups.
+    """
+    fig = make_subplots(
+        rows=3, cols=2,
+        subplot_titles=list(PARAM_GROUPS.keys()),
+        vertical_spacing=0.12,
+        horizontal_spacing=0.08
+    )
+    
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
+    
+    for idx, (group_name, param_indices) in enumerate(PARAM_GROUPS.items()):
+        row = (idx // 2) + 1
+        col = (idx % 2) + 1
+        
+        for i, param_idx in enumerate(param_indices[:8]):  # Show first 8 per group
+            col_name = f'param_{param_idx:02d}'
+            if col_name in df.columns:
+                fig.add_trace(
+                    go.Scatter(
+                        x=df['iteration'],
+                        y=df[col_name],
+                        mode='lines',
+                        name=f"P{param_idx:02d}",
+                        line=dict(color=colors[i % len(colors)], width=1.2),
+                        opacity=0.7,
+                        showlegend=False
+                    ),
+                    row=row, col=col
+                )
+    
+    fig.update_layout(
+        height=900,
         showlegend=False,
         template="plotly_dark",
         margin=dict(l=60, r=40, t=60, b=40),
         plot_bgcolor="rgba(30, 30, 30, 1)",
         paper_bgcolor="rgba(30, 30, 30, 1)",
-        font=dict(color="#ffffff", size=10)
+        font=dict(color="#ffffff", size=9)
     )
     
     fig.update_xaxes(showgrid=True, gridcolor="rgba(255, 255, 255, 0.1)")
@@ -251,114 +349,29 @@ def create_parameter_evolution_plot(df: pd.DataFrame, n_params: int = 10) -> go.
     return fig
 
 
-def create_parallel_coordinates_plot(df: pd.DataFrame, final_iter: int = -1) -> go.Figure:
-    """
-    Parallel coordinates plot showing parameter changes from initial to final.
-    """
-    initial = df.iloc[0]
-    final = df.iloc[final_iter]
-    
-    # Select key parameters (first 20)
-    param_cols = [f'param_{i:02d}' for i in range(1, 21)]
-    
-    dimensions = []
-    for col in param_cols:
-        dimensions.append(dict(
-            range=[float(df[col].min()), float(df[col].max())],
-            label=f"P{col[-2:]}",
-            values=[float(final[col])]
-        ))
-    
-    fig = go.Figure(data=
-        go.Parcoords(
-            line=dict(
-                color='#1f77b4',
-                colorscale='Viridis',
-                showscale=False,
-                cmin=0,
-                cmax=1
-            ),
-            dimensions=dimensions
-        )
-    )
-    
-    fig.update_layout(
-        title="Final Parameter Set (Parallel Coordinates)",
-        height=400,
-        font=dict(color="#ffffff", size=11),
-        paper_bgcolor="rgba(30, 30, 30, 1)",
-        plot_bgcolor="rgba(30, 30, 30, 1)"
-    )
-    
-    return fig
-
-
-def create_parameter_distribution_plot(df: pd.DataFrame) -> go.Figure:
-    """
-    Box plot showing parameter distributions across all iterations.
-    """
-    param_cols = [c for c in df.columns if c.startswith('param_')]
-    
-    # Select first 30 parameters for readability
-    param_cols = param_cols[:30]
-    
-    fig = go.Figure()
-    
-    for col in param_cols:
-        fig.add_trace(
-            go.Box(
-                y=df[col],
-                name=col[-2:],
-                boxpoints='outliers',
-                marker_size=3,
-                opacity=0.7
-            )
-        )
-    
-    fig.update_layout(
-        title="Parameter Distributions (All Iterations)",
-        height=500,
-        showlegend=False,
-        template="plotly_dark",
-        margin=dict(l=60, r=40, t=60, b=80),
-        plot_bgcolor="rgba(30, 30, 30, 1)",
-        paper_bgcolor="rgba(30, 30, 30, 1)",
-        font=dict(color="#ffffff", size=10)
-    )
-    
-    fig.update_xaxes(title_text="Parameter")
-    fig.update_yaxes(title_text="Value [-]")
-    
-    return fig
-
-
 def create_improvement_summary(df: pd.DataFrame) -> Dict[str, float]:
-    """
-    Calculate improvement metrics.
-    """
+    """Calculate improvement metrics."""
     initial = df['objective'].iloc[0]
     final = df['objective'].iloc[-1]
     best = df['objective'].min()
     
-    # Find when significant improvement occurred
-    threshold = initial * 0.5  # 50% improvement
+    # Find when 50% improvement occurred
+    threshold = initial * 0.5
     iter_50 = df[df['objective'] <= threshold]['iteration'].iloc[0] if len(df[df['objective'] <= threshold]) > 0 else None
     
     return {
-        'initial': initial,
-        'final': final,
-        'best': best,
-        'improvement_abs': initial - final,
-        'improvement_pct': ((initial - final) / initial) * 100,
+        'initial': float(initial),
+        'final': float(final),
+        'best': float(best),
+        'improvement_abs': float(initial - final),
+        'improvement_pct': float(((initial - final) / initial) * 100),
         'iterations': len(df),
-        'iter_50_pct': iter_50
+        'iter_50_pct': int(iter_50) if iter_50 else None
     }
 
 
-def create_dashboard_summary_card(df: pd.DataFrame, metrics: Optional[Dict] = None) -> go.Figure:
-    """
-    Create a summary card with key metrics for dashboard display.
-    """
+def create_dashboard_summary_card(df: pd.DataFrame, catchment_name: str = None) -> go.Figure:
+    """Create a summary card with key metrics."""
     summary = create_improvement_summary(df)
     
     fig = make_subplots(
@@ -372,7 +385,7 @@ def create_dashboard_summary_card(df: pd.DataFrame, metrics: Optional[Dict] = No
             mode="number+delta",
             value=summary['improvement_pct'],
             delta={'reference': 0, 'valueformat': '.1f', 'suffix': '%'},
-            title={'text': "Objective Improvement", 'font': {'size': 14, 'color': '#ffffff'}},
+            title={'text': "Objektiv-Verbesserung", 'font': {'size': 14, 'color': '#ffffff'}},
             number={'font': {'size': 40, 'color': '#1f77b4'}}
         ),
         row=1, col=1
@@ -382,15 +395,17 @@ def create_dashboard_summary_card(df: pd.DataFrame, metrics: Optional[Dict] = No
     fig.add_trace(
         go.Table(
             header=dict(
-                values=["<b>Metric</b>", "<b>Value</b>"],
+                values=["<b>Metrik</b>", "<b>Wert</b>"],
                 fill_color="#1f77b4",
                 align="left",
                 font=dict(color="white", size=12)
             ),
             cells=dict(
                 values=[
-                    ["Initial Objective", "Final Objective", "Best Objective", "Improvement", "Iterations"],
-                    [f"{summary['initial']:.4f}", f"{summary['final']:.4f}", f"{summary['best']:.4f}", f"{summary['improvement_pct']:.1f}%", str(summary['iterations'])]
+                    ["Start-Objektiv", "End-Objektiv", "Bestes Objektiv", "Verbesserung", "Iterationen"],
+                    [f"{summary['initial']:.4f}", f"{summary['final']:.4f}",
+                     f"{summary['best']:.4f}", f"{summary['improvement_pct']:.1f}%",
+                     str(summary['iterations'])]
                 ],
                 fill_color="rgba(30, 30, 30, 0.8)",
                 align="left",
@@ -399,6 +414,14 @@ def create_dashboard_summary_card(df: pd.DataFrame, metrics: Optional[Dict] = No
         ),
         row=1, col=2
     )
+    
+    if catchment_name:
+        fig.add_annotation(
+            x=0.5, y=1.15, xref="paper", yref="paper",
+            text=f"Catchment: {catchment_name}",
+            showarrow=False,
+            font=dict(size=14, color="#ffffff")
+        )
     
     fig.update_layout(
         height=350,
@@ -410,56 +433,182 @@ def create_dashboard_summary_card(df: pd.DataFrame, metrics: Optional[Dict] = No
     return fig
 
 
+def create_parameter_comparison_table(results_list: List[Dict]) -> go.Figure:
+    """
+    Compare final parameters between catchments.
+    """
+    # Get final parameters for each catchment
+    all_params = {}
+    
+    for result in results_list:
+        nml_path = Path(result['path']).parent / 'FinalParam.nml'
+        if nml_path.exists():
+            params = parse_final_param_nml(nml_path)
+            all_params[result['name']] = params
+    
+    # Select key parameters (first 20)
+    key_params = [f'param_{i:02d}' for i in range(1, 21)]
+    
+    # Build table
+    headers = ['Parameter'] + [r['name'] for r in results_list]
+    rows = [key_params]
+    
+    for param in key_params:
+        row = [param]
+        for result in results_list:
+            if result['name'] in all_params and param in all_params[result['name']]:
+                row.append(f"{all_params[result['name']][param]:.4f}")
+            else:
+                row.append('N/A')
+        rows.append(row)
+    
+    fig = go.Figure(data=go.Table(
+        header=dict(
+            values=headers,
+            fill_color="#1f77b4",
+            align="left",
+            font=dict(color="white", size=11)
+        ),
+        cells=dict(
+            values=[list(row) for row in zip(*rows)],
+            fill_color="rgba(30, 30, 30, 0.8)",
+            align="left",
+            font=dict(size=10, color="#ffffff")
+        )
+    ))
+    
+    fig.update_layout(
+        title="📋 Finale Parameter-Vergleich (Top 20)",
+        height=600,
+        margin=dict(l=40, r=40, t=60, b=40),
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        plot_bgcolor="rgba(30, 30, 30, 1)"
+    )
+    
+    return fig
+
+
+def create_metrics_comparison_table(results_list: List[Dict]) -> go.Figure:
+    """
+    Compare final model metrics between catchments.
+    """
+    all_metrics = {}
+    
+    for result in results_list:
+        out_path = Path(result['path']).parent / 'FinalParam.out'
+        if out_path.exists():
+            metrics = parse_final_param_out(out_path)
+            all_metrics[result['name']] = metrics
+    
+    # Common metrics
+    common_metrics = ['KGE', 'NSE', 'r', 'PBIAS', 'RMSE', 'MAE']
+    
+    # Build table
+    headers = ['Metrik'] + [r['name'] for r in results_list]
+    rows = [common_metrics]
+    
+    for metric in common_metrics:
+        row = [metric]
+        for result in results_list:
+            if result['name'] in all_metrics and metric in all_metrics[result['name']]:
+                row.append(f"{all_metrics[result['name']][metric]:.4f}")
+            else:
+                row.append('N/A')
+        rows.append(row)
+    
+    fig = go.Figure(data=go.Table(
+        header=dict(
+            values=headers,
+            fill_color="#1f77b4",
+            align="left",
+            font=dict(color="white", size=11)
+        ),
+        cells=dict(
+            values=[list(row) for row in zip(*rows)],
+            fill_color="rgba(30, 30, 30, 0.8)",
+            align="left",
+            font=dict(size=10, color="#ffffff")
+        )
+    ))
+    
+    fig.update_layout(
+        title="📊 Modell-Performance-Vergleich (FinalParam)",
+        height=400,
+        margin=dict(l=40, r=40, t=60, b=40),
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        plot_bgcolor="rgba(30, 30, 30, 1)"
+    )
+    
+    return fig
+
+
 # =============================================================================
 # MAIN ANALYSIS FUNCTION
 # =============================================================================
 
-def analyze_dds_calibration(
-    dds_results_path: str,
-    final_param_nml_path: Optional[str] = None,
-    final_param_out_path: Optional[str] = None,
-    title: str = "Parthe_0p0625 DDS Calibration"
-) -> Dict[str, go.Figure]:
+def analyze_multiple_dds(results_paths: List[Tuple[str, str]]) -> Dict:
     """
-    Complete DDS calibration analysis.
+    Analyze multiple DDS calibrations.
     
     Parameters
     ----------
-    dds_results_path : str
-        Path to dds_results.out
-    final_param_nml_path : str, optional
-        Path to FinalParam.nml
-    final_param_out_path : str, optional
-        Path to FinalParam.out
-    title : str
-        Plot title
+    results_paths : List[Tuple[str, str]]
+        List of (filepath, catchment_name) tuples
     
     Returns
     -------
     dict
-        Dictionary of plotly figures
+        Analysis results with figures and data
     """
-    # Parse data
-    df = parse_dds_results(dds_results_path)
+    results = [parse_dds_results(path, name) for path, name in results_paths]
     
-    # Create plots
     figures = {
-        'convergence': create_convergence_plot(df, title=f"{title} - Convergence"),
-        'summary': create_dashboard_summary_card(df),
-        'parameter_evolution': create_parameter_evolution_plot(df, n_params=10),
-        'parameter_distribution': create_parameter_distribution_plot(df),
+        'convergence_comparison': create_convergence_comparison(results),
+        'parameter_comparison': create_parameter_comparison_table(results),
+        'metrics_comparison': create_metrics_comparison_table(results),
     }
     
-    # Parse final parameters if available
-    if final_param_nml_path and Path(final_param_nml_path).exists():
-        final_params = parse_final_param_nml(final_param_nml_path)
-        figures['final_params'] = final_params
+    # Add individual analyses
+    for result in results:
+        figures[f"{result['name']}_convergence"] = create_convergence_plot(
+            result['df'], f"{result['name']} - Konvergenz"
+        )
+        figures[f"{result['name']}_summary"] = create_dashboard_summary_card(
+            result['df'], result['name']
+        )
+        figures[f"{result['name']}_groups"] = create_faceted_parameter_groups(result['df'])
     
-    if final_param_out_path and Path(final_param_out_path).exists():
-        final_metrics = parse_final_param_out(final_param_out_path)
-        figures['final_metrics'] = final_metrics
+    return {
+        'results': results,
+        'figures': figures
+    }
+
+
+def analyze_single_dds(dds_results_path: str, title: str = "DDS Calibration") -> Dict:
+    """Analyze single DDS calibration."""
+    result = parse_dds_results(dds_results_path)
+    df = result['df']
     
-    return figures
+    figures = {
+        'convergence': create_convergence_plot(df, f"{title} - Konvergenz"),
+        'summary': create_dashboard_summary_card(df, result['name']),
+        'parameter_groups': create_faceted_parameter_groups(df),
+    }
+    
+    # Add FinalParam files if available
+    nml_path = Path(dds_results_path).parent / 'FinalParam.nml'
+    out_path = Path(dds_results_path).parent / 'FinalParam.out'
+    
+    if nml_path.exists():
+        figures['final_params'] = parse_final_param_nml(nml_path)
+    
+    if out_path.exists():
+        figures['final_metrics'] = parse_final_param_out(out_path)
+    
+    return {
+        'result': result,
+        'figures': figures
+    }
 
 
 # =============================================================================
@@ -467,158 +616,280 @@ def analyze_dds_calibration(
 # =============================================================================
 
 def render_dds_analysis_tab():
-    """
-    Streamlit tab content for DDS analysis.
-    """
+    """Streamlit tab content for DDS analysis."""
     import streamlit as st
     
-    st.header("🔧 Parthe_0p0625 — DDS Kalibrierungs-Analyse")
+    st.header("🔧 mHM DDS Kalibrierungs-Analyse")
     st.markdown(
         "**Dynamically Dimensioned Search (DDS) Optimierung für mHM Re-Crit**\n\n"
-        "Catchment: Parthe_0p0625 | Iterationen: 200 | Parameter: 54"
+        "Automatische Parameter-Kalibrierung mit globalem Optimierungsalgorithmus"
     )
     
-    # File paths
-    dds_results = "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/parthe_0p0625/dds_results.out"
-    final_nml = "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/parthe_0p0625/FinalParam.nml"
-    final_out = "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/parthe_0p0625/FinalParam.out"
+    # Define catchments with DDS results
+    catchments = [
+        ("Parthe_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/parthe_0p0625/dds_results.out"),
+        ("Goeltzsch2_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/goeltzsch2_0p0625/dds_results.out"),
+    ]
     
-    # Load data
-    try:
-        df = parse_dds_results(dds_results)
-        st.success(f"DDS-Daten geladen: {len(df)} Iterationen, 54 Parameter")
-    except Exception as e:
-        st.error(f"Fehler beim Laden: {e}")
+    # Filter existing files
+    existing = [(name, path) for name, path in catchments if Path(path).exists()]
+    
+    if not existing:
+        st.error("Keine DDS-Ergebnisse gefunden!")
         st.stop()
     
-    # Summary metrics
-    summary = create_improvement_summary(df)
+    st.success(f"{len(existing)} Catchments mit DDS-Kalibrierung gefunden")
     
-    # Key metrics row
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.metric("Initiales Ziel", f"{summary['initial']:.4f}")
-    with c2:
-        st.metric("Finales Ziel", f"{summary['final']:.4f}")
-    with c3:
-        st.metric("Verbesserung", f"{summary['improvement_pct']:.1f}%")
-    with c4:
-        st.metric("Iterationen", str(summary['iterations']))
-    
-    # Plot selection
-    st.subheader("📊 Visualisierung")
-    plot_options = {
-        "Konvergenz": "Objektive Funktion über Iterationen",
-        "Parameter-Evolution": "Entwicklung der ersten 10 Parameter",
-        "Parameter-Verteilung": "Box-Plots aller Parameter",
-        "Parallel Coordinates": "Finale Parameter-Sets"
-    }
-    
-    selected_plot = st.selectbox(
-        "Plot-Typ",
-        options=list(plot_options.keys()),
-        format_func=lambda x: f"{x}"
+    # Mode selection
+    mode = st.radio(
+        "📊 Analyse-Modus",
+        ["Einzel-Catchment", "Mehrere Catchments (Vergleich)"],
+        horizontal=True
     )
     
-    # Render plots
-    if selected_plot == "Konvergenz":
-        fig = create_convergence_plot(df)
+    if mode == "Einzel-Catchment":
+        # Select catchment
+        selected = st.selectbox(
+            "Catchment auswählen",
+            options=[name for name, _ in existing],
+            index=0
+        )
+        
+        path = next(p for n, p in existing if n == selected)
+        
+        # Load and analyze
+        try:
+            result = parse_dds_results(path, selected)
+            df = result['df']
+            st.success(f"DDS-Daten geladen: {len(df)} Iterationen, {result['n_params']} Parameter")
+        except Exception as e:
+            st.error(f"Fehler: {e}")
+            st.stop()
+        
+        # Summary metrics
+        summary = create_improvement_summary(df)
+        
+        # Key metrics row
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.metric("Start-Objektiv", f"{summary['initial']:.4f}")
+        with c2:
+            st.metric("End-Objektiv", f"{summary['final']:.4f}")
+        with c3:
+            st.metric("Verbesserung", f"{summary['improvement_pct']:.1f}%")
+        with c4:
+            st.metric("Iterationen", str(summary['iterations']))
+        
+        # Plot selection
+        st.subheader("📊 Visualisierung")
+        plot_options = {
+            "Konvergenz": "Objektive Funktion über Iterationen",
+            "Parameter-Gruppen": "Alle 6 Parameter-Gruppen (faceted)",
+            "Soil (1-12)": "Boden-Parameter (Field Capacity, Wilting Point)",
+            "Routing (13-20)": "mRM Routing-Parameter (Manning, etc.)",
+            "Groundwater (21-30)": "Grundwasser-Parameter",
+            "Surface (31-40)": "Oberflächenabfluss-Parameter",
+            "ET (41-50)": "Evapotranspiration-Parameter",
+            "Snow (51-54)": "Schnee/Niederschlag-Parameter"
+        }
+        
+        selected_plot = st.selectbox("Plot-Typ", options=list(plot_options.keys()))
+        
+        # Render plots
+        if selected_plot == "Konvergenz":
+            fig = create_convergence_plot(df, f"{selected} - Konvergenz")
+            st.plotly_chart(fig, use_container_width=True)
+            
+            st.info(
+                f"**Konvergenz-Analyse ({selected}):**\n"
+                f"- Start: {summary['initial']:.4f}\n"
+                f"- Ende: {summary['final']:.4f}\n"
+                f"- Verbesserung: {summary['improvement_pct']:.1f}%\n"
+                f"- Iterationen: {summary['iterations']}"
+            )
+        
+        elif selected_plot == "Parameter-Gruppen":
+            fig = create_faceted_parameter_groups(df)
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("Abb.: Evolution aller 6 Parameter-Gruppen über 200 Iterationen.")
+        
+        else:
+            # Get group indices
+            for group_name, param_indices in PARAM_GROUPS.items():
+                if selected_plot.startswith(group_name.split()[0]):
+                    fig = create_parameter_group_evolution(df, group_name, param_indices)
+                    st.plotly_chart(fig, use_container_width=True)
+                    st.caption(f"Abb.: {group_name} — Parameter-Evolution.")
+                    break
+        
+        # Final parameters table
+        nml_path = Path(path).parent / 'FinalParam.nml'
+        if nml_path.exists():
+            st.divider()
+            st.subheader("📋 Finale Parameter (Top 20)")
+            
+            final_params = parse_final_param_nml(nml_path)
+            param_list = list(final_params.items())[:20]
+            
+            param_df = pd.DataFrame(param_list, columns=['Parameter', 'Value'])
+            st.dataframe(param_df, height=400, use_container_width=True)
+        
+        # Final metrics
+        out_path = Path(path).parent / 'FinalParam.out'
+        if out_path.exists():
+            st.divider()
+            st.subheader("📊 Modell-Performance (FinalParam)")
+            
+            final_metrics = parse_final_param_out(out_path)
+            
+            if final_metrics:
+                metrics_df = pd.DataFrame(
+                    list(final_metrics.items()),
+                    columns=['Metrik', 'Wert']
+                )
+                st.dataframe(metrics_df, height=300, use_container_width=True)
+    
+    else:
+        # Multi-calcation comparison
+        st.subheader("🔬 Vergleich: Mehrere Einzugsgebiete")
+        
+        results = [parse_dds_results(path, name) for name, path in existing]
+        
+        # Comparison metrics
+        st.markdown("### Zusammenfassung")
+        
+        comp_df = pd.DataFrame([
+            {
+                'Catchment': r['name'],
+                'Iterationen': r['iterations'],
+                'Parameter': r['n_params'],
+                'Start': f"{r['df']['objective'].iloc[0]:.4f}",
+                'Ende': f"{r['df']['objective'].iloc[-1]:.4f}",
+                'Verbesserung': f"{((r['df']['objective'].iloc[0] - r['df']['objective'].iloc[-1]) / r['df']['objective'].iloc[0] * 100):.1f}%"
+            }
+            for r in results
+        ])
+        
+        st.dataframe(comp_df, use_container_width=True)
+        
+        # Convergence comparison plot
+        st.subheader("📈 Konvergenz-Vergleich")
+        fig = create_convergence_comparison(results)
         st.plotly_chart(fig, use_container_width=True)
         
         st.info(
-            "**Konvergenz-Analyse:**\n"
-            f"- Start: {summary['initial']:.4f}\n"
-            f"- Ende: {summary['final']:.4f}\n"
-            f"- Verbesserung: {summary['improvement_pct']:.1f}%"
+            "**Interpretation:**\n"
+            "- Unterschiedliche Start-Ziele: Reflektiert initiale Parameter-Unsicherheit\n"
+            "- Konvergenz-Rate: Zeigt Komplexität des Catchments\n"
+            "- Finale Ziele: Vergleichbare Modell-Performance?"
         )
-    
-    elif selected_plot == "Parameter-Evolution":
-        fig = create_parameter_evolution_plot(df, n_params=10)
+        
+        # Parameter comparison
+        st.subheader("📋 Parameter-Vergleich")
+        fig = create_parameter_comparison_table(results)
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("Abb.: Entwicklung der ersten 10 Parameter über 200 Iterationen.")
-    
-    elif selected_plot == "Parameter-Verteilung":
-        fig = create_parameter_distribution_plot(df)
+        
+        # Metrics comparison
+        st.subheader("📊 Performance-Vergleich")
+        fig = create_metrics_comparison_table(results)
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("Abb.: Box-Plots der Parameter-Werte (erste 30 Parameter).")
-    
-    elif selected_plot == "Parallel Coordinates":
-        fig = create_parallel_coordinates_plot(df)
-        st.plotly_chart(fig, use_container_width=True)
-        st.caption("Abb.: Parallel Coordinates für finale Parameter (erste 20).")
-    
-    # Final parameters table
-    if Path(final_nml).exists():
-        st.divider()
-        st.subheader("📋 Finale Parameter (Top 20)")
-        
-        final_params = parse_final_param_nml(final_nml)
-        param_list = list(final_params.items())[:20]
-        
-        param_df = pd.DataFrame(param_list, columns=['Parameter', 'Value'])
-        st.dataframe(param_df, height=400)
-    
-    # Final metrics
-    if Path(final_out).exists():
-        st.divider()
-        st.subheader("📊 Modell-Performance (FinalParam)")
-        
-        final_metrics = parse_final_param_out(final_out)
-        
-        if final_metrics:
-            metrics_df = pd.DataFrame(
-                list(final_metrics.items()),
-                columns=['Metric', 'Value']
-            )
-            st.dataframe(metrics_df, height=300)
     
     # Scientific info
-    with st.expander("📖 DDS Methodik"):
+    st.divider()
+    with st.expander("📖 DDS Methodik & Erklärung"):
         st.markdown(
             """
-### Dynamically Dimensioned Search (DDS)
+### 🔬 Dynamically Dimensioned Search (DDS)
+
 **Algorithmus:** Globale Optimierung für hydrologische Modelle
 
 **Prinzip:**
-- Startet mit allen Parametern (full dimension)
-- Reduziert Dimensionalität über Iterationen
-- Perturbation mit Normalverteilung
-- Akzeptiert nur Verbesserungen
+1. **Start:** Alle Parameter aktiv (volle Dimension)
+2. **Iteration:** Zufällige Perturbation mit Normalverteilung N(0, σ²)
+3. **Reduktion:** Dimensionalität reduziert sich über Zeit
+4. **Akzeptanz:** Nur Verbesserungen werden übernommen
 
 **Parameter:**
-- nIterationen: 200
-- nParameter: 54 (mhm_parameter.nml)
-- r (DDS): 0.2 (Standard)
-- iseed: 1235876 (Reproduzierbarkeit)
+- `nIterationen`: 200 (Standard für mHM)
+- `nParameter`: 54 (mhm_parameter.nml)
+- `r` (DDS neighborhood size): 0.2 (Standard)
+- `iseed`: 1235876 (Reproduzierbarkeit)
 
 **Zielfunktion:**
-- KGE-basiert (Kling-Gupta Efficiency)
-- Multi-Objective: Qobs vs Qsim
-- Lower = Better (Minimierung)
+- **KGE-basiert** (Kling-Gupta Efficiency)
+- **Multi-Objective:** Qobs vs Qsim
+- **Minimierung:** Lower = Better
 
-**Konvergenz-Kriterien:**
+**Konvergenz:**
 - < 5% Verbesserung über 20 Iterationen
-- Oder: Maximum Iterationen erreicht
-        """
+- ODER: Maximum Iterationen erreicht
+
+---
+
+### 📊 Parameter-Gruppen (mHM 5.13.2)
+
+| Gruppe | Parameter | Beschreibung |
+|--------|-----------|--------------|
+| **Soil** | 1-12 | Boden-Speicher (FC, WP für 3 Schichten) |
+| **Routing** | 13-20 | mRM Routing (Manning, Fließgeschwindigkeit) |
+| **Groundwater** | 21-30 | Grundwasser (Recession constants) |
+| **Surface** | 31-40 | Oberflächenabfluss (Runoff coefficients) |
+| **ET** | 41-50 | Evapotranspiration (Temp-Korrektur, etc.) |
+| **Snow** | 51-54 | Schnee/Niederschlag (Korrektur, Thresholds) |
+
+---
+
+### 🎯 Interpretation der Kalibrierung
+
+**Gute Konvergenz:**
+- > 50% Verbesserung über 200 Iterationen
+- Stabile Parameter nach Iteration 150
+- KGE > 0.5 (akzeptabel), > 0.7 (gut)
+
+**Schlechte Konvergenz:**
+- < 20% Verbesserung
+- Oszillierende Parameter
+- KGE < 0.3 (Problem mit Modell/Data)
+
+**Catchment-Vergleich:**
+- Ähnliche finale Ziele → Konsistente Kalibrierung
+- Unterschiedliche Parameter → Catchment-spezifische Prozesse
+            """
         )
     
     # Download
     st.divider()
     st.subheader("💾 Export")
     
-    csv_data = df.to_csv(index=False)
-    st.download_button(
-        "📥 DDS Results CSV",
-        data=csv_data.encode("utf-8"),
-        file_name="parthe_dds_results.csv",
-        mime="text/csv"
-    )
+    if mode == "Einzel-Catchment":
+        csv_data = df.to_csv(index=False)
+        st.download_button(
+            "📥 DDS Results CSV",
+            data=csv_data.encode("utf-8"),
+            file_name=f"{selected}_dds_results.csv",
+            mime="text/csv"
+        )
+    else:
+        # Export comparison
+        comp_csv = comp_df.to_csv(index=False)
+        st.download_button(
+            "📥 Vergleich CSV",
+            data=comp_csv.encode("utf-8"),
+            file_name="dds_catchment_comparison.csv",
+            mime="text/csv"
+        )
 
 
 if __name__ == "__main__":
-    # Test
-    dds_path = "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/parthe_0p0625/dds_results.out"
-    figures = analyze_dds_calibration(dds_path)
-    print(f"✅ Created {len(figures)} figures")
-    print(f"   - convergence: {len(figures['convergence'].data)} traces")
-    print(f"   - summary: {len(figures['summary'].data)} traces")
+    # Test single
+    parthe_path = "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/parthe_0p0625/dds_results.out"
+    result = analyze_single_dds(parthe_path)
+    print(f"✅ Single: {len(result['figures'])} figures")
+    
+    # Test multi
+    paths = [
+        (parthe_path, "Parthe_0p0625"),
+        ("/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/goeltzsch2_0p0625/dds_results.out", "Goeltzsch2_0p0625")
+    ]
+    result = analyze_multiple_dds(paths)
+    print(f"✅ Multi: {len(result['figures'])} figures")
