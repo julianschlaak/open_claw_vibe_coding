@@ -342,6 +342,89 @@ def create_group_sensitivity_plot(sensitivity_df: pd.DataFrame) -> Optional[go.F
         return None
 
 
+def create_sensitivity_comparison_plot(sensitivity_results: Dict[str, pd.DataFrame], top_n: int = 10) -> Optional[go.Figure]:
+    """
+    Compare top N sensitive parameters across multiple catchments.
+    
+    Args:
+        sensitivity_results: Dict mapping catchment name -> sensitivity DataFrame
+        top_n: Number of top parameters to show per catchment
+    """
+    if not sensitivity_results:
+        return None
+    
+    # Get top N params from each catchment
+    all_top_params = set()
+    for name, df in sensitivity_results.items():
+        if df is not None and len(df) > 0:
+            top = df.head(top_n)
+            for idx in top['index']:
+                all_top_params.add(idx)
+    
+    if not all_top_params:
+        return None
+    
+    # Build comparison data
+    rows = []
+    for idx in sorted(all_top_params):
+        param_name, group, _ = DDS_PARAM_MAP.get(idx, (f'param_{idx:02d}', 'Unknown', ''))
+        row = {'Param': f'P{idx:02d}', 'Name': param_name, 'Group': group}
+        
+        for catchment_name, sens_df in sensitivity_results.items():
+            if sens_df is not None and len(sens_df) > 0:
+                match = sens_df[sens_df['index'] == idx]
+                if len(match) > 0:
+                    row[f'{catchment_name}_score'] = float(match['sensitivity_score'].iloc[0])
+                else:
+                    row[f'{catchment_name}_score'] = 0.0
+            else:
+                row[f'{catchment_name}_score'] = 0.0
+        
+        rows.append(row)
+    
+    if not rows:
+        return None
+    
+    comp_df = pd.DataFrame(rows)
+    
+    # Create grouped bar chart
+    fig = go.Figure()
+    
+    catchment_names = list(sensitivity_results.keys())
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+    
+    for i, catchment_name in enumerate(catchment_names):
+        score_col = f'{catchment_name}_score'
+        color = colors[i % len(colors)]
+        
+        fig.add_trace(go.Bar(
+            name=catchment_name,
+            x=[f"P{int(p['Param'][1:]):02d}" for _, p in comp_df.iterrows()],
+            y=comp_df[score_col].tolist(),
+            marker_color=color,
+            hovertemplate='<b>%{x}</b><br>Sensitivity: %{y:.4f}<extra></extra>'
+        ))
+    
+    fig.update_layout(
+        title="🎯 Sensitivitäts-Vergleich: Top Parameter über Catchments",
+        xaxis_title="Parameter",
+        yaxis_title="Sensitivity Score",
+        barmode='group',
+        height=500,
+        template="plotly_dark",
+        margin=dict(l=60, r=40, t=80, b=80),
+        plot_bgcolor="rgba(30, 30, 30, 1)",
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        font=dict(color="#ffffff", size=10),
+        legend=dict(orientation="h", y=1.02, x=0)
+    )
+    
+    fig.update_xaxes(showgrid=True, gridcolor="rgba(255, 255, 255, 0.1)")
+    fig.update_yaxes(showgrid=True, gridcolor="rgba(255, 255, 255, 0.1)")
+    
+    return fig
+
+
 # =============================================================================
 # VISUALIZATION FUNCTIONS
 # =============================================================================
@@ -823,6 +906,7 @@ def render_dds_analysis_tab():
         
         results = [parse_dds_results(path, name) for name, path in existing]
         
+        # Summary table
         comp_df = pd.DataFrame([{
             'Catchment': r['name'],
             'Iterationen': r['iterations'],
@@ -839,6 +923,31 @@ def render_dds_analysis_tab():
         if fig:
             st.plotly_chart(fig, use_container_width=True)
         
+        st.divider()
+        st.subheader("🎯 Sensitivitätsanalyse-Vergleich")
+        st.info("Zeigt die Top 10 sensitivsten Parameter für jedes Catchment im direkten Vergleich")
+        
+        # Sensitivity comparison for each catchment
+        sensitivity_results = {}
+        for r in results:
+            sens_df = calculate_parameter_sensitivity(r['df'])
+            sensitivity_results[r['name']] = sens_df
+        
+        # Create comparison plot
+        fig = create_sensitivity_comparison_plot(sensitivity_results)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.warning("Sensitivitätsanalyse nicht verfügbar")
+        
+        # Show individual sensitivity rankings
+        for name, sens_df in sensitivity_results.items():
+            st.subheader(f"📊 {name} - Top 10 Sensitivste Parameter")
+            fig = create_sensitivity_ranking_plot(sens_df, top_n=10)
+            if fig:
+                st.plotly_chart(fig, use_container_width=True)
+        
+        st.divider()
         st.subheader("📋 Parameter-Änderungen: Initial → Final")
         fig = create_parameter_change_table(results)
         if fig:
