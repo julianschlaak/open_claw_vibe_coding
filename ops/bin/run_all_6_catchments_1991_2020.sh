@@ -166,6 +166,18 @@ run_catchment() {
         echo -e "${GREEN}✅ Time period correct: ${START_YEAR}-${END_YEAR}${NC}"
     fi
     
+    # Ensure forward simulation mode (no calibration)
+    sed -i -E 's|^[[:space:]]*optimize[[:space:]]*=.*|optimize = .False.|I' nml/mhm.nml
+    local optimize_setting=$(grep -i "^[[:space:]]*optimize[[:space:]]*=" nml/mhm.nml | head -1 | awk '{print $NF}')
+    echo "   optimize setting: ${optimize_setting}"
+    if [[ "${optimize_setting,,}" != ".false." ]]; then
+        echo -e "${RED}❌ Error: optimize must be .False. for simulation runs${NC}"
+        echo "   Skipping ${catchment}..."
+        echo ""
+        return 1
+    fi
+    echo -e "${GREEN}✅ optimize = .False. (simulation mode)${NC}"
+    
     echo ""
     
     # Run mHM
@@ -221,12 +233,12 @@ SKIPPED=0
 # Run all catchments
 for catchment in "${CATCHMENTS[@]}"; do
     if run_catchment "${catchment}"; then
-        ((SUCCESS++))
+        SUCCESS=$((SUCCESS + 1))
     else
         if [ $? -eq 1 ]; then
-            ((FAILED++))
+            FAILED=$((FAILED + 1))
         else
-            ((SKIPPED++))
+            SKIPPED=$((SKIPPED + 1))
         fi
     fi
     

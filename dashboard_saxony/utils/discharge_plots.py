@@ -74,6 +74,8 @@ def create_hydrograph(df: pd.DataFrame, start_date: str = "2018-01-01", end_date
     """
     df = df.copy()
     df = df[(df["date"] >= start_date) & (df["date"] <= end_date)].reset_index(drop=True)
+    has_smi = "smi" in df.columns and df["smi"].notna().any()
+    has_precip = "precip" in df.columns and include_precip
     
     # Calculate metrics for title
     metrics = calculate_metrics(df)
@@ -84,8 +86,8 @@ def create_hydrograph(df: pd.DataFrame, start_date: str = "2018-01-01", end_date
     q10 = df["qobs"].quantile(0.10)
     q90 = df["qobs"].quantile(0.90)
     
-    # Determine number of rows
-    if include_precip and "precip" in df.columns:
+    # Determine number of rows dynamically
+    if has_precip and has_smi:
         n_rows = 3
         row_heights = [0.50, 0.25, 0.25]
         subplot_titles = [
@@ -93,13 +95,24 @@ def create_hydrograph(df: pd.DataFrame, start_date: str = "2018-01-01", end_date
             "Precipitation [mm/day]",
             "Soil Moisture Index (SMI) [-]"
         ]
-    else:
+    elif has_precip and not has_smi:
+        n_rows = 2
+        row_heights = [0.70, 0.30]
+        subplot_titles = [
+            f"Discharge [m³/s] — KGE: {kge_str} | NSE: {nse_str}",
+            "Precipitation [mm/day]"
+        ]
+    elif (not has_precip) and has_smi:
         n_rows = 2
         row_heights = [0.65, 0.35]
         subplot_titles = [
             f"Discharge [m³/s] — KGE: {kge_str} | NSE: {nse_str}",
             "Soil Moisture Index (SMI) [-]"
         ]
+    else:
+        n_rows = 1
+        row_heights = [1.0]
+        subplot_titles = [f"Discharge [m³/s] — KGE: {kge_str} | NSE: {nse_str}"]
     
     # Create subplots
     fig = make_subplots(
@@ -181,49 +194,49 @@ def create_hydrograph(df: pd.DataFrame, start_date: str = "2018-01-01", end_date
         row=1, col=1
     )
     
-    # Drought shading (SMI < 20)
-    drought_mask = df["smi"] < 20
-    drought_periods = _find_contiguous_periods(df["date"], drought_mask)
-    
-    for start_d, end_d in drought_periods:
-        fig.add_vrect(
-            x0=start_d, x1=end_d,
-            fillcolor=DROUGHT_COLOR,
-            opacity=1,
-            layer="below",
-            line_width=0,
-            row=1, col=1
+    # Drought/Flood shading based on SMI (if available)
+    if has_smi:
+        drought_mask = df["smi"] < 20
+        drought_periods = _find_contiguous_periods(df["date"], drought_mask)
+
+        for start_d, end_d in drought_periods:
+            fig.add_vrect(
+                x0=start_d, x1=end_d,
+                fillcolor=DROUGHT_COLOR,
+                opacity=1,
+                layer="below",
+                line_width=0,
+                row=1, col=1
+            )
+
+        flood_mask = df["smi"] > 80
+        flood_periods = _find_contiguous_periods(df["date"], flood_mask)
+
+        for start_d, end_d in flood_periods:
+            fig.add_vrect(
+                x0=start_d, x1=end_d,
+                fillcolor=FLOOD_COLOR,
+                opacity=1,
+                layer="below",
+                line_width=0,
+                row=1, col=1
+            )
+
+        # Add drought annotation as a separate trace (legend only)
+        fig.add_trace(
+            go.Scatter(
+                x=[None], y=[None],
+                mode='markers',
+                name='Drought period (SMI < 20)',
+                marker=dict(color=COLORS['red'], size=10, opacity=0.3),
+                showlegend=True
+            )
         )
-    
-    # Flood shading (SMI > 80) - optional
-    flood_mask = df["smi"] > 80
-    flood_periods = _find_contiguous_periods(df["date"], flood_mask)
-    
-    for start_d, end_d in flood_periods:
-        fig.add_vrect(
-            x0=start_d, x1=end_d,
-            fillcolor=FLOOD_COLOR,
-            opacity=1,
-            layer="below",
-            line_width=0,
-            row=1, col=1
-        )
-    
-    # Add drought annotation as a separate trace (legend only)
-    fig.add_trace(
-        go.Scatter(
-            x=[None], y=[None],
-            mode='markers',
-            name='Drought period (SMI < 20)',
-            marker=dict(color=COLORS['red'], size=10, opacity=0.3),
-            showlegend=True
-        )
-    )
     
     # ==========================================================================
     # ROW 2: PRECIPITATION (if available)
     # ==========================================================================
-    if include_precip and "precip" in df.columns:
+    if has_precip:
         fig.add_trace(
             go.Bar(
                 x=df["date"],
@@ -236,57 +249,58 @@ def create_hydrograph(df: pd.DataFrame, start_date: str = "2018-01-01", end_date
             row=2, col=1
         )
         fig.update_yaxes(title_text="Precip [mm/day]", row=2, col=1)
-        smi_row = 3
+        smi_row = 3 if has_smi else None
     else:
-        smi_row = 2
+        smi_row = 2 if has_smi else None
     
     # ==========================================================================
     # ROW (2 or 3): SMI
     # ==========================================================================
-    fig.add_trace(
-        go.Scatter(
-            x=df["date"],
-            y=df["smi"],
-            name="SMI",
-            line=dict(color=COLORS['purple'], width=2),
-            fill="tozeroy",
-            fillcolor="rgba(148, 103, 189, 0.2)",
-            hovertemplate="<b>%{x|%Y-%m-%d}</b><br>SMI: %{y:.1f}<extra></extra>"
-        ),
-        row=smi_row, col=1
-    )
-    
-    # SMI drought threshold
-    fig.add_hline(
-        y=20,
-        line_dash="dash",
-        line_color=COLORS['red'],
-        line_width=1.5,
-        annotation_text="Drought threshold (20)",
-        annotation_position="right",
-        annotation_font_size=10,
-        annotation_font_color=COLORS['red'],
-        row=smi_row, col=1
-    )
-    
-    # SMI wet threshold
-    fig.add_hline(
-        y=80,
-        line_dash="dash",
-        line_color=COLORS['green'],
-        line_width=1.5,
-        annotation_text="Wet threshold (80)",
-        annotation_position="right",
-        annotation_font_size=10,
-        annotation_font_color=COLORS['green'],
-        row=smi_row, col=1
-    )
+    if has_smi and smi_row is not None:
+        fig.add_trace(
+            go.Scatter(
+                x=df["date"],
+                y=df["smi"],
+                name="SMI",
+                line=dict(color=COLORS['purple'], width=2),
+                fill="tozeroy",
+                fillcolor="rgba(148, 103, 189, 0.2)",
+                hovertemplate="<b>%{x|%Y-%m-%d}</b><br>SMI: %{y:.1f}<extra></extra>"
+            ),
+            row=smi_row, col=1
+        )
+
+        # SMI drought threshold
+        fig.add_hline(
+            y=20,
+            line_dash="dash",
+            line_color=COLORS['red'],
+            line_width=1.5,
+            annotation_text="Drought threshold (20)",
+            annotation_position="right",
+            annotation_font_size=10,
+            annotation_font_color=COLORS['red'],
+            row=smi_row, col=1
+        )
+
+        # SMI wet threshold
+        fig.add_hline(
+            y=80,
+            line_dash="dash",
+            line_color=COLORS['green'],
+            line_width=1.5,
+            annotation_text="Wet threshold (80)",
+            annotation_position="right",
+            annotation_font_size=10,
+            annotation_font_color=COLORS['green'],
+            row=smi_row, col=1
+        )
     
     # ==========================================================================
     # LAYOUT (DARK THEME for better readability)
     # ==========================================================================
     fig.update_layout(
-        height=700 if include_precip else 600,
+        height=700 if n_rows >= 3 else (600 if n_rows == 2 else 500),
         showlegend=True,
         legend=dict(
             orientation="h",

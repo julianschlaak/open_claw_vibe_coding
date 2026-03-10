@@ -17,6 +17,7 @@ from utils.discharge_plots import (
     create_flow_duration_curve,
     create_residual_analysis,
     create_metrics_panel,
+    calculate_metrics,
     create_low_flow_analysis,
     create_seasonal_discharge_plot,
     load_chemnitz2_discharge,
@@ -196,8 +197,8 @@ with dcol2:
 
 selected_date = st.session_state.selected_date
 
-VIEW_OPTIONS_DE = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "🌊 Discharge (6 Catchments)", "🌊 Chemnitz2 Abfluss (alt)", "🔧 Parthe DDS", "📚 Wissenschaft & Quellen"]
-VIEW_OPTIONS_EN = ["🌱 nFK", "💧 Vol. Soil Moisture", "📊 SMI", "🎯 Multi-Index", "🌊 Discharge (6 Catchments)", "🌊 Chemnitz2 Discharge (legacy)", "🔧 Parthe DDS", "📚 Science & Sources"]
+VIEW_OPTIONS_DE = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "🌊 Discharge (6 Catchments)", "🔧 Kalibrierung", "📚 Wissenschaft & Quellen"]
+VIEW_OPTIONS_EN = ["🌱 nFK", "💧 Vol. Soil Moisture", "📊 SMI", "🎯 Multi-Index", "🌊 Discharge (6 Catchments)", "🔧 Calibration", "📚 Science & Sources"]
 
 VIEW_OPTIONS = VIEW_OPTIONS_DE if st.session_state.language == 'de' else VIEW_OPTIONS_EN
 
@@ -658,6 +659,7 @@ def radar_data_for_selection() -> dict:
 selection_cfg = {
     "🌱 nFK": ("nfk", "%", nfk_class),
     "💧 Vol. Bodenfeuchte": ("sm_vol", " Vol.%", smvol_class),
+    "💧 Vol. Soil Moisture": ("sm_vol", " Vol.%", smvol_class),
     "📊 SMI": ("smi", "", smi_class),
     "🎯 Multi-Index": ("mdi", "", mdi_class),
 }
@@ -671,12 +673,20 @@ if view == "🌱 nFK":
         st.header("Nutzbare Feldkapazität (%nFK) - Raster")
     else:
         st.header("Available Field Capacity (%nFK) - Grid")
-    st.info(
-        "%nFK beschreibt den Anteil des fuer Pflanzen verfuegbaren Bodenwassers. "
-        "Berechnet wird relativ zur Speicherkapazitaet zwischen Feldkapazitaet und Welkepunkt. "
-        "Werte unter 30% deuten auf Trockenstress, ab 70% ist die Versorgung meist gut; ab 90% steigt das Risiko fuer Sauerstoffmangel. "
-        "Quelle: KA5 (2005), Allen et al. (1998, FAO-56)."
-    )
+    if st.session_state.language == 'de':
+        st.info(
+            "%nFK beschreibt den Anteil des fuer Pflanzen verfuegbaren Bodenwassers. "
+            "Berechnet wird relativ zur Speicherkapazitaet zwischen Feldkapazitaet und Welkepunkt. "
+            "Werte unter 30% deuten auf Trockenstress, ab 70% ist die Versorgung meist gut; ab 90% steigt das Risiko fuer Sauerstoffmangel. "
+            "Quelle: KA5 (2005), Allen et al. (1998, FAO-56)."
+        )
+    else:
+        st.info(
+            "%nFK describes plant-available soil water relative to storage capacity "
+            "between field capacity and wilting point. Values below 30% indicate drought stress, "
+            "around 70% generally means good supply, and above 90% oxygen limitation risk can increase. "
+            "Source: KA5 (2005), Allen et al. (1998, FAO-56)."
+        )
     def _left():
         render_raster("nfk")
         legend_table("Farblegende nFK (%)", [(f"{c['range']}", c["color"]) for c in NFK_CLASSES])
@@ -705,17 +715,25 @@ if view == "🌱 nFK":
         with c2:
             _right()
 
-elif view == "💧 Vol. Bodenfeuchte":
+elif view in ["💧 Vol. Bodenfeuchte", "💧 Vol. Soil Moisture"]:
     if st.session_state.language == 'de':
         st.header("Volumetrische Bodenfeuchte (Vol.%) - Raster")
     else:
         st.header("Volumetric Soil Moisture (Vol.%) - Grid")
-    st.info(
-        "Die volumetrische Bodenfeuchte zeigt den absoluten Wassergehalt im Boden in Volumenprozent. "
-        "Typische Werte reichen von sehr trocken (~5%) bis nahe Saettigung (~45%). "
-        "Im Dashboard wird der gesamte Wurzelraum abgebildet und taeglich aktualisiert. "
-        "Quelle: Samaniego et al. (2013), mHM Dokumentation."
-    )
+    if st.session_state.language == 'de':
+        st.info(
+            "Die volumetrische Bodenfeuchte zeigt den absoluten Wassergehalt im Boden in Volumenprozent. "
+            "Typische Werte reichen von sehr trocken (~5%) bis nahe Saettigung (~45%). "
+            "Im Dashboard wird der gesamte Wurzelraum abgebildet und taeglich aktualisiert. "
+            "Quelle: Samaniego et al. (2013), mHM Dokumentation."
+        )
+    else:
+        st.info(
+            "Volumetric soil moisture shows absolute soil water content in volume percent. "
+            "Typical values range from very dry (~5%) to near saturation (~45%). "
+            "The dashboard represents the full root zone and is updated daily. "
+            "Source: Samaniego et al. (2013), mHM documentation."
+        )
     legend_table("Legende Vol.-SM-Klassen (Vol.%)", [(c["range"], c["color"]) for c in SMVOL_CLASSES])
     def _left():
         render_raster("sm_vol")
@@ -744,12 +762,20 @@ elif view == "💧 Vol. Bodenfeuchte":
 
 elif view == "📊 SMI":
     st.header("Soil Moisture Index (SMI) - Raster")
-    st.info(
-        "Der SMI vergleicht die aktuelle Bodenfeuchte mit historischen Werten desselben Kalendertages. "
-        "Ein SMI von 5 bedeutet: trockener als 95% der Referenzwerte. "
-        "Die Perzentil-Methode ist robust, weil sie keine feste Verteilungsannahme benoetigt. "
-        "Quelle: Van Loon & Van Lanen (2012), Samaniego et al. (2013)."
-    )
+    if st.session_state.language == 'de':
+        st.info(
+            "Der SMI vergleicht die aktuelle Bodenfeuchte mit historischen Werten desselben Kalendertages. "
+            "Ein SMI von 5 bedeutet: trockener als 95% der Referenzwerte. "
+            "Die Perzentil-Methode ist robust, weil sie keine feste Verteilungsannahme benoetigt. "
+            "Quelle: Van Loon & Van Lanen (2012), Samaniego et al. (2013)."
+        )
+    else:
+        st.info(
+            "SMI compares current soil moisture to historical values of the same calendar day. "
+            "An SMI of 5 means drier than 95% of reference values. "
+            "The percentile method is robust because it does not require a fixed distribution assumption. "
+            "Source: Van Loon & Van Lanen (2012), Samaniego et al. (2013)."
+        )
     def _left():
         render_raster("smi")
         legend_table("Farblegende SMI", [(f"{c['range']}", c["color"]) for c in SMI_CLASSES])
@@ -778,14 +804,24 @@ elif view == "📊 SMI":
             _right()
 
 elif view == "🎯 Multi-Index":
-    st.header("Multi-Index Vergleich")
-    st.info(
-        "Der MDI kombiniert Bodenfeuchte, Grundwasserneubildung und Abfluss zu einem Gesamtindex. "
-        "Die Gewichtung 0.4/0.3/0.3 bildet die Weitergabe von Duerresignalen durch den Wasserkreislauf ab. "
-        "So werden kurzfristige und verzoegerte Effekte gemeinsam sichtbar. "
-        "Quelle: Schlaak (2026, in prep.), inspiriert durch Hao & AghaKouchak (2013)."
-    )
-    st.markdown("**Klicke auf die MDI-Karte, um Radar und Statistiken zu aktualisieren.**")
+    if st.session_state.language == 'de':
+        st.header("Multi-Index Vergleich")
+        st.info(
+            "Der MDI kombiniert Bodenfeuchte, Grundwasserneubildung und Abfluss zu einem Gesamtindex. "
+            "Die Gewichtung 0.4/0.3/0.3 bildet die Weitergabe von Duerresignalen durch den Wasserkreislauf ab. "
+            "So werden kurzfristige und verzoegerte Effekte gemeinsam sichtbar. "
+            "Quelle: Schlaak (2026, in prep.), inspiriert durch Hao & AghaKouchak (2013)."
+        )
+        st.markdown("**Klicke auf die MDI-Karte, um Radar und Statistiken zu aktualisieren.**")
+    else:
+        st.header("Multi-Index Comparison")
+        st.info(
+            "MDI combines soil moisture, groundwater recharge, and discharge into one integrated index. "
+            "The 0.4/0.3/0.3 weighting captures propagation of drought signals through the hydrological cycle, "
+            "showing short-term and delayed effects together. "
+            "Source: Schlaak (2026, in prep.), inspired by Hao & AghaKouchak (2013)."
+        )
+        st.markdown("**Click the MDI map to update radar and statistics.**")
     legend_table("Farblegende MDI", [(f"{c['range']}", c["color"]) for c in MDI_CLASSES])
 
     def _left():
@@ -824,7 +860,7 @@ elif view == "🎯 Multi-Index":
         with c_radar:
             _right()
 
-    st.subheader("Zeitreihen-Vergleich")
+    st.subheader("Zeitreihen-Vergleich" if st.session_state.language == "de" else "Time Series Comparison")
     st.plotly_chart(create_multiindex_timeseries(idx_df), use_container_width=True)
 
     with st.expander("Details / Debug"):
@@ -832,12 +868,19 @@ elif view == "🎯 Multi-Index":
         corr_cols = [c for c in ["smi", "r_pctl", "q_pctl", "mdi", "spi_3", "spei_3"] if c in idx_df.columns]
         st.plotly_chart(create_corr_heatmap(idx_df, corr_cols), use_container_width=True)
 
-elif view == "🌊 Discharge Analysis (6 Catchments)":
-    st.header("🌊 Discharge Analysis — Alle 6 Catchments")
+elif view in ["🌊 Discharge (6 Catchments)", "🌊 Discharge Analysis (6 Catchments)"]:
+    is_de = st.session_state.language == "de"
+    st.header("🌊 Discharge Analysis — Alle 6 Catchments" if is_de else "🌊 Discharge Analysis — All 6 Catchments")
     st.markdown(
-        "**Wissenschaftliche Auswertung von Abflussdaten (Qobs, Qsim) für alle kalibrierten Einzugsgebiete**\n\n"
-        "Datenquellen: CAMELS-DE (Qobs), mHM 5.13.2 (Qsim), 1991–2020\n\n"
-        "⚠️ **Hinweis:** Simulationen für 1991-2020 laufen gerade. Daten werden automatisch geladen, sobald verfügbar."
+        (
+            "**Wissenschaftliche Auswertung von Abflussdaten (Qobs, Qsim) für alle kalibrierten Einzugsgebiete**\n\n"
+            "Datenquellen: CAMELS-DE (Qobs), mHM 5.13.2 (Qsim), 1991–2020\n\n"
+            "⚠️ **Hinweis:** Daten werden automatisch geladen, sobald verfügbar."
+        ) if is_de else (
+            "**Scientific analysis of discharge data (Qobs, Qsim) for all calibrated catchments**\n\n"
+            "Data sources: CAMELS-DE (Qobs), mHM 5.13.2 (Qsim), 1991–2020\n\n"
+            "⚠️ **Note:** Data is loaded automatically as soon as it is available."
+        )
     )
     
     # Define all 6 catchments
@@ -850,26 +893,27 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
         ("Zwoenitz1", "zwoenitz1_0p0625"),
     ]
     
-    # Sidebar controls
-    st.sidebar.header("⚙️ Discharge Einstellungen")
-    
-    # Catchment selector
-    selected_catchment_name, selected_catchment_id = st.sidebar.selectbox(
-        "Einzugsgebiet auswählen",
-        options=CATCHMENTS_DISCHARGE,
-        format_func=lambda x: x[0]
-    )
-    
-    # Year filter (1991-2020)
-    selected_years = st.sidebar.multiselect(
-        "Jahre auswählen",
-        options=list(range(1991, 2021)),
-        default=[2018, 2019, 2020],
-        help="Zeitraum für die Analyse (1991-2020)"
-    )
+    # View-local controls (not sidebar)
+    st.subheader("⚙️ Discharge Einstellungen" if is_de else "⚙️ Discharge Settings")
+    c1, c2 = st.columns([1, 2])
+
+    with c1:
+        selected_catchment_name, selected_catchment_id = st.selectbox(
+            "Einzugsgebiet auswählen" if is_de else "Select catchment",
+            options=CATCHMENTS_DISCHARGE,
+            format_func=lambda x: x[0]
+        )
+
+    with c2:
+        selected_years = st.multiselect(
+            "Jahre auswählen" if is_de else "Select years",
+            options=list(range(1991, 2021)),
+            default=[2018, 2019, 2020],
+            help="Zeitraum für die Analyse (1991-2020)" if is_de else "Time range for analysis (1991-2020)"
+        )
     
     if not selected_years:
-        st.warning("Bitte mindestens ein Jahr auswählen.")
+        st.warning("Bitte mindestens ein Jahr auswählen." if is_de else "Please select at least one year.")
         st.stop()
     
     # Load data for selected catchment
@@ -884,6 +928,9 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
             return None
         
         # Parse daily_discharge.out
+        # Supported formats:
+        # 1) "YYYY-MM-DD  Qobs  Qsim"
+        # 2) "No Day Mon Year Qobs_* Qsim_*" (mHM default table)
         import pandas as pd
         data = []
         with open(discharge_file, 'r') as f:
@@ -891,12 +938,39 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
                 if line.startswith('#') or not line.strip():
                     continue
                 parts = line.split()
+                # Skip header rows like "No Day Mon Year ..."
+                if parts and parts[0].lower() in {"no", "day", "mon", "year"}:
+                    continue
+
+                # Format 2: No Day Mon Year Qobs Qsim
+                if len(parts) >= 6 and parts[0].isdigit():
+                    try:
+                        day = int(parts[1])
+                        month = int(parts[2])
+                        year = int(parts[3])
+                        qobs = float(parts[4])
+                        qsim = float(parts[5])
+                        data.append(
+                            {
+                                "date": pd.Timestamp(year=year, month=month, day=day),
+                                "qobs": qobs,
+                                "qsim": qsim,
+                            }
+                        )
+                        continue
+                    except (ValueError, IndexError):
+                        pass
+
+                # Format 1: YYYY-MM-DD Qobs Qsim
                 if len(parts) >= 3:
                     try:
-                        date_str = parts[0]
-                        qobs = float(parts[1])
-                        qsim = float(parts[2])
-                        data.append({'date': date_str, 'qobs': qobs, 'qsim': qsim})
+                        data.append(
+                            {
+                                "date": pd.to_datetime(parts[0]),
+                                "qobs": float(parts[1]),
+                                "qsim": float(parts[2]),
+                            }
+                        )
                     except (ValueError, IndexError):
                         continue
         
@@ -904,7 +978,26 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
             return None
         
         df = pd.DataFrame(data)
-        df['date'] = pd.to_datetime(df['date'])
+        df["date"] = pd.to_datetime(df["date"])
+
+        # Optional: add catchment-mean precipitation from forcing file
+        pre_file = runs_dir / catchment_id / "input" / "meteo" / "pre.nc"
+        if pre_file.exists():
+            try:
+                import xarray as xr
+
+                ds = xr.open_dataset(pre_file)
+                if "pre" in ds.data_vars:
+                    spatial_dims = [d for d in ds["pre"].dims if d != "time"]
+                    pre_series = ds["pre"].mean(dim=spatial_dims).to_series()
+                    pre_df = pre_series.rename("precip").reset_index().rename(columns={"time": "date"})
+                    pre_df["date"] = pd.to_datetime(pre_df["date"])
+                    df = df.merge(pre_df[["date", "precip"]], on="date", how="left")
+                ds.close()
+            except Exception:
+                # Keep discharge analysis functional even if pre.nc parsing fails.
+                pass
+
         return df
     
     try:
@@ -912,11 +1005,19 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
         
         if discharge_df is None or len(discharge_df) == 0:
             st.warning(
-                f"⏳ **Daten für {selected_catchment_name} noch nicht verfügbar.**\n\n"
-                f"Die mHM-Simulation für dieses Catchment wurde noch nicht abgeschlossen.\n\n"
-                f"**Erwarteter Pfad:**\n"
-                f"`/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/{selected_catchment_id}/output/daily_discharge.out`\n\n"
-                f"Bitte warte bis die Simulation abgeschlossen ist."
+                (
+                    f"⏳ **Daten für {selected_catchment_name} noch nicht verfügbar.**\n\n"
+                    f"Die mHM-Simulation für dieses Catchment wurde noch nicht abgeschlossen.\n\n"
+                    f"**Erwarteter Pfad:**\n"
+                    f"`/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/{selected_catchment_id}/output/daily_discharge.out`\n\n"
+                    f"Bitte warte bis die Simulation abgeschlossen ist."
+                ) if is_de else (
+                    f"⏳ **Data for {selected_catchment_name} is not available yet.**\n\n"
+                    f"The mHM simulation for this catchment has not finished yet.\n\n"
+                    f"**Expected path:**\n"
+                    f"`/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/{selected_catchment_id}/output/daily_discharge.out`\n\n"
+                    f"Please wait until the simulation is complete."
+                )
             )
             st.stop()
         
@@ -924,16 +1025,20 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
         discharge_df["year"] = discharge_df["date"].dt.year
         df_filtered = discharge_df[discharge_df["year"].isin(selected_years)].copy()
         
-        st.success(f"✅ Daten geladen: {len(df_filtered)} Tage ({selected_catchment_name}, {min(selected_years)}–{max(selected_years)})")
+        st.success(
+            f"✅ Daten geladen: {len(df_filtered)} Tage ({selected_catchment_name}, {min(selected_years)}–{max(selected_years)})"
+            if is_de else
+            f"✅ Data loaded: {len(df_filtered)} days ({selected_catchment_name}, {min(selected_years)}–{max(selected_years)})"
+        )
         
     except Exception as e:
-        st.error(f"❌ Fehler beim Laden der Daten: {e}")
+        st.error(f"❌ Fehler beim Laden der Daten: {e}" if is_de else f"❌ Error while loading data: {e}")
         st.stop()
     
-    st.sidebar.markdown(f"**Datensatz:** {len(df_filtered)} Tage")
+    st.caption(f"Datensatz: {len(df_filtered)} Tage" if is_de else f"Dataset: {len(df_filtered)} days")
     
     # Plot selection
-    st.subheader("📊 Plot-Auswahl")
+    st.subheader("📊 Plot-Auswahl" if is_de else "📊 Plot Selection")
     plot_options = {
         "Hydrograph (Modern)": "Multi-Panel: Qobs/Qsim + Precip + SMI | KGE/NSE im Titel | Q10/Q90 Thresholds",
         "Flow Duration": "Abflussdauerlinie (Exceedance Probability)",
@@ -945,18 +1050,18 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
     }
     
     selected_plot = st.selectbox(
-        "Plot-Typ",
+        "Plot-Typ" if is_de else "Plot Type",
         options=list(plot_options.keys()),
         format_func=lambda x: f"{x}"
     )
     
     # Hydrograph options
     if selected_plot == "Hydrograph (Modern)":
-        st.sidebar.subheader("⚙️ Hydrograph Optionen")
-        include_precip = st.sidebar.checkbox(
-            "Niederschlag anzeigen",
+        st.markdown("**⚙️ Hydrograph Optionen**" if is_de else "**⚙️ Hydrograph Options**")
+        include_precip = st.checkbox(
+            "Niederschlag anzeigen" if is_de else "Show precipitation",
             value=True,
-            help="Precipitation als Balkendiagramm im zweiten Panel"
+            help="Precipitation als Balkendiagramm im zweiten Panel" if is_de else "Show precipitation as bar chart in second panel"
         )
         
         st.plotly_chart(
@@ -970,13 +1075,23 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
         )
         
         st.info(
-            "**🎨 Modern Design Features:**\n"
-            "- **Multi-Panel Layout:** Qobs/Qsim + Precipitation + SMI\n"
-            "- **KGE/NSE im Titel:** Modellgüte auf einen Blick\n"
-            "- **Q10/Q90 Thresholds:** Low-flow und High-flow Markierungen\n"
-            "- **Dürre-Shading:** Rote Hinterlegung bei SMI < 20\n"
-            "- **Verbesserte Tooltips:** Qobs, Qsim und Differenz auf Hover\n"
-            "- **Colorblind-Safe:** Okabe-Ito Farbpalette"
+            (
+                "**🎨 Modern Design Features:**\n"
+                "- **Multi-Panel Layout:** Qobs/Qsim + Precipitation + SMI\n"
+                "- **KGE/NSE im Titel:** Modellgüte auf einen Blick\n"
+                "- **Q10/Q90 Thresholds:** Low-flow und High-flow Markierungen\n"
+                "- **Dürre-Shading:** Rote Hinterlegung bei SMI < 20\n"
+                "- **Verbesserte Tooltips:** Qobs, Qsim und Differenz auf Hover\n"
+                "- **Colorblind-Safe:** Okabe-Ito Farbpalette"
+            ) if is_de else (
+                "**🎨 Modern Design Features:**\n"
+                "- **Multi-panel layout:** Qobs/Qsim + precipitation + SMI\n"
+                "- **KGE/NSE in title:** instant model quality view\n"
+                "- **Q10/Q90 thresholds:** low-flow and high-flow markers\n"
+                "- **Drought shading:** red background for SMI < 20\n"
+                "- **Enhanced tooltips:** Qobs, Qsim and difference on hover\n"
+                "- **Colorblind-safe:** Okabe-Ito palette"
+            )
         )
     
     elif selected_plot == "Flow Duration":
@@ -984,50 +1099,92 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
             create_flow_duration_curve(df_filtered),
             use_container_width=True
         )
-        st.caption("Abb.: Abflussdauerlinie für Chemnitz2. Log-Skala für niedrige Abflüsse.")
+        st.caption("Abb.: Abflussdauerlinie. Log-Skala für niedrige Abflüsse." if is_de else "Fig.: Flow duration curve. Log scale for low flows.")
     
     elif selected_plot == "Residuals":
         st.plotly_chart(
             create_residual_analysis(df_filtered),
             use_container_width=True
         )
-        st.caption("Abb.: Residuen-Analyse. Oben: Zeitreihe, unten: Verteilung.")
+        st.caption("Abb.: Residuen-Analyse. Oben: Zeitreihe, unten: Verteilung." if is_de else "Fig.: Residual analysis. Top: time series, bottom: distribution.")
     
     elif selected_plot == "Metrics":
         st.plotly_chart(
             create_metrics_panel(df_filtered),
             use_container_width=True
         )
-        st.caption("Abb.: Modellgüte-Metriken. KGE > 0.5 = gut, NSE > 0.5 = akzeptabel.")
+        st.caption("Abb.: Modellgüte-Metriken. KGE > 0.5 = gut, NSE > 0.5 = akzeptabel." if is_de else "Fig.: Model performance metrics. KGE > 0.5 = good, NSE > 0.5 = acceptable.")
     
     elif selected_plot == "Low-Flow":
         st.plotly_chart(
             create_low_flow_analysis(df_filtered),
             use_container_width=True
         )
-        st.caption("Abb.: Niedrigwasser-Analyse mit 7-Tage gleitendem Mittel und Q10-Threshold.")
+        st.caption("Abb.: Niedrigwasser-Analyse mit 7-Tage gleitendem Mittel und Q10-Threshold." if is_de else "Fig.: Low-flow analysis with 7-day moving average and Q10 threshold.")
     
     elif selected_plot == "Seasonal":
         st.plotly_chart(
             create_seasonal_discharge_plot(df_filtered),
             use_container_width=True
         )
-        st.caption("Abb.: Saisonale Abflussmuster. Blau: Qobs, Orange: Qsim.")
+        st.caption("Abb.: Saisonale Abflussmuster. Blau: Qobs, Orange: Qsim." if is_de else "Fig.: Seasonal discharge patterns. Blue: Qobs, Orange: Qsim.")
+
+    elif selected_plot == "Comparison (All 6)":
+        comparison_rows = []
+        for catchment_name, catchment_id in CATCHMENTS_DISCHARGE:
+            cdf = _load_discharge_data(catchment_id)
+            if cdf is None or len(cdf) == 0:
+                continue
+
+            cdf = cdf.copy()
+            cdf["year"] = cdf["date"].dt.year
+            cdf = cdf[cdf["year"].isin(selected_years)]
+            if len(cdf) == 0:
+                continue
+
+            m = calculate_metrics(cdf)
+            if not m:
+                continue
+
+            comparison_rows.append(
+                {
+                    "Catchment": catchment_name,
+                    "ID": catchment_id,
+                    "KGE": round(float(m.get("KGE", np.nan)), 3),
+                    "NSE": round(float(m.get("NSE", np.nan)), 3),
+                    "r": round(float(m.get("r", np.nan)), 3),
+                    "PBIAS [%]": round(float(m.get("PBIAS", np.nan)), 2),
+                    "RMSE": round(float(m.get("RMSE", np.nan)), 3),
+                }
+            )
+
+        if not comparison_rows:
+            st.warning("Keine Vergleichsdaten verfügbar." if is_de else "No comparison data available.")
+        else:
+            comparison_df = pd.DataFrame(comparison_rows).sort_values("KGE", ascending=False).reset_index(drop=True)
+            st.dataframe(comparison_df, use_container_width=True, hide_index=True)
+
+            st.markdown("**KGE / NSE / r je Catchment**" if is_de else "**KGE / NSE / r per catchment**")
+            st.bar_chart(comparison_df.set_index("Catchment")[["KGE", "NSE", "r"]], height=320)
+
+            st.markdown("**PBIAS [%] je Catchment**" if is_de else "**PBIAS [%] per catchment**")
+            st.bar_chart(comparison_df.set_index("Catchment")[["PBIAS [%]"]], height=260)
+            st.caption("Interpretation: KGE/NSE höher ist besser, |PBIAS| nahe 0 ist besser." if is_de else "Interpretation: higher KGE/NSE is better, |PBIAS| close to 0 is better.")
     
     # Download options
     st.divider()
-    st.subheader("💾 Datenexport")
+    st.subheader("💾 Datenexport" if is_de else "💾 Data Export")
     
     csv_data = df_filtered[["date", "qobs", "qsim"]].to_csv(index=False)
     st.download_button(
-        "📥 CSV Download (Qobs, Qsim)",
+        "📥 CSV Download (Qobs, Qsim)" if is_de else "📥 Download CSV (Qobs, Qsim)",
         data=csv_data.encode("utf-8"),
         file_name=f"{selected_catchment_id}_discharge_{'-'.join(map(str, selected_years))}.csv",
         mime="text/csv"
     )
     
     # Scientific info
-    with st.expander("📖 Methodik & Interpretation"):
+    with st.expander("📖 Methodik & Interpretation" if is_de else "📖 Methods & Interpretation"):
         st.markdown(
             f"""
 ### Catchment: {selected_catchment_name}
@@ -1073,24 +1230,32 @@ elif view == "🌊 Discharge Analysis (6 Catchments)":
             """
         )
 
-elif view == "🌊 Chemnitz2 Discharge":
-    st.info("⚠️ Diese View wird aktualisiert. Bitte nutze '🌊 Discharge Analysis (6 Catchments)' für alle Einzugsgebiete.")
-    st.warning("Deprecated: Use the new multi-catchment discharge view instead.")
-
-elif view == "🔧 Parthe DDS":
+elif view in ["🔧 Kalibrierung", "🔧 Calibration", "🔧 Parthe DDS"]:
     render_dds_analysis_tab()
 
-else:
-    st.header("📚 Wissenschaft & Quellen")
-    st.markdown("Dieser Bereich zeigt **nur Kernquellen** (Primärliteratur, Standards, Datensatz-Paper).")
-    st.info(
-        "SPI quantifiziert Niederschlagsdefizite auf standardisierter Skala, SPEI erweitert dies um Verdunstung "
-        "und reagiert daher staerker auf Temperaturanstiege. Beide Indizes sind zeitskalenabhaengig "
-        "(z. B. 1/3/6/12 Monate) und regional vergleichbar. "
-        "Quelle: McKee et al. (1993), WMO (2012), Vicente-Serrano et al. (2010)."
-    )
-
-    st.subheader("🧮 Methodik mit belastbaren Kernquellen")
+elif view in ["📚 Wissenschaft & Quellen", "📚 Science & Sources"]:
+    if st.session_state.language == "de":
+        st.header("📚 Wissenschaft & Quellen")
+        st.markdown("Dieser Bereich zeigt **nur Kernquellen** (Primärliteratur, Standards, Datensatz-Paper).")
+    else:
+        st.header("📚 Science & Sources")
+        st.markdown("This section lists **core references only** (primary literature, standards, dataset papers).")
+    if st.session_state.language == "de":
+        st.info(
+            "SPI quantifiziert Niederschlagsdefizite auf standardisierter Skala, SPEI erweitert dies um Verdunstung "
+            "und reagiert daher staerker auf Temperaturanstiege. Beide Indizes sind zeitskalenabhaengig "
+            "(z. B. 1/3/6/12 Monate) und regional vergleichbar. "
+            "Quelle: McKee et al. (1993), WMO (2012), Vicente-Serrano et al. (2010)."
+        )
+        st.subheader("🧮 Methodik mit belastbaren Kernquellen")
+    else:
+        st.info(
+            "SPI quantifies precipitation deficits on a standardized scale; SPEI additionally includes evaporative demand "
+            "and is therefore more sensitive to warming. Both indices are timescale dependent "
+            "(e.g., 1/3/6/12 months) and regionally comparable. "
+            "Source: McKee et al. (1993), WMO (2012), Vicente-Serrano et al. (2010)."
+        )
+        st.subheader("🧮 Methods with Core References")
     with st.expander("🌱 %nFK / PAW"):
         st.markdown(
             """
@@ -1234,3 +1399,6 @@ EDID/EDII:
         )
     else:
         st.info("references.bib nicht gefunden.")
+
+else:
+    st.warning("Unknown view selected.")
