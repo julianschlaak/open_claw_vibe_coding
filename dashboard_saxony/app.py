@@ -22,7 +22,8 @@ from utils.discharge_plots import (
     load_chemnitz2_discharge,
 )
 from utils.dds_analysis import (
-    analyze_dds_calibration,
+    analyze_single_dds,
+    analyze_multiple_dds,
     parse_dds_results,
     create_convergence_plot,
     create_improvement_summary,
