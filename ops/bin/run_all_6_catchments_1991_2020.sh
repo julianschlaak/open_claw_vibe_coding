@@ -67,17 +67,42 @@ echo "📂 Workspace: ${WORKSPACE}"
 echo ""
 echo "==============================================================================="
 
-# Check if recommended_params.csv exists
-if [ ! -f "${RECOMMENDED_PARAMS_CSV}" ]; then
+# Check if recommended_params.csv exists and ask user
+if [ -f "${RECOMMENDED_PARAMS_CSV}" ]; then
+    echo -e "${GREEN}✅ Found: ${RECOMMENDED_PARAMS_CSV}${NC}"
+    echo ""
+    echo "🤔 Parameter source selection:"
+    echo "   1) Use FinalParam.nml from DDS calibration (recommended, catchment-specific)"
+    echo "   2) Use recommended_params.csv (GLOBAL parameters from statistical analysis)"
+    echo ""
+    read -p "Choose option [1-2] (default: 1): " param_choice
+    
+    if [ "${param_choice}" = "2" ]; then
+        echo ""
+        echo "🔧 Generating mhm_parameter.nml from recommended_params.csv..."
+        echo ""
+        
+        # Run Python script to generate NML files
+        export PATH="${MINIFORGE}/bin:$PATH"
+        if python3 "${WORKSPACE}/ops/bin/generate_recommended_param_nml.py"; then
+            echo ""
+            echo -e "${GREEN}✅ Generated recommended parameter files${NC}"
+            USE_DDS_PARAMS=false
+        else
+            echo ""
+            echo -e "${RED}❌ Failed to generate recommended parameters${NC}"
+            echo "   Falling back to FinalParam.nml files"
+            USE_DDS_PARAMS=true
+        fi
+    else
+        echo -e "${GREEN}✅ Using FinalParam.nml files from DDS calibration${NC}"
+        USE_DDS_PARAMS=true
+    fi
+else
     echo -e "${YELLOW}⚠️  Warning: ${RECOMMENDED_PARAMS_CSV} not found${NC}"
-    echo "   Continuing with existing FinalParam.nml files from DDS calibration"
+    echo "   Using FinalParam.nml files from DDS calibration"
     echo ""
     USE_DDS_PARAMS=true
-else
-    echo -e "${GREEN}✅ Found: ${RECOMMENDED_PARAMS_CSV}${NC}"
-    echo "   Using recommended parameter set from DDS analysis"
-    echo ""
-    USE_DDS_PARAMS=false
 fi
 
 # Activate miniforge Python environment
@@ -107,28 +132,14 @@ run_catchment() {
     
     cd "${run_dir}"
     
-    # Check for FinalParam.nml (from DDS calibration)
-    if [ -f "FinalParam.nml" ]; then
-        echo -e "${GREEN}✅ Found: FinalParam.nml (from DDS calibration)${NC}"
-        
-        # Backup existing FinalParam.nml
-        if [ -f "nml/mhm_parameter.nml" ]; then
-            cp "nml/mhm_parameter.nml" "nml/mhm_parameter.nml.backup.$(date +%Y%m%d_%H%M%S)"
-            echo "   Backed up existing mhm_parameter.nml"
-        fi
-        
-        # Copy FinalParam.nml to mhm_parameter.nml
-        cp "FinalParam.nml" "nml/mhm_parameter.nml"
-        echo -e "${GREEN}✅ Copied: FinalParam.nml → nml/mhm_parameter.nml${NC}"
-        
-    elif [ "${USE_DDS_PARAMS}" = false ] && [ -f "${RECOMMENDED_PARAMS_CSV}" ]; then
-        echo -e "${YELLOW}⚠️  No FinalParam.nml found${NC}"
-        echo "   Would generate from recommended_params.csv (not implemented yet)"
-        echo "   Using existing mhm_parameter.nml..."
-        
+    # Check for mhm_parameter.nml (already generated or from FinalParam)
+    if [ -f "nml/mhm_parameter.nml" ]; then
+        echo -e "${GREEN}✅ Found: nml/mhm_parameter.nml${NC}"
     else
-        echo -e "${YELLOW}⚠️  No FinalParam.nml found${NC}"
-        echo "   Using existing mhm_parameter.nml (default parameters)"
+        echo -e "${RED}❌ Error: nml/mhm_parameter.nml not found${NC}"
+        echo "   Skipping ${catchment}..."
+        echo ""
+        return 1
     fi
     
     echo ""
@@ -136,17 +147,17 @@ run_catchment() {
     # Check mhm.nml for correct time period
     echo "📅 Checking mhm.nml configuration..."
     
-    # Extract start and end year from mhm.nml
-    local start_year=$(grep -i "startDate" nml/mhm.nml | head -1 | sed 's/.*=\s*"\([0-9-]*\)".*/\1/' | cut -d'-' -f1)
-    local end_year=$(grep -i "endDate" nml/mhm.nml | head -1 | sed 's/.*=\s*"\([0-9-]*\)".*/\1/' | cut -d'-' -f1)
+    # Extract start and end year from mhm.nml (eval_Per format)
+    local start_year=$(grep -i "yStart" nml/mhm.nml | head -1 | awk '{print $NF}')
+    local end_year=$(grep -i "yEnd" nml/mhm.nml | head -1 | awk '{print $NF}')
     
     echo "   Current: ${start_year} - ${end_year}"
     
     if [ "${start_year}" != "${START_YEAR}" ] || [ "${end_year}" != "${END_YEAR}" ]; then
         echo -e "${YELLOW}⚠️  Time period mismatch! Expected: ${START_YEAR}-${END_YEAR}${NC}"
         echo "   Please update nml/mhm.nml manually:"
-        echo "   - startDate = \"${START_YEAR}-01-01\""
-        echo "   - endDate   = \"${END_YEAR}-12-31\""
+        echo "   - eval_Per(1)%yStart = ${START_YEAR}"
+        echo "   - eval_Per(1)%yEnd   = ${END_YEAR}"
         echo ""
         echo "   Skipping ${catchment}..."
         echo ""
