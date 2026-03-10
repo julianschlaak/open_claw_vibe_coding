@@ -207,14 +207,20 @@ def calculate_parameter_sensitivity(dds_df: pd.DataFrame) -> pd.DataFrame:
         if col in dds_df.columns:
             # Correlation with objective
             corr = dds_df[col].corr(dds_df['objective'])
+            if np.isnan(corr):
+                corr = 0.0
             
             # Range of parameter values
             param_range = dds_df[col].max() - dds_df[col].min()
+            if np.isnan(param_range):
+                param_range = 0.0
             
             # Standard deviation
             param_std = dds_df[col].std()
+            if np.isnan(param_std):
+                param_std = 0.0
             
-            # Sensitivity score: |correlation| * normalized_range
+            # Sensitivity score: |correlation| * range
             sensitivity_score = abs(corr) * param_range
             
             param_name, group, unit = DDS_PARAM_MAP.get(idx, (f'param_{idx:02d}', 'Unknown', ''))
@@ -224,18 +230,27 @@ def calculate_parameter_sensitivity(dds_df: pd.DataFrame) -> pd.DataFrame:
                 'name': param_name,
                 'group': group,
                 'unit': unit,
-                'correlation': corr if not np.isnan(corr) else 0.0,
-                'range': param_range,
-                'std': param_std if not np.isnan(param_std) else 0.0,
-                'sensitivity_score': sensitivity_score
+                'correlation': float(corr),
+                'range': float(param_range),
+                'std': float(param_std),
+                'sensitivity_score': float(sensitivity_score)
             })
     
-    return pd.DataFrame(sensitivities).sort_values('sensitivity_score', ascending=False)
+    df = pd.DataFrame(sensitivities)
+    if len(df) > 0:
+        return df.sort_values('sensitivity_score', ascending=False)
+    return df
 
 
-def create_sensitivity_ranking_plot(sensitivity_df: pd.DataFrame, top_n: int = 15) -> go.Figure:
+def create_sensitivity_ranking_plot(sensitivity_df: pd.DataFrame, top_n: int = 15) -> Optional[go.Figure]:
     """Create bar plot of top N most sensitive parameters."""
-    top_params = sensitivity_df.head(top_n)
+    if sensitivity_df is None or len(sensitivity_df) == 0:
+        return None
+    
+    top_params = sensitivity_df.head(min(top_n, len(sensitivity_df)))
+    
+    if len(top_params) == 0:
+        return None
     
     # Color by group
     colors = {
@@ -252,23 +267,23 @@ def create_sensitivity_ranking_plot(sensitivity_df: pd.DataFrame, top_n: int = 1
     
     bar_colors = [colors.get(g, '#bcbd22') for g in top_params['group']]
     
+    y_labels = [f"P{int(idx):02d}: {str(name)[:25]}" for idx, name in zip(top_params['index'], top_params['name'])]
+    
     fig = go.Figure()
     
     fig.add_trace(go.Bar(
-        x=top_params['sensitivity_score'],
-        y=[f"P{idx:02d}: {name[:25]}" for idx, name in zip(top_params['index'], top_params['name'])],
+        x=top_params['sensitivity_score'].tolist(),
+        y=y_labels,
         orientation='h',
         marker_color=bar_colors,
-        hovertemplate='<b>%{y}</b><br>Sensitivity: %{x:.4f}<br>Correlation: %{customdata:.3f}<br>Range: %{customdata2:.3f}<extra></extra>',
-        customdata=top_params['correlation'],
-        customdata2=top_params['range']
+        hovertemplate='<b>%{y}</b><br>Sensitivity: %{x:.4f}<extra></extra>',
     ))
     
     fig.update_layout(
         title="🎯 Top 15 sensitivste Parameter (Einfluss auf Zielfunktion)",
         xaxis_title="Sensitivity Score (|Korrelation| × Range)",
         yaxis_title="Parameter",
-        height=600,
+        height=500,
         showlegend=False,
         template="plotly_dark",
         margin=dict(l=250, r=40, t=60, b=40),
@@ -283,42 +298,48 @@ def create_sensitivity_ranking_plot(sensitivity_df: pd.DataFrame, top_n: int = 1
     return fig
 
 
-def create_group_sensitivity_plot(sensitivity_df: pd.DataFrame) -> go.Figure:
+def create_group_sensitivity_plot(sensitivity_df: pd.DataFrame) -> Optional[go.Figure]:
     """Aggregate sensitivity by parameter group."""
-    group_stats = sensitivity_df.groupby('group').agg({
-        'sensitivity_score': ['sum', 'mean', 'max'],
-        'correlation': 'mean'
-    }).round(4)
+    if sensitivity_df is None or len(sensitivity_df) == 0:
+        return None
     
-    group_stats.columns = ['total_sensitivity', 'avg_sensitivity', 'max_sensitivity', 'avg_correlation']
-    group_stats = group_stats.sort_values('total_sensitivity', ascending=False)
-    
-    fig = go.Figure()
-    
-    fig.add_trace(go.Bar(
-        x=group_stats['total_sensitivity'],
-        y=group_stats.index,
-        orientation='h',
-        marker_color='#1f77b4',
-        hovertemplate='<b>%{y}</b><br>Total: %{x:.4f}<br>Avg: %{customdata:.4f}<br>Max: %{customdata2:.4f}<extra></extra>',
-        customdata=group_stats['avg_sensitivity'],
-        customdata2=group_stats['max_sensitivity']
-    ))
-    
-    fig.update_layout(
-        title="📊 Sensitivität nach Parameter-Gruppe",
-        xaxis_title="Total Sensitivity Score",
-        yaxis_title="Parameter-Gruppe",
-        height=400,
-        showlegend=False,
-        template="plotly_dark",
-        margin=dict(l=150, r=40, t=60, b=40),
-        plot_bgcolor="rgba(30, 30, 30, 1)",
-        paper_bgcolor="rgba(30, 30, 30, 1)",
-        font=dict(color="#ffffff", size=11)
-    )
-    
-    return fig
+    try:
+        group_stats = sensitivity_df.groupby('group').agg({
+            'sensitivity_score': ['sum', 'mean', 'max']
+        }).round(4)
+        
+        if len(group_stats) == 0:
+            return None
+        
+        group_stats.columns = ['total_sensitivity', 'avg_sensitivity', 'max_sensitivity']
+        group_stats = group_stats.sort_values('total_sensitivity', ascending=False)
+        
+        fig = go.Figure()
+        
+        fig.add_trace(go.Bar(
+            x=group_stats['total_sensitivity'].tolist(),
+            y=group_stats.index.tolist(),
+            orientation='h',
+            marker_color='#1f77b4',
+            hovertemplate='<b>%{y}</b><br>Total: %{x:.4f}<extra></extra>',
+        ))
+        
+        fig.update_layout(
+            title="📊 Sensitivität nach Parameter-Gruppe",
+            xaxis_title="Total Sensitivity Score",
+            yaxis_title="Parameter-Gruppe",
+            height=400,
+            showlegend=False,
+            template="plotly_dark",
+            margin=dict(l=150, r=40, t=60, b=40),
+            plot_bgcolor="rgba(30, 30, 30, 1)",
+            paper_bgcolor="rgba(30, 30, 30, 1)",
+            font=dict(color="#ffffff", size=11)
+        )
+        
+        return fig
+    except Exception:
+        return None
 
 
 # =============================================================================
@@ -449,22 +470,30 @@ def create_parameter_evolution_with_names(df: pd.DataFrame, group_name: str = No
     return fig
 
 
-def create_parameter_change_table(results_list: List[Dict]) -> go.Figure:
+def create_parameter_change_table(results_list: List[Dict]) -> Optional[go.Figure]:
     """Show parameter changes from initial to final for all catchments."""
+    if not results_list or len(results_list) == 0:
+        return None
+    
     rows = []
     
     for result in results_list:
         df = result['df']
+        if len(df) < 2:
+            continue
         initial = df.iloc[0]
         final = df.iloc[-1]
         
-        for idx in range(1, 21):  # Top 20 parameters
+        for idx in range(1, 11):  # Top 10 parameters only
             col = f'param_{idx:02d}'
+            if col not in df.columns:
+                continue
+            
             param_name, group, unit = DDS_PARAM_MAP.get(idx, (f'param_{idx:02d}', 'Unknown', ''))
             
-            init_val = initial[col]
-            final_val = final[col]
-            change = ((final_val - init_val) / init_val) * 100 if init_val != 0 else 0
+            init_val = float(initial[col])
+            final_val = float(final[col])
+            change = ((final_val - init_val) / init_val * 100) if init_val != 0 else 0.0
             
             rows.append({
                 'Catchment': result['name'],
@@ -476,48 +505,53 @@ def create_parameter_change_table(results_list: List[Dict]) -> go.Figure:
                 'Change_%': change
             })
     
+    if not rows:
+        return None
+    
     df = pd.DataFrame(rows)
     
-    # Pivot for display
-    pivot_df = df.pivot_table(
-        index=['Param', 'Name', 'Group'],
-        columns='Catchment',
-        values=['Initial', 'Final', 'Change_%'],
-        aggfunc='first'
-    ).round(4)
-    
-    fig = go.Figure(data=go.Table(
-        header=dict(
-            values=['Param', 'Name', 'Gruppe'] + [f'{c} (Init/Final/Δ%)' for c in results_list],
-            fill_color="#1f77b4",
-            align="left",
-            font=dict(color="white", size=10)
-        ),
-        cells=dict(
-            values=[
-                pivot_df.index.get_level_values('Param'),
-                [str(x)[:20] for x in pivot_df.index.get_level_values('Name')],
-                pivot_df.index.get_level_values('Group')
-            ] + [
-                [f"{pivot_df[('Initial', c)].iloc[i]:.3f} / {pivot_df[('Final', c)].iloc[i]:.3f} / {pivot_df[('Change_%', c)].iloc[i]:+.1f}%"
-                 for i in range(len(pivot_df))]
-                for c in [r['name'] for r in results_list]
-            ],
-            fill_color="rgba(30, 30, 30, 0.8)",
-            align="left",
-            font=dict(size=9, color="#ffffff")
+    try:
+        pivot_df = df.pivot_table(
+            index=['Param', 'Name', 'Group'],
+            columns='Catchment',
+            values=['Initial', 'Final', 'Change_%'],
+            aggfunc='first'
+        ).round(3)
+        
+        catchment_names = [r['name'] for r in results_list]
+        
+        header_values = ['Param', 'Name', 'Gruppe']
+        for c in catchment_names:
+            header_values.append(f'{c}')
+        
+        cell_values = [
+            list(pivot_df.index.get_level_values('Param')),
+            [str(x)[:18] for x in pivot_df.index.get_level_values('Name')],
+            list(pivot_df.index.get_level_values('Group'))
+        ]
+        
+        for c in catchment_names:
+            cell_values.append([
+                f"{pivot_df[('Initial', c)].iloc[i]:.3f} / {pivot_df[('Final', c)].iloc[i]:.3f} / {pivot_df[('Change_%', c)].iloc[i]:+.0f}%"
+                for i in range(len(pivot_df))
+            ])
+        
+        fig = go.Figure(data=go.Table(
+            header=dict(values=header_values, fill_color="#1f77b4", align="left", font=dict(color="white", size=9)),
+            cells=dict(values=cell_values, fill_color="rgba(30, 30, 30, 0.8)", align="left", font=dict(size=8, color="#ffffff"))
+        ))
+        
+        fig.update_layout(
+            title="📋 Parameter-Änderungen: Initial → Final (Top 10)",
+            height=500,
+            margin=dict(l=40, r=40, t=60, b=40),
+            paper_bgcolor="rgba(30, 30, 30, 1)",
+            plot_bgcolor="rgba(30, 30, 30, 1)"
         )
-    ))
-    
-    fig.update_layout(
-        title="📋 Parameter-Änderungen: Initial → Final (Top 20)",
-        height=700,
-        margin=dict(l=40, r=40, t=80, b=40),
-        paper_bgcolor="rgba(30, 30, 30, 1)",
-        plot_bgcolor="rgba(30, 30, 30, 1)"
-    )
-    
-    return fig
+        
+        return fig
+    except Exception:
+        return None
 
 
 def create_improvement_summary(df: pd.DataFrame) -> Dict[str, float]:
@@ -572,35 +606,50 @@ def create_dashboard_summary_card(df: pd.DataFrame, catchment_name: str = None) 
     return fig
 
 
-def create_metrics_comparison_table(results_list: List[Dict]) -> go.Figure:
+def create_metrics_comparison_table(results_list: List[Dict]) -> Optional[go.Figure]:
     """Compare final model metrics between catchments."""
+    if not results_list:
+        return None
+    
     all_metrics = {}
     
     for result in results_list:
         out_path = Path(result['path']).parent / 'FinalParam.out'
         if out_path.exists():
             metrics = parse_final_param_out(out_path)
-            all_metrics[result['name']] = metrics
+            if metrics:
+                all_metrics[result['name']] = metrics
     
-    common_metrics = ['KGE', 'NSE', 'r', 'PBIAS', 'RMSE', 'MAE']
+    if not all_metrics:
+        return None
+    
+    common_metrics = ['KGE', 'NSE', 'r', 'PBIAS']
+    
+    header_values = ['Metrik'] + list(all_metrics.keys())
+    cell_values = [common_metrics]
+    
+    for catchment_name in all_metrics.keys():
+        row = []
+        for m in common_metrics:
+            val = all_metrics[catchment_name].get(m)
+            if val is not None and not np.isnan(val):
+                row.append(f"{val:.4f}")
+            else:
+                row.append("N/A")
+        cell_values.append(row)
     
     fig = go.Figure(data=go.Table(
-        header=dict(values=['Metrik'] + [r['name'] for r in results_list], fill_color="#1f77b4", align="left", font=dict(color="white", size=11)),
-        cells=dict(
-            values=[
-                common_metrics
-            ] + [
-                [f"{all_metrics.get(r['name'], {}).get(m, float('nan')):.4f}" if not np.isnan(all_metrics.get(r['name'], {}).get(m, float('nan'))) else "N/A"
-                 for m in common_metrics]
-                for r in results_list
-            ],
-            fill_color="rgba(30, 30, 30, 0.8)",
-            align="left",
-            font=dict(size=10, color="#ffffff")
-        )
+        header=dict(values=header_values, fill_color="#1f77b4", align="left", font=dict(color="white", size=10)),
+        cells=dict(values=cell_values, fill_color="rgba(30, 30, 30, 0.8)", align="left", font=dict(size=9, color="#ffffff"))
     ))
     
-    fig.update_layout(title="📊 Modell-Performance-Vergleich (FinalParam)", height=350, margin=dict(l=40, r=40, t=60, b=40), paper_bgcolor="rgba(30, 30, 30, 1)", plot_bgcolor="rgba(30, 30, 30, 1)")
+    fig.update_layout(
+        title="📊 Modell-Performance-Vergleich (FinalParam)",
+        height=300,
+        margin=dict(l=40, r=40, t=60, b=40),
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        plot_bgcolor="rgba(30, 30, 30, 1)"
+    )
     
     return fig
 
@@ -714,7 +763,7 @@ def render_dds_analysis_tab():
             st.metric("Iterationen", str(summary['iterations']))
         
         st.subheader("🎯 Parameter-Sensitivitätsanalyse")
-        st.info("""
+        st.markdown("""
         **Wie funktioniert die Sensitivitätsanalyse?**
         
         - **Korrelation:** Wie stark ändert sich das Ziel bei Parameter-Änderung?
@@ -727,15 +776,28 @@ def render_dds_analysis_tab():
         - Gruppen-Vergleich zeigt welche Prozesse am wichtigsten sind
         """)
         
-        analysis = analyze_single_dds(path, selected)
-        
-        st.plotly_chart(analysis['figures']['sensitivity_ranking'], use_container_width=True)
-        
-        c1, c2 = st.columns(2)
-        with c1:
-            st.plotly_chart(analysis['figures']['group_sensitivity'], use_container_width=True)
-        with c2:
-            st.plotly_chart(analysis['figures']['convergence'], use_container_width=True)
+        try:
+            analysis = analyze_single_dds(path, selected)
+            
+            if analysis['figures'].get('sensitivity_ranking'):
+                st.plotly_chart(analysis['figures']['sensitivity_ranking'], use_container_width=True)
+            else:
+                st.warning("Sensitivitätsanalyse nicht verfügbar (ungenügende Daten)")
+            
+            c1, c2 = st.columns(2)
+            with c1:
+                if analysis['figures'].get('group_sensitivity'):
+                    st.plotly_chart(analysis['figures']['group_sensitivity'], use_container_width=True)
+                else:
+                    st.info("Gruppen-Sensitivität nicht verfügbar")
+            with c2:
+                st.plotly_chart(analysis['figures']['convergence'], use_container_width=True)
+        except Exception as e:
+            st.error(f"Fehler bei der Analyse: {e}")
+            st.info("Zeige nur Basis-Konvergenz...")
+            result = parse_dds_results(path, selected)
+            summary = create_improvement_summary(result['df'])
+            st.plotly_chart(create_convergence_plot(result['df'], f"{selected} - Konvergenz"), use_container_width=True)
         
         st.subheader("📈 Parameter-Evolution (mit wissenschaftlichen Namen)")
         st.plotly_chart(analysis['figures']['parameter_evolution'], use_container_width=True)
@@ -774,15 +836,22 @@ def render_dds_analysis_tab():
         
         st.subheader("📈 Konvergenz-Vergleich")
         fig = create_convergence_comparison(results)
-        st.plotly_chart(fig, use_container_width=True)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
         
         st.subheader("📋 Parameter-Änderungen: Initial → Final")
         fig = create_parameter_change_table(results)
-        st.plotly_chart(fig, use_container_width=True)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Parameter-Änderungen nicht verfügbar")
         
         st.subheader("📊 Performance-Vergleich")
         fig = create_metrics_comparison_table(results)
-        st.plotly_chart(fig, use_container_width=True)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Performance-Metriken nicht verfügbar")
     
     with st.expander("📖 DDS Methodik & Interpretation"):
         st.markdown("""
