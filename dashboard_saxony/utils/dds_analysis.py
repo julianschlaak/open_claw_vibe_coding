@@ -683,25 +683,33 @@ def create_parameter_recommendation_table(results: List[Dict], cv_threshold: flo
         ),
         cells=dict(
             values=[
-                rec_df['Param'],
-                rec_df['Name'],
-                rec_df['Gruppe'],
-                rec_df['Wert'],
-                rec_df['Unsicherheit'],
-                rec_df['CV'],
-                go.Table(cells=dict(
-                    values=[[r] for r in rec_df['Empfehlung']],
-                    fill_color=[[c] for c in rec_colors],
-                    align="left",
-                    font=dict(size=8, color="#ffffff")
-                ))[0],
-                rec_df['Begruendung']
+                rec_df['Param'].tolist(),
+                rec_df['Name'].tolist(),
+                rec_df['Gruppe'].tolist(),
+                rec_df['Wert'].tolist(),
+                rec_df['Unsicherheit'].tolist(),
+                rec_df['CV'].tolist(),
+                rec_df['Empfehlung'].tolist(),
+                rec_df['Begruendung'].tolist()
             ],
-            fill_color="rgba(30, 30, 30, 0.8)",
+            fill_color=[['rgba(30, 30, 30, 0.8)'] * len(rec_df)],
             align="left",
-            font=dict(size=8, color="#ffffff")
+            font=dict(size=8, color="#ffffff"),
+            line_color='darkslategray'
         )
     ))
+    
+    # Add colored backgrounds for recommendation column using shapes
+    for i, color in enumerate(rec_colors):
+        fig.add_shape(
+            type="rect",
+            xref="paper", yref="paper",
+            x0=0.65, x1=0.75,
+            y0=0.92 - i * 0.035, y1=0.92 - (i + 1) * 0.035,
+            fillcolor=color,
+            line_width=0,
+            layer="below"
+        )
     
     fig.update_layout(
         title="🎯 Empfohlene Parameter-Sets: GLOBAL vs. LOKAL",
