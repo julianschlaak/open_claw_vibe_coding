@@ -694,22 +694,18 @@ def create_parameter_recommendation_table(results: List[Dict], cv_threshold: flo
             ],
             fill_color=[['rgba(30, 30, 30, 0.8)'] * len(rec_df)],
             align="left",
-            font=dict(size=8, color="#ffffff"),
+            font=dict(size=7, color="#ffffff"),
             line_color='darkslategray'
         )
     ))
     
-    # Add colored backgrounds for recommendation column using shapes
-    for i, color in enumerate(rec_colors):
-        fig.add_shape(
-            type="rect",
-            xref="paper", yref="paper",
-            x0=0.65, x1=0.75,
-            y0=0.92 - i * 0.035, y1=0.92 - (i + 1) * 0.035,
-            fillcolor=color,
-            line_width=0,
-            layer="below"
-        )
+    fig.update_layout(
+        title="🎯 Empfohlene Parameter-Sets: GLOBAL vs. LOKAL",
+        height=900,
+        margin=dict(l=40, r=40, t=60, b=40),
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        plot_bgcolor="rgba(30, 30, 30, 1)"
+    )
     
     fig.update_layout(
         title="🎯 Empfohlene Parameter-Sets: GLOBAL vs. LOKAL",
