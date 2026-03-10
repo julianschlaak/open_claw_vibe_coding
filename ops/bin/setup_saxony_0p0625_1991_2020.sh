@@ -62,7 +62,13 @@ echo ""
 # Create run directory structure
 RUN_DIR="${RUNS_DIR}/${CATCHMENT_ID}"
 echo "📁 Creating run directory: ${RUN_DIR}"
-mkdir -p "${RUN_DIR}"/{nml,input,output,restart}
+
+# Try to create directory, use sudo if needed
+if ! mkdir -p "${RUN_DIR}"/{nml,input,output,restart} 2>/dev/null; then
+    echo -e "${YELLOW}⚠️  Permission denied, trying with sudo...${NC}"
+    sudo mkdir -p "${RUN_DIR}"/{nml,input,output,restart}
+    sudo chown -R node:node "${RUN_DIR}"
+fi
 
 # Copy input data from catchments_cloud
 INPUT_SOURCE="${MHM_DIR}/catchments_cloud/${CATCHMENT_ID}/input"
@@ -231,7 +237,11 @@ if [ -f "${TEMPLATE_MHM_NML}" ]; then
     sed -i 's|parthe_0p0625|saxony_0p0625|g' "${RUN_DIR}/nml/mhm.nml"
     sed -i 's|/mhm_re_crit/|/mhm/|g' "${RUN_DIR}/nml/mhm.nml"
     
+    # Set optimize = .False. for normal simulation (not calibration)
+    sed -i 's/optimize = \.True\./optimize = .False./g' "${RUN_DIR}/nml/mhm.nml"
+    
     echo "   ✅ Created mhm.nml (adjusted from parthe template)"
+    echo "   ✅ Set optimize = .False. (normal simulation mode)"
 else
     echo -e "${YELLOW}⚠️  No template found. Please create mhm.nml manually.${NC}"
 fi

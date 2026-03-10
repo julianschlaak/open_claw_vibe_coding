@@ -155,16 +155,20 @@ echo ""
 # Run mHM
 echo -e "${BLUE}🏃 Running mHM...${NC}"
 echo "   Working directory: $(pwd)"
-echo "   Command: mhm ./${CATCHMENT_ID}"
+echo "   Command: mhm (from runs/ directory)"
 echo ""
 
 # Create output directory if not exists
 mkdir -p output
 
-# Execute mHM
+# Execute mHM from parent directory (runs/)
+cd ..
 if mhm ./${CATCHMENT_ID}; then
     echo ""
     echo -e "${GREEN}✅ SUCCESS: ${CATCHMENT_NAME} simulation completed${NC}"
+    
+    # Return to run directory
+    cd "${RUN_DIR}"
     
     # Check output files
     echo ""
@@ -217,6 +221,9 @@ if mhm ./${CATCHMENT_ID}; then
     
     exit 0
 else
+    # Return to run directory
+    cd "${RUN_DIR}"
+    
     echo ""
     echo -e "${RED}❌ ERROR: ${CATCHMENT_NAME} simulation failed${NC}"
     echo ""
