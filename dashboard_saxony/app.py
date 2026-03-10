@@ -42,8 +42,78 @@ css_path = Path(__file__).resolve().parent / "assets" / "style.css"
 if css_path.exists():
     st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
-st.title("💧 Duerremonitor Sachsen")
-st.markdown("**Interaktives Dashboard fuer Bodenfeuchte und Drought-Monitoring (2005-2020)**")
+# Global language state
+if 'language' not in st.session_state:
+    st.session_state.language = 'de'
+
+# Translations for main app
+APP_TRANSLATIONS = {
+    'de': {
+        'title': "💧 Dürremonitor Sachsen",
+        'subtitle': "**Interaktives Dashboard für Bodenfeuchte und Drought-Monitoring (2005-2020)**",
+        'lang_label': "🌐 Sprache / Language",
+        'lang_de': "🇩🇪 Deutsch",
+        'lang_en': "🇬🇧 English",
+        'settings': "⚙️ Einstellungen",
+        'region': "Region",
+        'mobile_layout': "Mobile-Layout",
+        'mobile_help': "Kompakteres Layout für Smartphone",
+        'date': "Datum",
+        'smi': "SMI",
+        'sm': "Bodenfeuchte",
+        'recharge': "Grundwasserneubildung",
+        'discharge': "Abfluss",
+        'tabs': {
+            'overview': "🗺️ Übersicht",
+            'timeseries': "📈 Zeitreihen",
+            'comparison': "🔍 Vergleich",
+            'discharge': "🌊 Abflussanalyse",
+            'dds': "🔧 mHM DDS",
+            'settings': "⚙️ Einstellungen"
+        }
+    },
+    'en': {
+        'title': "💧 Drought Monitor Saxony",
+        'subtitle': "**Interactive Dashboard for Soil Moisture and Drought Monitoring (2005-2020)**",
+        'lang_label': "🌐 Sprache / Language",
+        'lang_de': "🇩🇪 Deutsch",
+        'lang_en': "🇬🇧 English",
+        'settings': "⚙️ Settings",
+        'region': "Region",
+        'mobile_layout': "Mobile Layout",
+        'mobile_help': "Compact layout for smartphone",
+        'date': "Date",
+        'smi': "SMI",
+        'sm': "Soil Moisture",
+        'recharge': "Groundwater Recharge",
+        'discharge': "Discharge",
+        'tabs': {
+            'overview': "🗺️ Overview",
+            'timeseries': "📈 Time Series",
+            'comparison': "🔍 Comparison",
+            'discharge': "🌊 Discharge Analysis",
+            'dds': "🔧 mHM DDS",
+            'settings': "⚙️ Settings"
+        }
+    }
+}
+
+t = APP_TRANSLATIONS[st.session_state.language]
+
+# Language selector at top
+col_lang, col_space = st.columns([1, 5])
+with col_lang:
+    st.selectbox(
+        t['lang_label'],
+        options=['de', 'en'],
+        format_func=lambda x: APP_TRANSLATIONS[x]['lang_de'] if x == 'de' else APP_TRANSLATIONS[x]['lang_en'],
+        index=0 if st.session_state.language == 'de' else 1,
+        key='lang_selector',
+        on_change=lambda: setattr(st.session_state, 'language', st.session_state.lang_selector)
+    )
+
+st.title(t['title'])
+st.markdown(t['subtitle'])
 
 
 @st.cache_data(show_spinner=True)
@@ -71,9 +141,9 @@ if "selected_cell_ids" not in st.session_state:
 
 
 # Sidebar
-st.sidebar.header("⚙️ Einstellungen")
-st.sidebar.selectbox("Region", ["Sachsen (gesamt)"], index=0)
-mobile_layout = st.sidebar.toggle("Mobile-Layout", value=False, help="Kompakteres Layout fuer Smartphone")
+st.sidebar.header(t['settings'])
+st.sidebar.selectbox(t['region'], ["Sachsen (gesamt)"], index=0)
+mobile_layout = st.sidebar.toggle(t['mobile_layout'], value=False, help=t['mobile_help'])
 default_date = pd.Timestamp("2018-08-15")
 if default_date < all_dates.min() or default_date > all_dates.max():
     default_date = all_dates.min()
@@ -85,7 +155,7 @@ if "selected_date" not in st.session_state:
 if "date_picker" not in st.session_state:
     st.session_state.date_picker = st.session_state.selected_date
 
-st.sidebar.markdown("**Datum**")
+st.sidebar.markdown(f"**{t['date']}**")
 dcol1, dcol2, dcol3 = st.sidebar.columns([1, 2.4, 1])
 with dcol1:
     if st.button("◀", key="date_prev"):
@@ -111,11 +181,15 @@ with dcol2:
 
 selected_date = st.session_state.selected_date
 
-VIEW_OPTIONS = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "🌊 Chemnitz2 Discharge", "🔧 Parthe DDS", "📚 Wissenschaft & Quellen"]
-if "view_mode" not in st.session_state:
-    st.session_state.view_mode = "📊 SMI"
+VIEW_OPTIONS_DE = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "🌊 Chemnitz2 Abfluss", "🔧 Parthe DDS", "📚 Wissenschaft & Quellen"]
+VIEW_OPTIONS_EN = ["🌱 nFK", "💧 Vol. Soil Moisture", "📊 SMI", "🎯 Multi-Index", "🌊 Chemnitz2 Discharge", "🔧 Parthe DDS", "📚 Science & Sources"]
 
-st.markdown("**Ansicht waehlen**")
+VIEW_OPTIONS = VIEW_OPTIONS_DE if st.session_state.language == 'de' else VIEW_OPTIONS_EN
+
+if "view_mode" not in st.session_state:
+    st.session_state.view_mode = VIEW_OPTIONS[2]  # SMI
+
+st.markdown(f"**{'Ansicht wählen' if st.session_state.language == 'de' else 'Select view'}**")
 bar = st.container()
 with bar:
     if mobile_layout:
@@ -578,7 +652,10 @@ if view in selection_cfg:
 
 
 if view == "🌱 nFK":
-    st.header("Nutzbare Feldkapazitaet (%nFK) - Raster")
+    if st.session_state.language == 'de':
+        st.header("Nutzbare Feldkapazität (%nFK) - Raster")
+    else:
+        st.header("Available Field Capacity (%nFK) - Grid")
     st.info(
         "%nFK beschreibt den Anteil des fuer Pflanzen verfuegbaren Bodenwassers. "
         "Berechnet wird relativ zur Speicherkapazitaet zwischen Feldkapazitaet und Welkepunkt. "
@@ -614,7 +691,10 @@ if view == "🌱 nFK":
             _right()
 
 elif view == "💧 Vol. Bodenfeuchte":
-    st.header("Volumetrische Bodenfeuchte (Vol.%) - Raster")
+    if st.session_state.language == 'de':
+        st.header("Volumetrische Bodenfeuchte (Vol.%) - Raster")
+    else:
+        st.header("Volumetric Soil Moisture (Vol.%) - Grid")
     st.info(
         "Die volumetrische Bodenfeuchte zeigt den absoluten Wassergehalt im Boden in Volumenprozent. "
         "Typische Werte reichen von sehr trocken (~5%) bis nahe Saettigung (~45%). "
