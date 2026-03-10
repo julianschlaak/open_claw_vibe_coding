@@ -679,7 +679,7 @@ def create_parameter_recommendation_table(results: List[Dict], cv_threshold: flo
             values=['Param', 'Name', 'Gruppe', 'Wert', '±σ', 'CV', 'Empfehlung', 'Begruendung'],
             fill_color="#1f77b4",
             align="left",
-            font=dict(color="white", size=9)
+            font=dict(color="white", size=10)
         ),
         cells=dict(
             values=[
@@ -694,14 +694,14 @@ def create_parameter_recommendation_table(results: List[Dict], cv_threshold: flo
             ],
             fill_color=[['rgba(30, 30, 30, 0.8)'] * len(rec_df)],
             align="left",
-            font=dict(size=7, color="#ffffff"),
+            font=dict(size=10, color="#ffffff"),
             line_color='darkslategray'
         )
     ))
     
     fig.update_layout(
         title="🎯 Empfohlene Parameter-Sets: GLOBAL vs. LOKAL",
-        height=900,
+        height=1200,
         margin=dict(l=40, r=40, t=60, b=40),
         paper_bgcolor="rgba(30, 30, 30, 1)",
         plot_bgcolor="rgba(30, 30, 30, 1)"
