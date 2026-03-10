@@ -174,18 +174,19 @@ run_catchment() {
     echo "   Command: mhm ./${catchment}"
     echo ""
     
-    # Execute mHM
+    # Execute mHM (run from parent directory)
+    cd ..
     if mhm ./${catchment}; then
         echo ""
         echo -e "${GREEN}✅ SUCCESS: ${catchment} completed${NC}"
         
         # Check output files
-        if [ -d "output" ]; then
-            local output_files=$(ls -1 output/*.nc 2>/dev/null | wc -l)
+        if [ -d "${catchment}/output" ]; then
+            local output_files=$(ls -1 ${catchment}/output/*.nc 2>/dev/null | wc -l)
             echo "   Output files: ${output_files} .nc files"
         fi
         
-        if [ -f "output/daily_discharge.out" ]; then
+        if [ -f "${catchment}/output/daily_discharge.out" ]; then
             echo -e "${GREEN}✅ Found: daily_discharge.out${NC}"
         fi
         
@@ -195,9 +196,12 @@ run_catchment() {
         echo -e "${RED}❌ ERROR: ${catchment} failed${NC}"
         echo "   Check logs in: ${run_dir}/output/"
         echo ""
+        cd "${run_dir}"
         return 1
     fi
     
+    # Return to run directory
+    cd "${run_dir}"
     echo ""
     return 0
 }

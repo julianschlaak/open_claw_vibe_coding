@@ -132,7 +132,8 @@ def read_template_nml():
         print(f"❌ Template not found: {template_path}")
         return None
     
-    with open(template_path, 'r') as f:
+    # Read with latin-1 encoding (mHM files often have German characters)
+    with open(template_path, 'r', encoding='latin-1') as f:
         return f.read()
 
 def generate_nml_file(recommended, template_content):
