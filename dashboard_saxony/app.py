@@ -12,6 +12,15 @@ from shapely.geometry import shape
 from streamlit_folium import st_folium
 
 from utils.data_loader import load_saxony_data
+from utils.discharge_plots import (
+    create_hydrograph,
+    create_flow_duration_curve,
+    create_residual_analysis,
+    create_metrics_panel,
+    create_low_flow_analysis,
+    create_seasonal_discharge_plot,
+    load_chemnitz2_discharge,
+)
 from utils.plotting import (
     create_corr_heatmap,
     create_multiindex_timeseries,
@@ -94,7 +103,7 @@ with dcol2:
 
 selected_date = st.session_state.selected_date
 
-VIEW_OPTIONS = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "📚 Wissenschaft & Quellen"]
+VIEW_OPTIONS = ["🌱 nFK", "💧 Vol. Bodenfeuchte", "📊 SMI", "🎯 Multi-Index", "🌊 Chemnitz2 Discharge", "📚 Wissenschaft & Quellen"]
 if "view_mode" not in st.session_state:
     st.session_state.view_mode = "📊 SMI"
 
@@ -719,6 +728,175 @@ elif view == "🎯 Multi-Index":
         st.json(radar)
         corr_cols = [c for c in ["smi", "r_pctl", "q_pctl", "mdi", "spi_3", "spei_3"] if c in idx_df.columns]
         st.plotly_chart(create_corr_heatmap(idx_df, corr_cols), use_container_width=True)
+
+elif view == "🌊 Chemnitz2 Discharge":
+    st.header("🌊 Chemnitz2 Catchment — Discharge Analysis")
+    st.markdown(
+        "**Wissenschaftliche Auswertung von Abflussdaten (Qobs, Qsim) für das Chemnitz2-Einzugsgebiet**\n\n"
+        "Datenquellen: CAMELS-DE (Qobs), mHM 5.13.2 (Qsim), 2005–2020"
+    )
+    
+    # Load data
+    @st.cache_data
+    def _load_chemnitz2():
+        return load_chemnitz2_discharge()
+    
+    try:
+        chemnitz_df = _load_chemnitz2()
+        st.success(f"Daten geladen: {len(chemnitz_df)} Tage (2005–2020)")
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Daten: {e}")
+        st.stop()
+    
+    # Sidebar controls
+    st.sidebar.header("⚙️ Discharge Einstellungen")
+    
+    # Year filter
+    selected_years = st.sidebar.multiselect(
+        "Jahre auswählen",
+        options=list(range(2005, 2021)),
+        default=[2018, 2019, 2020],
+        help="Zeitraum für die Analyse"
+    )
+    
+    if not selected_years:
+        st.warning("Bitte mindestens ein Jahr auswählen.")
+        st.stop()
+    
+    # Filter data
+    chemnitz_df["year"] = chemnitz_df["date"].dt.year
+    df_filtered = chemnitz_df[chemnitz_df["year"].isin(selected_years)].copy()
+    
+    st.sidebar.markdown(f"**Datensatz:** {len(df_filtered)} Tage")
+    
+    # Plot selection
+    st.subheader("📊 Plot-Auswahl")
+    plot_options = {
+        "Hydrograph (Modern)": "Multi-Panel: Qobs/Qsim + Precip + SMI | KGE/NSE im Titel | Q10/Q90 Thresholds",
+        "Flow Duration": "Abflussdauerlinie (Exceedance Probability)",
+        "Residuals": "Residuen-Analyse (Qobs - Qsim)",
+        "Metrics": "Modellgüte-Metriken (KGE, NSE, r, PBIAS)",
+        "Low-Flow": "Niedrigwasser-Analyse (Q7Q10, Dürre-Ereignisse)",
+        "Seasonal": "Saisonale Abflussmuster (Monats-Boxplots)"
+    }
+    
+    selected_plot = st.selectbox(
+        "Plot-Typ",
+        options=list(plot_options.keys()),
+        format_func=lambda x: f"{x}"
+    )
+    
+    # Hydrograph options
+    if selected_plot == "Hydrograph (Modern)":
+        st.sidebar.subheader("⚙️ Hydrograph Optionen")
+        include_precip = st.sidebar.checkbox(
+            "Niederschlag anzeigen",
+            value=True,
+            help="Precipitation als Balkendiagramm im zweiten Panel"
+        )
+        
+        st.plotly_chart(
+            create_hydrograph(
+                df_filtered,
+                start_date=f"{min(selected_years)}-01-01",
+                end_date=f"{max(selected_years)}-12-31",
+                include_precip=include_precip
+            ),
+            use_container_width=True
+        )
+        
+        st.info(
+            "**🎨 Modern Design Features:**\n"
+            "- **Multi-Panel Layout:** Qobs/Qsim + Precipitation + SMI\n"
+            "- **KGE/NSE im Titel:** Modellgüte auf einen Blick\n"
+            "- **Q10/Q90 Thresholds:** Low-flow und High-flow Markierungen\n"
+            "- **Dürre-Shading:** Rote Hinterlegung bei SMI < 20\n"
+            "- **Verbesserte Tooltips:** Qobs, Qsim und Differenz auf Hover\n"
+            "- **Colorblind-Safe:** Okabe-Ito Farbpalette"
+        )
+    
+    elif selected_plot == "Flow Duration":
+        st.plotly_chart(
+            create_flow_duration_curve(df_filtered),
+            use_container_width=True
+        )
+        st.caption("Abb.: Abflussdauerlinie für Chemnitz2. Log-Skala für niedrige Abflüsse.")
+    
+    elif selected_plot == "Residuals":
+        st.plotly_chart(
+            create_residual_analysis(df_filtered),
+            use_container_width=True
+        )
+        st.caption("Abb.: Residuen-Analyse. Oben: Zeitreihe, unten: Verteilung.")
+    
+    elif selected_plot == "Metrics":
+        st.plotly_chart(
+            create_metrics_panel(df_filtered),
+            use_container_width=True
+        )
+        st.caption("Abb.: Modellgüte-Metriken. KGE > 0.5 = gut, NSE > 0.5 = akzeptabel.")
+    
+    elif selected_plot == "Low-Flow":
+        st.plotly_chart(
+            create_low_flow_analysis(df_filtered),
+            use_container_width=True
+        )
+        st.caption("Abb.: Niedrigwasser-Analyse mit 7-Tage gleitendem Mittel und Q10-Threshold.")
+    
+    elif selected_plot == "Seasonal":
+        st.plotly_chart(
+            create_seasonal_discharge_plot(df_filtered),
+            use_container_width=True
+        )
+        st.caption("Abb.: Saisonale Abflussmuster. Blau: Qobs, Orange: Qsim.")
+    
+    # Download options
+    st.divider()
+    st.subheader("💾 Datenexport")
+    
+    csv_data = df_filtered[["date", "qobs", "qsim", "smi", "mdi"]].to_csv(index=False)
+    st.download_button(
+        "📥 CSV Download (Qobs, Qsim, SMI, MDI)",
+        data=csv_data.encode("utf-8"),
+        file_name=f"chemnitz2_discharge_{'-'.join(map(str, selected_years))}.csv",
+        mime="text/csv"
+    )
+    
+    # Scientific info
+    with st.expander("📖 Methodik & Interpretation"):
+        st.markdown(
+            """
+### Hydrograph
+- **Blau**: Beobachteter Abfluss (CAMELS-DE)
+- **Orange**: Simulierter Abfluss (mHM 5.13.2)
+- **Rot schattiert**: Dürre-Perioden (SMI < 20)
+
+### Flow Duration Curve
+- Zeigt die Überschreitungswahrscheinlichkeit für Abflüsse
+- Log-Skala für bessere Darstellung niedriger Abflüsse
+- Wichtig für Niedrigwasser-Analyse
+
+### Residuals
+- Differenz Qobs - Qsim
+- Systematische Abweichungen erkennbar (Bias)
+- Verteilung zeigt Modellunsicherheit
+
+### Metrics
+- **KGE** (Kling-Gupta Efficiency): > 0.5 = gut, > 0.7 = sehr gut
+- **NSE** (Nash-Sutcliffe): > 0.5 = akzeptabel
+- **r** (Pearson): Korrelation, > 0.7 = stark
+- **PBIAS**: % Abweichung, < 10% = niedrig
+
+### Low-Flow
+- 7-Tage gleitendes Mittel
+- Q10 = 10. Perzentil (Niedrigwasser-Threshold)
+- Identifiziert Dürre-Ereignisse
+
+### Seasonal
+- Monatsweise Boxplots
+- Zeigt saisonale Muster und Modellabweichungen
+            """
+        )
 
 else:
     st.header("📚 Wissenschaft & Quellen")

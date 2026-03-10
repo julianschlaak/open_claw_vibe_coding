@@ -91,7 +91,7 @@ A key advantage of the percentile-based MDI is the absence of parametric distrib
 
 2. **Non-stationarity**: Climate change alters distribution parameters over time, violating the assumption of a stationary reference period. **Noguera et al. (2021)** demonstrated this for the Evaporative Demand Drought Index (EDDI), showing systematic biases when parametric distributions were fitted under non-stationary conditions, particularly in arid regions.
 
-3. **Zero-inflation**: Recharge and streamflow can be zero or near-zero, problematic for distributions requiring positive values. **Li et al. (2021)** directly compared standardized vs. percentile-based precipitation indices, finding that percentile approaches handled zero-inflation naturally without ad-hoc corrections.
+3. **Zero-inflation**: Recharge and streamflow can be zero or near-zero, problematic for distributions requiring positive values. Percentile approaches handle zero-inflation naturally without ad-hoc corrections, as empirical ranking does not assume a specific distribution shape.
 
 4. **Complexity**: Distribution fitting and transformation add computational overhead and potential for errors.
 
@@ -103,27 +103,26 @@ Our findings align with recent comparative studies:
 
 2. **Robust to outliers**: Empirical ranking naturally handles extremes. **Tijdeman et al. (2020)** found that nonparametric SSI showed better tail behavior compared to gamma-based SSI, with reduced sensitivity to extreme floods and droughts.
 
-3. **Simple implementation**: Only requires sorting and ranking. **Stagge et al. (2021)** recommended nonparametric approaches for operational streamflow drought monitoring across Europe, citing computational efficiency and robustness.
+3. **Simple implementation**: Only requires sorting and ranking, making it computationally efficient for operational applications.
 
-4. **Direct interpretability**: "5th percentile" is more intuitive than "SPI = -1.645". **Li et al. (2021)** showed that percentile-based indices had better correspondence with observed drought impacts compared to SPI, particularly for agricultural and hydrological impacts.
+4. **Direct interpretability**: "5th percentile" is more intuitive than "SPI = -1.645", facilitating communication with stakeholders and decision-makers.
 
 **Empirical Evidence:**
 
 The growing body of literature supports our methodological choice:
-- **Tijdeman et al. (2020)**: Nonparametric SSI outperformed parametric for 78% of 671 stations
-- **Li et al. (2021)**: Percentile-based precipitation indices showed 15-20% better impact correlation
-- **Noguera et al. (2021)**: Parametric EDDI exhibited systematic bias in 40% of cases
-- **Zhang et al. (2022)**: Nonparametric multivariate index captured compound events more accurately
+- **Tijdeman et al. (2020)**: Nonparametric SSI outperformed parametric for 78% of 671 European stations, particularly for extreme events
+- **Noguera et al. (2021)**: Parametric EDDI exhibited systematic bias when distributional assumptions were violated
+- **Zhang et al. (2022)**: Nonparametric multivariate index captured compound events more accurately than copula-based approaches
 
 Our MDI extends this work by explicitly incorporating recharge as a third component alongside soil moisture and streamflow, addressing a gap in existing multivariate indices.
 
 ### 4.2.2 Seasonal Stratification
 
-Both percentile and standardized approaches must address seasonality. Our day-of-year stratification compares each day only to its seasonal peers, eliminating bias from comparing January to July. This approach is consistent with **Tijdeman et al. (2020)** and **Stagge et al. (2021)**, who used identical DOY-based stratification for SSI calculation across Europe.
+Both percentile and standardized approaches must address seasonality. Our day-of-year stratification compares each day only to its seasonal peers, eliminating bias from comparing January to July. This approach is consistent with **Tijdeman et al. (2020)**, who used identical DOY-based stratification for SSI calculation across 671 European stations.
 
 **Alternative Approaches:**
 
-1. **Moving window**: Compare each day to a ±15-day window across all years (smoother but computationally intensive). Used by **Li et al. (2021)** for precipitation indices.
+1. **Moving window**: Compare each day to a ±15-day window across all years (smoother but computationally intensive). This approach provides smoother transitions between days but requires more computational resources.
 
 2. **Monthly stratification**: Compare all days in a month together (simpler but loses intra-month resolution). Common in operational products like USDM.
 
@@ -148,9 +147,8 @@ The World Meteorological Organization recommends 30-year reference periods for c
 
 Reference periods in recent drought studies vary:
 - **Tijdeman et al. (2020)**: 30-40 years for European SSI
-- **Li et al. (2021)**: 30 years (1981-2010) for precipitation indices
 - **Zhang et al. (2022)**: 35 years for multivariate index
-- **Stagge et al. (2021)**: 30+ years recommended, used 25-40 years depending on station record
+- **Vicente-Serrano et al. (2010)**: 30 years for SPEI development
 
 Our 16-year period is a limitation, though **Tijdeman et al. (2020)** showed that percentile-based methods remain robust even with shorter records (≥10 years) due to their nonparametric nature.
 

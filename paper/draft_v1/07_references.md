@@ -20,8 +20,6 @@ Ionita, M., V. Nagavciuc, P. Scholz, and V. P. Chelaru (2019), The 2018 drought 
 
 Kumar, R., L. Samaniego, and S. Attinger (2013), Implications of distributed hydrologic model parameterization on water fluxes at multiple scales and locations, Water Resour. Res., 49(7), 3603–3623, doi:10.1002/wrcr.20276.
 
-Li, W., J. Lu, and X. Chen (2021), Comparison of standardized and percentile-based precipitation indices for drought monitoring, J. Hydrometeorol., 22(8), 2087–2103, doi:10.1175/JHM-D-20-0234.1.
-
 Liu, Y., F. Shan, and H. Yue (2023), Global analysis of the correlation and propagation among meteorological, agricultural, surface water, and groundwater droughts, J. Environ. Manage., 335, 117460, doi:10.1016/j.jenvman.2023.117460.
 
 McKee, T. B., N. J. Doesken, and J. Kleist (1993), The relationship of drought frequency and duration to time scales, in Proceedings of the 8th Conference on Applied Climatology, pp. 179–183, American Meteorological Society, Boston, MA.
@@ -37,8 +35,6 @@ Rakovec, O., Y. Markonis, L. Samaniego, and R. Kumar (2019), The 2018 European d
 Saha, T. R., P. K. Shrestha, O. Rakovec, et al. (2021), A drought monitoring tool for South Asia, Environ. Res. Lett., 16(5), 054033, doi:10.1088/1748-9326/abf525.
 
 Samaniego, L., R. Kumar, and S. Attinger (2010), Multiscale high-resolution spatial modeling of hydrological processes, Adv. Water Resour., 33(7), 731–746, doi:10.1016/j.advwatres.2010.03.016.
-
-Stagge, J. H., L. M. Tallaksen, and K. Stahl (2021), Intercomparison of streamflow drought indices for European catchments, Hydrol. Earth Syst. Sci., 25(1), 123–145, doi:10.5194/hess-25-123-2021.
 
 Tijdeman, E., K. Stahl, L. M. Tallaksen (2020), Drought Characteristics Derived Based on the Standardized Streamflow Index: A Large Sample Comparison for Parametric and Nonparametric Methods, Water Resour. Res., 56(4), e2019WR026315, doi:10.1029/2019WR026315.
 
@@ -68,6 +64,10 @@ World Meteorological Organization (WMO) (2012), Standardized Precipitation Index
 
 ---
 
-**Total References:** 30 papers + 3 background sources  
+**Total References:** 28 papers + 3 background sources
+
+**Removed during QC (2026-03-09):**
+- Li et al. (2021) — Paper handelt von Niederschlags-QC, nicht Dürre-Indizes (falsch zitiert)
+- Stagge et al. (2021) — DOI nicht auffindbar, Existenz fraglich  
 **Date Range:** 1993–2023  
 **Key Journals:** Water Resources Research (6), Journal of Hydrology (3), Hydrology and Earth System Sciences (4), Environmental Research Letters (3)
