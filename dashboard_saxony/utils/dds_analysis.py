@@ -606,6 +606,173 @@ def create_parameter_statistics_table(results: List[Dict]) -> go.Figure:
     return fig
 
 
+def create_parameter_recommendation_table(results: List[Dict], cv_threshold: float = 0.1) -> go.Figure:
+    """
+    Create parameter recommendation table based on CV analysis.
+    
+    Classifies parameters as:
+    - GLOBAL: CV < threshold (consistent across catchments)
+    - LOCAL: CV >= threshold (catchment-specific)
+    
+    Args:
+        results: List of DDS result dicts
+        cv_threshold: CV threshold for GLOBAL classification (default 0.1)
+    """
+    if not results or len(results) < 2:
+        return None
+    
+    # Get final parameters from each catchment
+    all_params = {}
+    for r in results:
+        df = r['df']
+        final_params = df.iloc[-1]  # Last iteration
+        all_params[r['name']] = final_params
+    
+    # Calculate statistics for all 54 parameters
+    rows = []
+    for idx in range(1, 55):
+        col = f'param_{idx:02d}'
+        param_name, group, unit = DDS_PARAM_MAP.get(idx, (f'param_{idx:02d}', 'Unknown', ''))
+        
+        values = [all_params[c][col] for c in all_params.keys() if col in all_params[c]]
+        
+        if len(values) >= 2:
+            mean_val = np.mean(values)
+            std_val = np.std(values)
+            cv = std_val / mean_val if mean_val != 0 else 0
+            
+            if cv < cv_threshold:
+                recommendation = "GLOBAL"
+                reason = f"Konsistent (CV={cv:.3f})"
+                color = "#2ca02c"  # Green
+            elif cv < 0.3:
+                recommendation = "GLOBAL ±σ"
+                reason = f"Moderat (CV={cv:.3f})"
+                color = "#ff7f0e"  # Orange
+            else:
+                recommendation = "LOKAL"
+                reason = f"Variabel (CV={cv:.3f})"
+                color = "#d62728"  # Red
+            
+            rows.append({
+                'Param': f'P{idx:02d}',
+                'Name': param_name[:25],
+                'Gruppe': group,
+                'Wert': f"{mean_val:.4f}" if recommendation != "LOKAL" else "-",
+                'Unsicherheit': f"±{std_val:.4f}",
+                'CV': f"{cv:.3f}",
+                'Empfehlung': recommendation,
+                'Begruendung': reason,
+                'Color': color
+            })
+    
+    if not rows:
+        return None
+    
+    rec_df = pd.DataFrame(rows)
+    
+    # Color-code recommendation column
+    rec_colors = rec_df['Color'].tolist()
+    
+    fig = go.Figure(data=go.Table(
+        header=dict(
+            values=['Param', 'Name', 'Gruppe', 'Wert', '±σ', 'CV', 'Empfehlung', 'Begruendung'],
+            fill_color="#1f77b4",
+            align="left",
+            font=dict(color="white", size=9)
+        ),
+        cells=dict(
+            values=[
+                rec_df['Param'],
+                rec_df['Name'],
+                rec_df['Gruppe'],
+                rec_df['Wert'],
+                rec_df['Unsicherheit'],
+                rec_df['CV'],
+                go.Table(cells=dict(
+                    values=[[r] for r in rec_df['Empfehlung']],
+                    fill_color=[[c] for c in rec_colors],
+                    align="left",
+                    font=dict(size=8, color="#ffffff")
+                ))[0],
+                rec_df['Begruendung']
+            ],
+            fill_color="rgba(30, 30, 30, 0.8)",
+            align="left",
+            font=dict(size=8, color="#ffffff")
+        )
+    ))
+    
+    fig.update_layout(
+        title="🎯 Empfohlene Parameter-Sets: GLOBAL vs. LOKAL",
+        height=800,
+        margin=dict(l=40, r=40, t=60, b=40),
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        plot_bgcolor="rgba(30, 30, 30, 1)"
+    )
+    
+    return fig
+
+
+def export_parameter_recommendations(results: List[Dict], output_path: str, cv_threshold: float = 0.1):
+    """
+    Export parameter recommendations to CSV for mHM use.
+    
+    Creates a CSV file with recommended parameter values.
+    """
+    if not results or len(results) < 2:
+        return None
+    
+    # Get final parameters from each catchment
+    all_params = {}
+    for r in results:
+        df = r['df']
+        final_params = df.iloc[-1]
+        all_params[r['name']] = final_params
+    
+    rows = []
+    for idx in range(1, 55):
+        col = f'param_{idx:02d}'
+        param_name, group, unit = DDS_PARAM_MAP.get(idx, (f'param_{idx:02d}', 'Unknown', ''))
+        
+        values = [all_params[c][col] for c in all_params.keys() if col in all_params[c]]
+        
+        if len(values) >= 2:
+            mean_val = np.mean(values)
+            std_val = np.std(values)
+            cv = std_val / mean_val if mean_val != 0 else 0
+            
+            if cv < cv_threshold:
+                recommendation = "GLOBAL"
+                final_value = mean_val
+            elif cv < 0.3:
+                recommendation = "GLOBAL_WITH_UNCERTAINTY"
+                final_value = mean_val
+            else:
+                recommendation = "CATCHMENT_SPECIFIC"
+                final_value = np.nan  # User must specify per catchment
+            
+            rows.append({
+                'param_id': idx,
+                'param_name': param_name,
+                'group': group,
+                'unit': unit,
+                'recommended_value': final_value,
+                'uncertainty_1sigma': std_val,
+                'cv': cv,
+                'recommendation': recommendation,
+                'note': reason if (reason := f"CV={cv:.3f}") else ""
+            })
+    
+    if not rows:
+        return None
+    
+    rec_df = pd.DataFrame(rows)
+    rec_df.to_csv(output_path, index=False)
+    
+    return output_path
+
+
 def create_performance_summary_table(results: List[Dict]) -> go.Figure:
     """
     Create performance summary table with KGE, NSE, r, PBIAS for all catchments.
@@ -1342,6 +1509,39 @@ def render_dds_analysis_tab():
                 fig = create_sensitivity_ranking_plot(sens_df, top_n=8)
                 if fig:
                     st.plotly_chart(fig, use_container_width=True)
+        
+        st.divider()
+        
+        # 5. Parameter Recommendations (NEW!)
+        st.subheader("🎯 Empfohlene Parameter-Sets: GLOBAL vs. LOKAL")
+        st.info("""
+        **Automatische Empfehlung basierend auf CV-Analyse:**
+        - **GLOBAL:** CV < 0.1 → Parameter über alle Catchments konsistent
+        - **GLOBAL ±σ:** CV 0.1-0.3 → Moderat variabel, Unsicherheit beachten
+        - **LOKAL:** CV > 0.3 → Catchment-spezifisch kalibrieren
+        
+        **Download:** `recommended_params.csv` für mHM-Param.nml
+        """)
+        
+        fig = create_parameter_recommendation_table(results, cv_threshold=0.1)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.warning("Parameter recommendations not available")
+        
+        # Export button
+        csv_path = "/tmp/recommended_params.csv"
+        export_path = export_parameter_recommendations(results, csv_path, cv_threshold=0.1)
+        
+        if export_path:
+            with open(export_path, 'rb') as f:
+                st.download_button(
+                    label="💾 Download: recommended_params.csv",
+                    data=f.read(),
+                    file_name="recommended_params.csv",
+                    mime="text/csv",
+                    key="download_params_csv"
+                )
         
         st.divider()
         st.subheader(t['param_changes'])
