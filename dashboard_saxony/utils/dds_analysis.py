@@ -486,7 +486,7 @@ def create_sensitivity_comparison_plot(sensitivity_results: Dict[str, pd.DataFra
     fig = go.Figure()
     
     catchment_names = list(sensitivity_results.keys())
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
     
     for i, catchment_name in enumerate(catchment_names):
         score_col = f'{catchment_name}_score'
@@ -516,6 +516,161 @@ def create_sensitivity_comparison_plot(sensitivity_results: Dict[str, pd.DataFra
     
     fig.update_xaxes(showgrid=True, gridcolor="rgba(255, 255, 255, 0.1)")
     fig.update_yaxes(showgrid=True, gridcolor="rgba(255, 255, 255, 0.1)")
+    
+    return fig
+
+
+def create_parameter_statistics_table(results: List[Dict]) -> go.Figure:
+    """
+    Create statistical summary table for all catchments.
+    
+    Shows: Mean, Std, CV (Coefficient of Variation), Min, Max for each parameter.
+    """
+    if not results or len(results) < 2:
+        return None
+    
+    # Get final parameters from each catchment
+    all_params = {}
+    for r in results:
+        df = r['df']
+        final_params = df.iloc[-1]  # Last iteration
+        all_params[r['name']] = final_params
+    
+    # Calculate statistics for top 20 parameters
+    rows = []
+    for idx in range(1, 21):
+        col = f'param_{idx:02d}'
+        param_name, group, unit = DDS_PARAM_MAP.get(idx, (f'param_{idx:02d}', 'Unknown', ''))
+        
+        values = [all_params[c][col] for c in all_params.keys() if col in all_params[c]]
+        
+        if len(values) >= 2:
+            mean_val = np.mean(values)
+            std_val = np.std(values)
+            cv = std_val / mean_val if mean_val != 0 else 0
+            min_val = np.min(values)
+            max_val = np.max(values)
+            
+            consistency = "✓ Konsistent" if cv < 0.1 else ("○ Moderat" if cv < 0.3 else "✗ Variabel")
+            
+            rows.append({
+                'Param': f'P{idx:02d}',
+                'Name': param_name[:30],
+                'Gruppe': group,
+                'Mean': f"{mean_val:.4f}",
+                'Std': f"{std_val:.4f}",
+                'CV': f"{cv:.3f}",
+                'Min': f"{min_val:.4f}",
+                'Max': f"{max_val:.4f}",
+                'Konsistenz': consistency
+            })
+    
+    if not rows:
+        return None
+    
+    stats_df = pd.DataFrame(rows)
+    
+    fig = go.Figure(data=go.Table(
+        header=dict(
+            values=['Param', 'Name', 'Gruppe', 'Mean', 'Std', 'CV', 'Min', 'Max', 'Konsistenz'],
+            fill_color="#1f77b4",
+            align="left",
+            font=dict(color="white", size=9)
+        ),
+        cells=dict(
+            values=[
+                stats_df['Param'],
+                stats_df['Name'],
+                stats_df['Gruppe'],
+                stats_df['Mean'],
+                stats_df['Std'],
+                stats_df['CV'],
+                stats_df['Min'],
+                stats_df['Max'],
+                stats_df['Konsistenz']
+            ],
+            fill_color="rgba(30, 30, 30, 0.8)",
+            align="left",
+            font=dict(size=8, color="#ffffff")
+        )
+    ))
+    
+    fig.update_layout(
+        title="📊 Parameter-Statistik über 6 Catchments (Mean, Std, CV)",
+        height=600,
+        margin=dict(l=40, r=40, t=60, b=40),
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        plot_bgcolor="rgba(30, 30, 30, 1)"
+    )
+    
+    return fig
+
+
+def create_performance_summary_table(results: List[Dict]) -> go.Figure:
+    """
+    Create performance summary table with KGE, NSE, r, PBIAS for all catchments.
+    """
+    if not results:
+        return None
+    
+    rows = []
+    for r in results:
+        out_path = Path(r['path']).parent / 'FinalParam.out'
+        metrics = parse_final_param_out(out_path) if out_path.exists() else {}
+        
+        # Calculate improvement
+        df = r['df']
+        improvement = ((df['objective'].iloc[0] - df['objective'].iloc[-1]) / df['objective'].iloc[0] * 100)
+        
+        rows.append({
+            'Catchment': r['name'],
+            'Iterationen': r['iterations'],
+            'Start': f"{df['objective'].iloc[0]:.4f}",
+            'Ende': f"{df['objective'].iloc[-1]:.4f}",
+            'Verbesserung': f"{improvement:.1f}%",
+            'KGE': f"{metrics.get('KGE', float('nan')):.4f}" if not np.isnan(metrics.get('KGE', float('nan'))) else "N/A",
+            'NSE': f"{metrics.get('NSE', float('nan')):.4f}" if not np.isnan(metrics.get('NSE', float('nan'))) else "N/A",
+            'r': f"{metrics.get('r', float('nan')):.4f}" if not np.isnan(metrics.get('r', float('nan'))) else "N/A",
+            'PBIAS': f"{metrics.get('PBIAS', float('nan')):.2f}%" if not np.isnan(metrics.get('PBIAS', float('nan'))) else "N/A"
+        })
+    
+    if not rows:
+        return None
+    
+    perf_df = pd.DataFrame(rows)
+    
+    fig = go.Figure(data=go.Table(
+        header=dict(
+            values=['Catchment', 'Iter', 'Start', 'Ende', 'Δ%', 'KGE', 'NSE', 'r', 'PBIAS'],
+            fill_color="#1f77b4",
+            align="center",
+            font=dict(color="white", size=9)
+        ),
+        cells=dict(
+            values=[
+                perf_df['Catchment'],
+                perf_df['Iterationen'],
+                perf_df['Start'],
+                perf_df['Ende'],
+                perf_df['Verbesserung'],
+                perf_df['KGE'],
+                perf_df['NSE'],
+                perf_df['r'],
+                perf_df['PBIAS']
+            ],
+            fill_color="rgba(30, 30, 30, 0.8)",
+            align="center",
+            font=dict(size=8, color="#ffffff")
+        )
+    ))
+    
+    fig.update_layout(
+        title="📊 Performance-Übersicht: Alle 6 Catchments",
+        height=350,
+        margin=dict(l=40, r=40, t=60, b=40),
+        paper_bgcolor="rgba(30, 30, 30, 1)",
+        plot_bgcolor="rgba(30, 30, 30, 1)"
+    )
     
     return fig
 
@@ -937,6 +1092,27 @@ TRANSLATIONS = {
         'param_changes_not_available': "Parameter-Änderungen nicht verfügbar",
         'performance_compare': "📊 Performance-Vergleich",
         'performance_not_available': "Performance-Metriken nicht verfügbar",
+        'perf_summary': "📊 Performance-Übersicht: Alle Catchments",
+        'param_stats': "📊 Parameter-Statistik (Mean, Std, CV)",
+        'param_stats_info': """
+        **Statistische Auswertung über alle Catchments:**
+        - **Mean:** Durchschnittlicher Parameterwert
+        - **Std:** Standardabweichung (Variabilität)
+        - **CV:** Variationskoeffizient (Std/Mean)
+        - **Konsistenz:** CV < 0.1 = ✓, 0.1-0.3 = ○, > 0.3 = ✗
+        """,
+        'indiv_sensitivity': "📊 Individuelle Sensitivitäts-Rankings",
+        
+        'perf_summary_en': "📊 Performance Summary: All Catchments",
+        'param_stats_en': "📊 Parameter Statistics (Mean, Std, CV)",
+        'param_stats_info_en': """
+        **Statistical analysis across all catchments:**
+        - **Mean:** Average parameter value
+        - **Std:** Standard deviation (variability)
+        - **CV:** Coefficient of variation (Std/Mean)
+        - **Consistency:** CV < 0.1 = ✓, 0.1-0.3 = ○, > 0.3 = ✗
+        """,
+        'indiv_sensitivity_en': "📊 Individual Sensitivity Rankings",
         'methodology': "📖 DDS Methodik & Interpretation",
         'export': "💾 Export",
         'download_csv': "📥 DDS Results CSV",
@@ -1009,6 +1185,10 @@ def render_dds_analysis_tab():
     catchments = [
         ("Parthe_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/parthe_0p0625/dds_results.out"),
         ("Goeltzsch2_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/goeltzsch2_0p0625/dds_results.out"),
+        ("Chemnitz2_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/chemnitz2_0p0625/dds_results.out"),
+        ("Wesenitz2_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/wesenitz2_0p0625/dds_results.out"),
+        ("Wyhra_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/wyhra_0p0625/dds_results.out"),
+        ("Zwoenitz1_0p0625", "/data/.openclaw/workspace/open_claw_vibe_coding/code/mhm_re_crit/runs/zwoenitz1_0p0625/dds_results.out"),
     ]
     
     existing = [(name, path) for name, path in catchments if Path(path).exists()]
@@ -1105,34 +1285,37 @@ def render_dds_analysis_tab():
         
         results = [parse_dds_results(path, name) for name, path in existing]
         
-        # Summary table
-        if language == 'de':
-            comp_df = pd.DataFrame([{
-                'Catchment': r['name'],
-                'Iterationen': r['iterations'],
-                'Parameter': r['n_params'],
-                'Start': f"{r['df']['objective'].iloc[0]:.4f}",
-                'Ende': f"{r['df']['objective'].iloc[-1]:.4f}",
-                'Verbesserung': f"{((r['df']['objective'].iloc[0] - r['df']['objective'].iloc[-1]) / r['df']['objective'].iloc[0] * 100):.1f}%"
-            } for r in results])
+        st.info(f"📊 **{len(results)} Catchments** mit DDS-Kalibrierung analysiert")
+        
+        # 1. Performance Summary Table
+        st.subheader(t['perf_summary'] if language == 'de' else t['perf_summary_en'])
+        fig = create_performance_summary_table(results)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
         else:
-            comp_df = pd.DataFrame([{
-                'Catchment': r['name'],
-                'Iterations': r['iterations'],
-                'Parameters': r['n_params'],
-                'Start': f"{r['df']['objective'].iloc[0]:.4f}",
-                'End': f"{r['df']['objective'].iloc[-1]:.4f}",
-                'Improvement': f"{((r['df']['objective'].iloc[0] - r['df']['objective'].iloc[-1]) / r['df']['objective'].iloc[0] * 100):.1f}%"
-            } for r in results])
+            st.info(t['performance_not_available'])
         
-        st.dataframe(comp_df, use_container_width=True)
-        
+        # 2. Convergence Comparison
         st.subheader(t['convergence_compare'])
         fig = create_convergence_comparison(results)
         if fig:
             st.plotly_chart(fig, use_container_width=True)
         
         st.divider()
+        
+        # 3. Parameter Statistics (NEW!)
+        st.subheader(t['param_stats'] if language == 'de' else t['param_stats_en'])
+        st.info(t['param_stats_info'] if language == 'de' else t['param_stats_info_en'])
+        
+        fig = create_parameter_statistics_table(results)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.warning("Parameter statistics not available")
+        
+        st.divider()
+        
+        # 4. Sensitivity Comparison
         st.subheader(t['sensitivity_compare'])
         st.info(t['sensitivity_compare_info'])
         
@@ -1150,11 +1333,15 @@ def render_dds_analysis_tab():
             st.warning(t['sensitivity_not_available'])
         
         # Show individual sensitivity rankings
-        for name, sens_df in sensitivity_results.items():
-            st.subheader(t['top_sensitivity'].format(name))
-            fig = create_sensitivity_ranking_plot(sens_df, top_n=10)
-            if fig:
-                st.plotly_chart(fig, use_container_width=True)
+        st.subheader(t['indiv_sensitivity'] if language == 'de' else t['indiv_sensitivity_en'])
+        
+        cols = st.columns(2 if len(results) <= 4 else 3)
+        for i, (name, sens_df) in enumerate(sensitivity_results.items()):
+            with cols[i % len(cols)]:
+                st.subheader(f"{name}")
+                fig = create_sensitivity_ranking_plot(sens_df, top_n=8)
+                if fig:
+                    st.plotly_chart(fig, use_container_width=True)
         
         st.divider()
         st.subheader(t['param_changes'])
