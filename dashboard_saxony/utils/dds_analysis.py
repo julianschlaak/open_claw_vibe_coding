@@ -169,24 +169,119 @@ def parse_dds_to_named_params(dds_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def parse_final_param_out(filepath: str) -> Dict[str, float]:
-    """Parse FinalParam.out (model performance metrics)."""
+    """
+    Parse FinalParam.out OR calculate metrics from daily_discharge.out.
+    
+    FinalParam.out (old format): Only contains optimized parameters (no metrics)
+    daily_discharge.out: Contains Qobs and Qsim for metric calculation
+    
+    Returns dict with KGE, NSE, r, PBIAS if available.
+    """
+    from pathlib import Path
+    
+    # Try to read daily_discharge.out for metric calculation
+    discharge_path = Path(filepath).parent / 'daily_discharge.out'
+    
+    if discharge_path.exists():
+        try:
+            return calculate_metrics_from_discharge(discharge_path)
+        except Exception:
+            pass
+    
+    # Fallback: Try to parse old format (key = value)
     metrics = {}
     
-    with open(filepath, 'r', encoding='latin-1') as f:
-        lines = f.readlines()
-    
-    for line in lines:
-        if '=' in line and not line.strip().startswith('!'):
-            parts = line.split('=')
-            if len(parts) == 2:
-                key = parts[0].strip()
-                value = parts[1].strip()
-                try:
-                    metrics[key] = float(value)
-                except ValueError:
-                    pass
+    try:
+        with open(filepath, 'r', encoding='latin-1') as f:
+            lines = f.readlines()
+        
+        for line in lines:
+            if '=' in line and not line.strip().startswith('!'):
+                parts = line.split('=')
+                if len(parts) == 2:
+                    key = parts[0].strip()
+                    value = parts[1].strip()
+                    try:
+                        metrics[key] = float(value)
+                    except ValueError:
+                        pass
+    except Exception:
+        pass
     
     return metrics
+
+
+def calculate_metrics_from_discharge(filepath: str) -> Dict[str, float]:
+    """
+    Calculate KGE, NSE, r, PBIAS from daily_discharge.out.
+    
+    Expected format: Date Qobs Qsim (or similar)
+    """
+    import numpy as np
+    from scipy import stats
+    
+    qobs = []
+    qsim = []
+    
+    with open(filepath, 'r', encoding='latin-1') as f:
+        for line in f:
+            if line.strip().startswith('!') or not line.strip():
+                continue
+            
+            parts = line.split()
+            if len(parts) >= 3:
+                try:
+                    # Skip date column, take Qobs and Qsim
+                    qobs.append(float(parts[1]))
+                    qsim.append(float(parts[2]))
+                except (ValueError, IndexError):
+                    pass
+    
+    if len(qobs) < 10 or len(qsim) < 10:
+        return {}
+    
+    qobs = np.array(qobs)
+    qsim = np.array(qsim)
+    
+    # Remove NaN
+    valid = ~(np.isnan(qobs) | np.isnan(qsim))
+    qobs = qobs[valid]
+    qsim = qsim[valid]
+    
+    if len(qobs) < 10:
+        return {}
+    
+    # Calculate metrics
+    # Pearson correlation
+    r = np.corrcoef(qobs, qsim)[0, 1]
+    
+    # NSE (Nash-Sutcliffe Efficiency)
+    nse = 1 - (np.sum((qsim - qobs)**2) / np.sum((qobs - np.mean(qobs))**2))
+    
+    # PBIAS (Percent Bias)
+    pbias = 100 * (np.sum(qsim - qobs) / np.sum(qobs))
+    
+    # KGE (Kling-Gupta Efficiency)
+    mu_obs = np.mean(qobs)
+    mu_sim = np.mean(qsim)
+    std_obs = np.std(qobs, ddof=1)
+    std_sim = np.std(qsim, ddof=1)
+    
+    # Avoid division by zero
+    if std_obs == 0 or mu_obs == 0:
+        kge = 0.0
+    else:
+        cc = r  # Correlation
+        cv = std_sim / std_obs  # Variability ratio
+        beta = mu_sim / mu_obs  # Bias ratio
+        kge = 1 - np.sqrt((cc - 1)**2 + (cv - 1)**2 + (beta - 1)**2)
+    
+    return {
+        'KGE': float(kge),
+        'NSE': float(nse),
+        'r': float(r),
+        'PBIAS': float(pbias)
+    }
 
 
 # =============================================================================
