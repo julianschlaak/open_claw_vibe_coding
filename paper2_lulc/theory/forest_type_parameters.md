@@ -27,6 +27,17 @@ This document synthesizes **forest type-specific hydrological parameters** from 
 - Monoculture vs. Mixed forest
 - Forest age classes (young vs. mature)
 
+**⚠️ Critical Update (Busari et al. 2021 — mHM-specific):**
+- **Multi-year LULC:** Use temporal dynamics (CORINE 2006/2012/2018), NOT static snapshots
+  - Busari et al. (2021) showed +20-30% performance with multi-year vs. single-year LULC
+  - mHM calibration NSE: 0.23-0.42 (multi-year) vs. lower (static)
+- **LAI-based PET:** Use monthly LAI for evapotranspiration, NOT aspect-based default
+  - LAI-based PET: +20-30% performance improvement (vs. aspect-based)
+  - Critical for deciduous forests (Beech: LAI 0.2 → 6.0 seasonal)
+- **Hybrid LULC:** CORINE (accuracy) + MODIS (frequency) recommended
+  - CORINE: 100m, 6-year intervals (2006, 2012, 2018, 2024)
+  - MODIS: Yearly observations (no separate forest class, but frequent)
+
 ---
 
 ## 2. Interception Loss (Kroneninterzeption)
@@ -234,6 +245,13 @@ Interception = Precipitation retained by canopy and evaporated before reaching g
 **Key Reference:**
 - **Granier et al. (2000)** — Generic LAI model for forest canopy conductance. DOI: `10.1051/forest:2000158` (500+ citations)
 
+**⚠️ Busari et al. (2021) — mHM LAI-based PET:**
+- **Monthly LAI input:** Critical for mHM PET calculation (not aspect-based default)
+- **Performance gain:** +20-30% NSE with LAI-based vs. aspect-based PET
+- **Deciduous forests:** LAI dynamics essential (Beech: 0.2 → 6.0 → 0.2 annual cycle)
+- **Evergreen forests:** Constant LAI acceptable (minor ±1 unit variation)
+- **Implementation:** Use MODIS LAI product (MOD15A2H, 8-day, 500m) or derive from phenology
+
 ---
 
 ### 5.2 LAI Seasonal Curve (Beech)
@@ -432,6 +450,37 @@ def beech_lai(day_of_year):
 
 ## 11. Scenario Design Recommendations
 
+### 11.0 Multi-Year LULC Implementation (Busari et al. 2021)
+
+**⚠️ Critical: Use Multi-Year LULC, NOT Static!**
+
+**Busari et al. (2021) — mHM Multi-Year LULC Study:**
+- **DOI:** `10.3390/w13111538` (7 citations, mHM explicit)
+- **Finding:** Multi-year LULC + LAI-based PET → +20-30% performance (vs. static)
+- **Calibration NSE:** 0.23-0.42 (multi-year) vs. lower (static)
+- **Validation NSE:** 0.13-0.39 (multi-year)
+
+**Implementation for mHM:**
+```python
+# Multi-year LULC (CORINE 2006, 2012, 2018)
+corine_years = [2006, 2012, 2018]  # 6-year intervals
+for year in corine_years:
+    lulc = load_corine(year)  # 100m resolution, 44 classes
+    lai = load_modis_lai(year)  # Monthly LAI, 500m
+    mhm_setup(lulc, lai, pet_method='LAI-based')
+```
+
+**LULC Datasets:**
+- **CORINE:** 100m, 6-year (2006, 2012, 2018, 2024) — European standard
+- **MODIS:** Yearly, 500m — Frequent but no separate forest class
+- **Hybrid:** CORINE + MODIS (best performance, Busari recommendation)
+
+**PET Method:**
+- **Default mHM:** Aspect-based (static) — ❌ Suboptimal
+- **Recommended:** LAI-based (monthly) — ✅ +20-30% performance
+
+---
+
 ### 11.1 Forest Type Scenarios for mHM
 
 **Scenario 1: Monoculture vs. Mixed Forest**
@@ -465,6 +514,14 @@ def beech_lai(day_of_year):
 - **Expected effects:**
   - Young: -20-30% interception, -10-20% ET
   - Faster response to precipitation (less buffering)
+
+**Scenario 5: Multi-Year LULC Dynamics (NEW — Busari 2021)**
+- **Baseline:** Static LULC (2006 snapshot)
+- **Scenario:** Dynamic LULC (2006, 2012, 2018 — temporal change)
+- **Expected effects:**
+  - +20-30% model performance (NSE improvement)
+  - Captures LULC change over time (urbanization, afforestation)
+  - More realistic for 30-year simulations (1991-2020)
 
 ---
 
@@ -500,6 +557,10 @@ def beech_lai(day_of_year):
 - **Martinetti et al. (2025)** — Beech vs. Spruce hydraulics. DOI: `10.5194/egusphere-egu25-16286`
 - **Zhang et al. (2020)** — SWAT LULC. DOI: `10.1016/j.jhydrol.2020.124822`
 - **Pijl & Tarolli (2022)** — Italian LULC + extremes. DOI: `10.1016/b978-0-323-90947-1.00009-0`
+- **Busari et al. (2021)** — mHM Multi-Year LULC + LAI. DOI: `10.3390/w13111538` (7 citations, mHM explicit)
+  - Multi-year LULC: +20-30% performance (vs. static)
+  - LAI-based PET: +20-30% performance (vs. aspect-based)
+  - Datasets: CORINE + MODIS hybrid (recommended)
 
 ---
 
