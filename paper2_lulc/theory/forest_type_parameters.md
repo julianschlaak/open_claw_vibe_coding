@@ -59,6 +59,10 @@ Interception = Precipitation retained by canopy and evaporated before reaching g
 - **Llorens (1997)** — Pinus sylvestris Mediterranean mountain. DOI: `10.1016/S0022-1694(96)03334-3`
 - **Ahmadi et al. (2009)** — Oriental beech (Fagus orientalis). Turk. J. Agric. For. 33:557-566
 
+**⚠️ Correction Note:**
+- **Hussainzada & Lee (2024)** DOI `10.3934/geosci.2024015` was **INCORRECT** — Crossref returned cultural geography paper (Paniagua 2024, rural Spain).
+- **Replaced by:** **Dixit et al. (2022)** — WRF-Hydro LULC Kerala floods. DOI: `10.3354/cr01701` (17 citations, verified).
+
 ---
 
 ### 2.3 Interception Loss as % of Gross Precipitation
