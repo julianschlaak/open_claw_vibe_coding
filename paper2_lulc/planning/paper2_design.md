@@ -1,8 +1,9 @@
 # Paper #2 Design — Realistic Scope (Based on Toosi 2025 Review)
 
 **Created:** 2026-03-12  
-**Source:** Toosi et al. (2025) Review + Julian's Strategic Assessment  
-**Status:** Conceptual Design Phase
+**Updated:** 2026-03-12 (21:35 CET) — Full Paper Sketch Added  
+**Source:** Toosi et al. (2025) Review + Julian's Strategic Assessment + Detailed Paper Concept  
+**Status:** Ready for Implementation Scoping
 
 ---
 
@@ -177,6 +178,240 @@
 - [ ] Results (static vs. dynamic, scenarios, multi-variable eval)
 - [ ] Discussion (process mechanisms, limitations, transferability)
 - [ ] Conclusions (recommendations for LULC modeling)
+
+---
+
+## 📝 Vollständige Paper-Skizze (6-12 Monate Plan)
+
+### 🏷️ Titel-Optionen
+
+| Option | Titel | Fokus |
+|--------|-------|-------|
+| **A** (empfohlen) | "Representing land-use-sensitive interception dynamics in mHM to assess hydrological impacts of land-cover change" | Prozess-fokussiert, stärkste Option |
+| **B** | "Towards dynamic land-use representation in mHM: improving interception and vegetation controls under land-cover change" | Breiter (LULC + vegetation) |
+| **C** | "Hydrological consequences of dynamic land-cover change in mHM: the role of interception, evapotranspiration, and recharge" | Wirkungskette betont |
+
+---
+
+### 💡 Kernidee
+
+**Nicht:** Vollständige neue Landoberflächenphysik in mHM
+
+**Sondern:** Klar abgegrenzter, LULC-sensitiver Prozessbaustein — **Interzeption** — und Prüfung der Auswirkungen auf ET, Bodenfeuchte, Abfluss, Recharge unter Landnutzungsänderung.
+
+**Anschluss an Toosi 2025 Review:**
+- LULC beeinflusst hydrologische Prozesse stark
+- Viele Modelle stellen Prozesse nur vereinfacht dar
+- Kalibrierung verdeckt oft Prozessdefizite
+- Interzeption = eine der 4 zentralen LULC-sensitiven Prozessgruppen
+
+---
+
+### 🔍 Forschungslücke
+
+**Allgemein:**
+- Hydrologische Modelle behandeln Landnutzung oft: **statisch** oder **indirekt über pauschale Parameter**
+- Prozessänderungen unter Landnutzungswechsel unzureichend repräsentiert
+- Toosi 2025 Kritik: Statt Prozessrepräsentation zu verbessern, wird oft nur nachkalibriert
+
+**Spezifisch (Interzeption):**
+- Laut Review häufig als **einfacher Speicher** dargestellt
+- Stark über **LAI vereinfacht**
+- Struktur vegetierter Systeme (canopy, trunk, understory, litter) unberücksichtigt
+- Besonders für **Wälder, saisonale Unterschiede, veränderte Vegetationsbedeckung** unzureichend
+
+**In mHM-Sprache:**
+> Es fehlt eine systematische Untersuchung, wie eine dynamische, landnutzungssensitive Interzeptionsrepräsentation in mHM die Simulation von Wasserhaushaltskomponenten unter Landnutzungsänderung beeinflusst.
+
+---
+
+### ❓ Forschungsfragen (max. 3)
+
+| RQ | Frage |
+|----|-------|
+| **RQ1** | Wie stark verändert eine dynamische, LULC-sensitive Interzeptionsrepräsentation in mHM die simulierte Partitionierung von Niederschlag in Interzeptionsverlust, Transpiration, Bodenfeuchte, Abfluss und Recharge? |
+| **RQ2** | Verbessert eine solche Prozessrepräsentation die Konsistenz zwischen mehreren Beobachtungsgrößen gegenüber einer Standardkonfiguration mit statischer oder vereinfachter Landnutzungsdarstellung? |
+| **RQ3** | Wie sensitiv sind hydrologische Wirkungen gegenüber unterschiedlichen Typen von Landnutzungsänderung (Aufforstung, Entwaldung, Acker-Grünland-Umwandlung, Urbanisierung)? |
+
+---
+
+### 🎯 Hypothesen
+
+| H | Hypothese | Toosi 2025 Anschluss |
+|---|-----------|---------------------|
+| **H1** | Eine dynamische LULC-sensitive Interzeptionsdarstellung erhöht die realistische Verdunstung aus Niederschlagsrückhalt und verändert dadurch systematisch die Aufteilung zwischen aET, Bodenwasser, Abfluss und Recharge. | - |
+| **H2** | Die Berücksichtigung zeitlich veränderlicher Landnutzung reduziert Kompensationsfehler in der Kalibrierung und verbessert die Mehrgrößen-Konsistenz gegenüber einer statischen Standardkonfiguration. | ✅ Direkt an Review-Kritik (Parameteranpassung ≠ Prozessverbesserung) |
+| **H3** | Waldbezogene Landnutzungsänderungen erzeugen stärkere Änderungen in Interzeption und saisonaler Wasserbilanz als reine Verschiebungen zwischen Offenlandklassen. | - |
+| **H4** | Die Auswirkungen auf Recharge und Abfluss sind nicht überall gleich, sondern hängen von Klima, Boden, Relief und bestehender Vegetationsstruktur ab. | ✅ Review: LULC-Wirkungen sind kontext- und skalenabhängig |
+
+---
+
+### 🔧 mHM-Änderungen (Minimal Innovation)
+
+**Empfohlene Minimalinnovation:**
+- Zeitvariable LULC-Klassen
+- LULC-spezifische Interzeptionsspeicherkapazität
+- Saisonale Variation der Speicherkapazität
+- Getrennte Behandlung für: **Wald, Grünland, Acker, versiegelte/urbane Flächen**
+
+**Gute, aber realistische Erweiterung:**
+- Zweiter Speicher für **litter / forest floor** (bei Waldklassen)
+- Unterscheidung **Laubwald / Nadelwald**
+- Einfacher **Winter-/Sommer-Modus**
+
+**❌ Nicht in Paper 2:**
+- Explizites Strahlungsmodell
+- Volles Canopy-Physik-Modell
+- Eigener Schneekronenspeicher mit kompletter Energiebilanz
+- Komplexe Wurzelphysik
+- Gleichzeitige komplette Infiltrations- und Groundwater-Neuentwicklung
+
+---
+
+### 🧪 Methodisches Studiendesign
+
+**4 Modellkonfigurationen:**
+
+| ID | Konfiguration | Zweck |
+|----|---------------|-------|
+| **M0** | Standard-mHM (bisherige/statische LULC) | Referenz |
+| **M1** | Dynamische LULC ohne Prozessänderung | Effekt der bloßen LULC-Aktualisierung |
+| **M2** | Dynamische LULC + neues Interzeptionsschema | **Hauptmodell** (Prozessverbesserung) |
+| **M3** | Sensitivitäts-/Szenarioversion | Idealisierte Szenarien (Aufforstung, Entwaldung, Acker→Grünland, Urbanisierung) |
+
+**Unterscheidung ermöglicht:**
+- Effekt der bloßen Aktualisierung von LULC-Daten
+- Effekt der wirklichen Prozessverbesserung
+
+---
+
+### 📊 Beobachtungs- und Bewertungsgrößen
+
+**Minimum:**
+- Discharge (Q)
+- Soil Moisture (SM)
+- Evapotranspiration (ET)
+
+**Optional (belastbar):**
+- Recharge product / groundwater recharge estimate
+- TWS / GRACE (nur großräumig)
+- Schnee (nur wenn Untersuchungsraum passt)
+
+**Kennzahlen:**
+
+| Variable | Metriken |
+|----------|----------|
+| **Q** | KGE, NSE, logNSE, FHV/FLV (high-/low-flow-spezifisch) |
+| **SM / ET** | KGE, RMSE, Bias, saisonale Anomalien, event/saisonale Dynamik |
+| **Water Balance** | P, aET, Q, Recharge, dS |
+
+---
+
+### 🗺️ Untersuchungsraum
+
+**Empfehlung:** Sachsen oder ausgewählte sächsische / ostdeutsche Catchments
+
+**Kriterien:**
+- Brauchbare Abflussdaten
+- Bodenfeuchtebezug
+- ET-Datensätze
+- Landnutzungsdaten über mehrere Zeitpunkte
+
+**Größe:** 5–20 gut charakterisierte Catchments oder regionaler Verbund mit Kontrast in Wald, Landwirtschaft, Urbanisierung
+
+**Nicht zu groß:** Nicht sofort ganz Deutschland bei gleichzeitiger mHM-Code-Entwicklung
+
+---
+
+### 📁 Datenseite (Pflicht + Hilfreich)
+
+| Kategorie | Pflicht | Sehr hilfreich |
+|-----------|---------|----------------|
+| **Meteorologie** | Forcing-Datensatz | - |
+| **Boden** | Statische Bodendaten / Topographie | - |
+| **LULC** | LULC-Zeitstände oder jährliche LULC-Daten | LULC-Transitionskarten |
+| **Q** | Abflussdaten | - |
+| **ET** | ET-Datensatz | FLUXNET |
+| **SM** | SM-Datensatz oder Referenzprodukte | ESA CCI |
+| **Vegetation** | - | Waldtyp-Informationen, Fraktion Laub/Nadel, LAI-Produkte |
+
+**Kritischer Punkt:**
+> Die größte praktische Schwierigkeit wird wahrscheinlich nicht mHM-Code, sondern eine konsistente zeitlich variable LULC-Datenbasis: gleiche Klassendefinitionen, gleiche Projektion/Auflösung, keine chaotischen Klassensprünge, klare Regel wie Klassen in mHM-Parameter übersetzt werden.
+
+---
+
+### ⏱️ Realistischer Ablauf (6-12 Monate)
+
+| Phase | Dauer | Deliverable |
+|-------|-------|-------------|
+| **1. Literatur + Konzept** | 4-6 Wochen | 2-3 Seiten internes Konzept + Parameter-Mapping |
+| **2. Datenaufbereitung** | 4-8 Wochen | Reproduzierbarer Preprocessing-Workflow (LULC harmonisieren, Klassenmapping) |
+| **3. mHM-Implementierung** | 6-10 Wochen | Stabile Modellversion + Testläufe (neue Interzeptionsroutine) |
+| **4. Kalibrierung + Experimente** | 6-10 Wochen | Vollständiges Experiment-Set (M0-M3, Sensitivitätsanalyse) |
+| **5. Auswertung** | 4-8 Wochen | Figure package + Ergebnisstruktur (Mehrgrößenvergleich, saisonale Analyse) |
+| **6. Schreiben** | 4-6 Wochen | Erste vollständige Paper-Version (IMRaD + Supplement) |
+
+**Summe:** 6-12 Monate (abhängig von Catchment-Anzahl, Datenverfügbarkeit, Code-Komplexität)
+
+---
+
+### 📈 Realistisch publizierbare Ergebnisse
+
+**Erwartungshaltung:**
+- M2 verbessert **nicht zwingend jede Einzelmetrik**
+- Aber: Verbessert **saisonale ET-Konsistenz**
+- Verändert **Wasserbilanz plausibel**
+- Reduziert **bestimmte systematische Fehler**
+- Zeigt **robuste Unterschiede** zwischen statischer und dynamischer LULC
+
+**Wissenschaftlicher Wert:**
+> Ein gutes hydrologisches Methodenpaper muss nicht in jeder Kennzahl spektakulär besser sein. Es reicht oft, wenn du sauber zeigst, dass: der Prozess besser repräsentiert wird, die Wirkungskette nachvollziehbar ist, und die Standardkonfiguration relevante LULC-Effekte verschleift.
+
+---
+
+### ⚠️ Risiken (Wo das Paper scheitern kann)
+
+| Risiko | Beschreibung | Gegenmaßnahme |
+|--------|--------------|---------------|
+| **1. Projekt wird zu groß** | Zusätzliche Wurzeldynamik, Infiltrationsschema, Schnee, Urbanhydrologie, Bewässerung | **Fokus auf einen Hauptprozess** (Interzeption) |
+| **2. LULC-Daten inkonsistent** | Klassifikationsrauschen statt Landnutzungsänderung | **Harmonisierung** (gleiche Klassendefinitionen, Projektion, Auflösung) |
+| **3. Zu viele Freiheitsgrade** | Jede LULC-Klasse bekommt 10 neue Parameter → kaum identifizierbar | **Minimalparameter** (storage capacity, seasonal variation) |
+| **4. Nur Q evaluiert** | Kann nicht zeigen, ob Prozessbeitrag real oder kompensatorisch ist | **Mehrgrößen-Evaluation** (Q, SM, ET, Recharge) |
+
+---
+
+### 🎯 Klarer Zuschnitt (Empfehlung)
+
+| Element | Festlegung |
+|---------|------------|
+| **Ziel** | Einführung eines dynamischen, LULC-sensitiven Interzeptionsmoduls in mHM |
+| **Hauptvergleich** | Statische Standardkonfiguration vs. dynamische LULC ohne Prozessänderung vs. dynamische LULC mit neuer Interzeption |
+| **Evaluation** | Q, SM, ET, optional Recharge |
+| **Raum** | Sachsen / regionale Catchments mit Kontrast in Wald-Acker-Urban |
+| **Beitrag** | Nicht "wir lösen Landnutzungsänderung vollständig in mHM", sondern: "Wir zeigen, dass eine explizite, dynamische Interzeptionsrepräsentation ein zentraler Hebel ist, um LULC-Effekte in mHM hydrologisch plausibler abzubilden." |
+
+---
+
+### 📑 Paper-Gliederung
+
+| Abschnitt | Inhalt |
+|-----------|--------|
+| **1. Introduction** | Relevanz von LULC für Hydrologie; Modelle behandeln LULC oft zu statisch/vereinfacht; Interzeption als zentraler, aber vereinfachter Prozess; Forschungslücke in mHM; Ziel und Hypothesen |
+| **2. Study Area and Data** | Catchments, Forcing, LULC, Q/SM/ET/Recharge |
+| **3. Methods** | Standard-mHM; neue Interzeptionskonzeption; dynamische LULC-Implementierung; Experimente M0-M3; Metriken |
+| **4. Results** | Wirkung auf Interzeptionsverlust; Wirkung auf ET/SM/Q/Recharge; Vergleich der Modellversionen; Sensitivität je LULC-Übergang |
+| **5. Discussion** | Bedeutung für prozessbasierte LULC-Modellierung; Grenzen der Vereinfachung; Identifizierbarkeit/Unsicherheit; Übertragbarkeit auf größere Räume |
+| **6. Conclusions** | Prägnant, keine Übertreibung |
+
+---
+
+### ✅ Ehrliches Urteil zur Machbarkeit
+
+| Zeitrahmen | Einschätzung |
+|------------|--------------|
+| **6 Monate** | Machbar, wenn: Raum begrenzt, nur ein Hauptprozess, dynamische LULC-Daten verfügbar |
+| **12 Monate** | Sehr gut machbar, inkl. sauberer Sensitivitätsanalyse, mehreren Catchments, starkem Supplement |
+| **Nicht realistisch** | Kompletter LULC-Prozessbaukasten, deutschlandweite Vollanwendung plus neue Physik, umfassende Grundwasser- und Energiebilanz-Neuentwicklung |
 
 ---
 
