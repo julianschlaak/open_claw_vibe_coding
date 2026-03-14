@@ -1,0 +1,7 @@
+{
+  "current_status": "watch",
+  "lead_time_months": 2,
+  "probability": 0.5,
+  "basis": "Current SMI very low",
+  "recommended_action": "Increase observation frequency"
+}

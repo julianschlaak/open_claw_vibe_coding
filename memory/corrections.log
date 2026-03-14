@@ -1,0 +1,6 @@
+# Correction Log
+# Format: TIMESTAMP | RULE_ID | CONTEXT | COUNT
+
+2026-03-02T19:45:00+01:00 | RULE-001 | "Tell me immediately when tools fail" | COUNT: 1
+2026-03-02T20:15:00+01:00 | RULE-001 | "I want to know about errors faster" | COUNT: 2
+2026-03-02T20:30:00+01:00 | RULE-005 | System requirement stated | COUNT: 3 → PROMOTED TO GLOBAL
