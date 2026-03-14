@@ -1,0 +1,139 @@
+!******************************************************************************************
+! GENERATED PARAMETER FILE - SAXONY CATCHMENT (UNGAGED)
+!******************************************************************************************
+! Generated: 2026-03-10 22:30:26
+! Source: recommended_params.csv (6 catchments DDS analysis)
+! Catchment: Saxony (saxony_0p0625)
+! Period: 1991-2020 (30 years)
+!
+! Strategy for Ungauged Catchments:
+!   - All parameters: GLOBAL mean across 6 calibrated catchments
+!   - No catchment-specific calibration applied
+!   - Suitable for regionalization studies
+!
+! Statistics:
+!   - GLOBAL (CV < 0.1): 21 parameters
+!   - GLOBAL_WITH_UNCERTAINTY (CV 0.1-0.3): 12 parameters
+!   - CATCHMENT_SPECIFIC (CV > 0.3): 21 parameters
+!
+! Note: For ungauged Saxony, we use GLOBAL means only (no regionalization yet)
+!******************************************************************************************
+
+!******************************************************************************************
+! GENERATED PARAMETER FILE - RECOMMENDED VALUES FROM DDS ANALYSIS
+!******************************************************************************************
+! Generated: 2026-03-10 21:14:49
+! Source: recommended_params.csv (6 catchments DDS analysis)
+!
+! Strategy:
+!   - GLOBAL parameters (CV < 0.1): Mean across all 6 catchments
+!   - GLOBAL_WITH_UNCERTAINTY (CV 0.1-0.3): Mean with uncertainty
+!   - CATCHMENT_SPECIFIC (CV > 0.3): Value from best-performing catchment
+!
+! Statistics:
+!   - GLOBAL: 21 parameters
+!   - GLOBAL_WITH_UNCERTAINTY: 12 parameters
+!   - CATCHMENT_SPECIFIC: 21 parameters
+!
+! Best catchment (for CATCHMENT_SPECIFIC): Lowest objective function value
+!******************************************************************************************
+
+ !global_parameters
+                                     !PARAMETER           lower_bound           upper_bound                 value      FLAG  SCALING
+ ! interception
+ &interception1
+                       canopyInterceptionFactor =      0.150000000000,       0.400000000000,       0.254593831639,        1,       1
+ /
+  
+ ! snow
+ &snow1
+                       snowTreshholdTemperature =     -2.000000000000,       2.000000000000,       0.941182631324,        1,       1
+                         degreeDayFactor_forest =      0.000100000000,       4.000000000000,       3.978160278043,        1,       1
+                     degreeDayFactor_impervious =      0.000000000000,       1.000000000000,       0.681644543075,        1,       1
+                       degreeDayFactor_pervious =      0.000000000000,       2.000000000000,       0.498938003062,        1,       1
+                increaseDegreeDayFactorByPrecip =      0.100000000000,       0.900000000000,       0.849297246677,        1,       1
+                      maxDegreeDayFactor_forest =      0.000000000000,       8.000000000000,       7.451531891372,        1,       1
+                  maxDegreeDayFactor_impervious =      0.000000000000,       8.000000000000,       5.390056040331,        1,       1
+                    maxDegreeDayFactor_pervious =      0.000000000000,       8.000000000000,       2.178438297358,        1,       1
+ /
+  
+ ! soilmoisture
+ &soilmoisture1
+                        orgMatterContent_forest =      0.000000000000,      20.000000000000,      19.030722905061,        1,       1
+                    orgMatterContent_impervious =      0.000000000000,       1.000000000000,       0.114346989644,        1,       1
+                      orgMatterContent_pervious =      0.000000000000,       4.000000000000,       1.842619437624,        1,       1
+                         PTF_lower66_5_constant =      0.646200000000,       0.950600000000,       0.942112102995,        1,       1
+                             PTF_lower66_5_clay =      0.000100000000,       0.002900000000,       0.000301169069,        1,       1
+                               PTF_lower66_5_Db =     -0.372700000000,      -0.187100000000,      -0.272479192946,        1,       1
+                        PTF_higher66_5_constant =      0.535800000000,       1.123200000000,       0.607323427458,        1,       1
+                            PTF_higher66_5_clay =     -0.005500000000,       0.004900000000,      -0.004612357063,        1,       1
+                              PTF_higher66_5_Db =     -0.551300000000,      -0.091300000000,      -0.522641178140,        1,       1
+                                PTF_Ks_constant =     -1.200000000000,      -0.285000000000,      -0.674127897167,        1,       1
+                                    PTF_Ks_sand =      0.006000000000,       0.026000000000,       0.014621273192,        1,       1
+                                    PTF_Ks_clay =      0.003000000000,       0.013000000000,       0.005826448240,        1,       1
+                              PTF_Ks_curveSlope =     60.960000000000,      60.960000000000,      60.960000000000,        0,       1
+                 rootFractionCoefficient_forest =      0.900000000000,       0.999000000000,       0.957136862383,        1,       1
+             rootFractionCoefficient_impervious =      0.900000000000,       0.950000000000,       0.918041018211,        1,       1
+               rootFractionCoefficient_pervious =      0.001000000000,       0.090000000000,       0.017967249926,        1,       1
+                        infiltrationShapeFactor =      1.000000000000,       4.000000000000,       1.734022773581,        1,       1
+ /
+  
+ ! directSealedAreaRunoff
+ &directRunoff1
+                      imperviousStorageCapacity =      0.000000000000,       5.000000000000,       4.809862833433,        1,       1
+ /
+  
+ ! potential evapotranspiration
+ &PET0
+                         minCorrectionFactorPET =      0.700000000000,       1.300000000000,       1.273397703099,        1,       1
+                         maxCorrectionFactorPET =      0.000000000000,       0.200000000000,       0.104155189040,        1,       1
+                              aspectTresholdPET =    160.000000000000,     200.000000000000,     163.502640962040,        1,       1
+ /
+  
+ ! interflow
+ &interflow1
+                 interflowStorageCapacityFactor =     75.000000000000,     200.000000000000,     195.013825893608,        1,       1
+                       interflowRecession_slope =      0.000000000000,      10.000000000000,       6.195068434316,        1,       1
+                  fastInterflowRecession_forest =      1.000000000000,       3.000000000000,       2.687347560823,        1,       1
+                      slowInterflowRecession_Ks =      1.000000000000,      30.000000000000,       7.161023205317,        1,       1
+                          exponentSlowInterflow =      0.050000000000,       0.300000000000,       0.091676854235,        1,       1
+ /
+  
+ ! percolation
+ &percolation1
+                            rechargeCoefficient =      0.000000000000,      50.000000000000,      28.913020768903,        1,       1
+                         rechargeFactor_karstic =     -5.000000000000,       5.000000000000,       4.779647429888,        1,       1
+                  gain_loss_GWreservoir_karstic =      1.000000000000,       1.000000000000,       1.000000000000,        0,       1
+ /
+  
+ ! routing
+ &routing3
+                                   slope_factor =      0.100000000000,     100.000000000000,      30.000000000000,        0,       1
+ /
+  
+ ! geology
+ &geoparameter
+                                  GeoParam(1,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                  GeoParam(2,:) =      1.000000000000,    1000.000000000000,     274.069442645188,        0,       1
+                                  GeoParam(3,:) =      1.000000000000,    1000.000000000000,     329.980324890617,        0,       1
+                                  GeoParam(4,:) =      1.000000000000,    1000.000000000000,      58.651272750001,        0,       1
+                                  GeoParam(5,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                  GeoParam(6,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                  GeoParam(7,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                  GeoParam(8,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                  GeoParam(9,:) =      1.000000000000,    1000.000000000000,     585.432858337664,        1,       1
+                                 GeoParam(10,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                 GeoParam(11,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                 GeoParam(12,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                 GeoParam(13,:) =      1.000000000000,    1000.000000000000,     177.684725428423,        1,       1
+                                 GeoParam(14,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                 GeoParam(15,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+                                 GeoParam(16,:) =      1.000000000000,    1000.000000000000,     100.000000000000,        0,       1
+ /
+  
+ ! neutrons
+ /
+  
+ !    hÃDÂ¤Ã     0Ã³QcÂb   2D
+ /
+  

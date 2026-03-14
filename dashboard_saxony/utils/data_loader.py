@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
+import xarray as xr
+from typing import Dict, Optional, Tuple
 
 import geopandas as gpd
 import netCDF4 as nc
@@ -271,3 +272,69 @@ def load_saxony_data() -> Dict:
         "smi": smi_ts,
         "landkreise": raster["boundary"],
     }
+
+
+#===============================================================================
+# SAXONY DROUGHT INDICES LOADER (NEW - 1971-2020)
+#===============================================================================
+
+def load_saxony_drought_indices():
+    """
+    Load pre-calculated Saxony drought indices from NetCDF.
+    
+    Returns:
+        ds: xarray Dataset with SMI, RCI, QDI, MDI (25x52 grid, 600 months)
+        gauge_df: DataFrame with daily Qsim for gauge 0090410340
+        annual_stats: DataFrame with annual drought statistics
+    """
+    utils_dir = Path(__file__).parent
+    nc_path = utils_dir / "saxony_drought_indices.nc"
+    gauge_csv = utils_dir / "saxony_gauge_0090410340_Qsim.csv"
+    annual_csv = utils_dir / "saxony_annual_drought_stats.csv"
+    
+    if not nc_path.exists():
+        raise FileNotFoundError(f"Saxony drought indices not found: {nc_path}")
+    
+    # Load NetCDF
+    ds = xr.open_dataset(nc_path)
+    
+    # Load gauge data
+    gauge_df = None
+    if gauge_csv.exists():
+        gauge_df = pd.read_csv(gauge_csv, parse_dates=['date'])
+        gauge_df.set_index('date', inplace=True)
+    
+    # Load annual stats
+    annual_stats = None
+    if annual_csv.exists():
+        annual_stats = pd.read_csv(annual_csv)
+    
+    return ds, gauge_df, annual_stats
+
+
+def get_saxony_index_timeseries(ds, index_name='MDI', lat=None, lon=None):
+    """
+    Extract time series for a specific index and location.
+    
+    Args:
+        ds: Dataset with drought indices
+        index_name: 'SMI', 'RCI', 'QDI', or 'MDI'
+        lat: Latitude (if None, returns spatial mean)
+        lon: Longitude (if None, returns spatial mean)
+    
+    Returns:
+        pd.Series with time index
+    """
+    if index_name not in ds.data_vars:
+        raise ValueError(f"Index {index_name} not found in dataset")
+    
+    data = ds[index_name]
+    
+    if lat is not None and lon is not None:
+        # Find nearest grid cell
+        nearest = data.sel(lat=lat, lon=lon, method='nearest')
+        return pd.Series(nearest.values, index=pd.to_datetime(ds['time'].values), name=f"{index_name}_({lat:.3f},{lon:.3f})")
+    else:
+        # Spatial mean
+        spatial_mean = data.mean(dim=['lat', 'lon'])
+        return pd.Series(spatial_mean.values, index=pd.to_datetime(ds['time'].values), name=f"{index_name}_mean")

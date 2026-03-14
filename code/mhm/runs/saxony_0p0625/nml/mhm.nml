@@ -52,7 +52,7 @@ resolution_Routing(1) = 0.0625
 timestep = 1
 !> disabled restart and optimization (but needs to be given)
 read_restart  = .FALSE.
-optimize = .True.
+optimize = .False.
 optimize_restart = .FALSE.
 opti_method = 1
 opti_function = 9
@@ -184,7 +184,7 @@ LCoverfName(5)     = 'lc_2018.asc'
 !> specification of number of warming days [d] and the simulation period.
 warming_Days(1)    = 3650
 !> first year of wanted simulation period
-eval_Per(1)%yStart = 1991
+eval_Per(1)%yStart = 1971
 !> first month of wanted simulation period
 eval_Per(1)%mStart = 01
 !> first day   of wanted simulation period
@@ -272,9 +272,9 @@ nGaugesTotal = 1
 !> number of gauges for subdomain (1)
 NoGauges_domain(1)   = 1
 !> in subdomain(1), this is the id of gauge(1)  --> (1,1)
-Gauge_id(1,1)       = 90411280
+Gauge_id(1,1)       = 90410340
 !> name of file with timeseries for subdomain(1) at gauge(1) --> (1,1)
-gauge_filename(1,1) = "90411280.day"
+gauge_filename(1,1) = "90410340.day"
 /
 
 &inflow_gauges

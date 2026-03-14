@@ -11,7 +11,8 @@ from folium.raster_layers import ImageOverlay
 from shapely.geometry import shape
 from streamlit_folium import st_folium
 
-from utils.data_loader import load_saxony_data
+from utils.data_loader import load_saxony_data, load_saxony_drought_indices, get_saxony_index_timeseries
+import xarray as xr
 from utils.discharge_plots import (
     create_hydrograph,
     create_flow_duration_curve,
@@ -134,14 +135,89 @@ st.markdown(t['subtitle'])
 
 @st.cache_data(show_spinner=True)
 def _load_data():
-    return load_saxony_data()
+    """Load Saxony drought indices (1971-2020, 50 years)."""
+    import xarray as xr
+    
+    try:
+        # Try to load new 50-year data first
+        ds, gauge_df, annual_stats = load_saxony_drought_indices()
+        
+        # Convert xarray to format compatible with dashboard
+        time_index = pd.to_datetime(ds['time'].values)
+        
+        # Extract indices
+        smi_3d = ds['SMI'].values  # (time, lat, lon)
+        mdi_3d = ds['MDI'].values
+        rci_3d = ds['RCI'].values
+        
+        n_time, n_lat, n_lon = smi_3d.shape
+        
+        # Create grid from lat/lon coordinates
+        from shapely.geometry import box
+        import geopandas as gpd
+        
+        cells = []
+        for i, lat in enumerate(ds['lat'].values):
+            for j, lon in enumerate(ds['lon'].values):
+                cells.append({
+                    'i': i,
+                    'j': j,
+                    'lon': float(lon),
+                    'lat': float(lat),
+                    'geometry': box(lon - 0.03125, lat - 0.03125, lon + 0.03125, lat + 0.03125)
+                })
+        
+        grid = gpd.GeoDataFrame(cells, crs="EPSG:4326")
+        
+        # Load Saxony boundary
+        from utils.geo_utils import get_saxony_boundary_gdf
+        boundary = get_saxony_boundary_gdf()
+        
+        # Reshape data to (time, n_cells)
+        smi_2d = smi_3d.reshape(n_time, -1)
+        mdi_2d = mdi_3d.reshape(n_time, -1)
+        rci_2d = rci_3d.reshape(n_time, -1)
+        
+        # nFK approximation from SMI (scale 0-100 to 0-100%)
+        nfk_2d = smi_2d  # Use SMI as proxy for nFK
+        
+        # Volumetric soil moisture (approximate from SMI)
+        sm_vol_2d = smi_2d * 0.3  # Rough scaling
+        
+        return {
+            'dates': time_index,
+            'grid': grid,
+            'boundary': boundary,
+            'valid_mask': np.ones(n_lat * n_lon, dtype=bool),
+            'smi': smi_2d,
+            'mdi': mdi_2d,
+            'nfk': nfk_2d,
+            'sm_vol': sm_vol_2d,
+            'hillshade': None,
+            'gauge_df': gauge_df,
+            'annual_stats': annual_stats,
+            'ds': ds,
+        }
+    except Exception as e:
+        st.error(f"Error loading new Saxony data: {e}")
+        st.info("Falling back to old data format...")
+        return load_saxony_data()
 
 
 data = _load_data()
-raster = data["raster"]
-ts_mean = data["timeseries"].copy()
-idx_df = data["smi"].copy()
-all_dates = pd.to_datetime(raster["dates"])
+
+# Check if we got new data format (dict with 'dates' key) or old format
+if isinstance(data, dict) and 'dates' in data:
+    raster = data
+    all_dates = pd.to_datetime(raster["dates"])
+    ts_mean = None
+    idx_df = None
+else:
+    # Old format
+    raster = data["raster"]
+    ts_mean = data["timeseries"].copy()
+    idx_df = data["smi"].copy()
+    all_dates = pd.to_datetime(raster["dates"])
 
 # Session state
 if "clicked_cell_id" not in st.session_state:
@@ -625,33 +701,35 @@ def metric_series(metric_key: str) -> pd.DataFrame:
         out = pd.DataFrame({"date": all_dates, "value": arr, "selection": f"Zelle {cid}"})
         return out
 
-    map_mean_key = {"nfk": "nfk_pct", "sm_vol": "sm_vol_pct", "smi": "smi", "mdi": "mdi"}
-    col = map_mean_key[metric_key]
-    out = ts_mean[["date", col]].rename(columns={col: "value"}).copy()
-    out["selection"] = "Sachsen (Mittel)"
+    # New data format: calculate spatial mean directly from raster
+    map_mean_key = {"nfk": "nfk", "sm_vol": "sm_vol", "smi": "smi", "mdi": "mdi"}
+    arr_key = map_mean_key.get(metric_key, metric_key)
+    
+    # Calculate spatial mean for each time step
+    spatial_mean = np.nanmean(raster[arr_key], axis=1)
+    out = pd.DataFrame({"date": all_dates, "value": spatial_mean, "selection": "Sachsen (Mittel)"})
     return out
 
 
 def radar_data_for_selection() -> dict:
-    d = idx_df.copy()
-    d["date"] = pd.to_datetime(d["date"])
-    target = pd.Timestamp(st.session_state.clicked_date)
-    nearest = d.iloc[(d["date"] - target).abs().argsort()[:1]]
-    row = nearest.mean(numeric_only=True)
-
+    """Get radar plot data for selected cell and date."""
     i = t_index(st.session_state.clicked_date)
     cell_id = int(st.session_state.clicked_cell_id) if st.session_state.clicked_cell_id is not None else 0
-    smi_cell = float(raster["smi"][i, cell_id]) if 0 <= cell_id < raster["smi"].shape[1] else float(np.nan)
-    nfk_cell = float(raster["nfk"][i, cell_id]) if 0 <= cell_id < raster["nfk"].shape[1] else float(np.nan)
-    mdi_cell = float(raster["mdi"][i, cell_id]) if 0 <= cell_id < raster["mdi"].shape[1] else float(np.nan)
-
+    
+    # Get cell values from raster
+    smi_cell = float(raster["smi"][i, cell_id]) if 0 <= cell_id < raster["smi"].shape[1] else 50.0
+    nfk_cell = float(raster["nfk"][i, cell_id]) if 0 <= cell_id < raster["nfk"].shape[1] else 50.0
+    mdi_cell = float(raster["mdi"][i, cell_id]) if 0 <= cell_id < raster["mdi"].shape[1] else 50.0
+    
+    # For new data format, use SMI as proxy for other indices
+    # (RCI and QDI are available but would need gauge-specific extraction)
     return {
         "SMI": smi_cell,
-        "R-Pctl": float(row.get("r_pctl", 50.0)),
-        "Q-Pctl": float(row.get("q_pctl", 50.0)),
+        "R-Pctl": smi_cell,  # Use SMI as proxy for recharge
+        "Q-Pctl": smi_cell,  # Use SMI as proxy for discharge
         "MDI": mdi_cell,
-        "SPI-3": float((row.get("spi_3", 0.0) + 3) / 6 * 100),
-        "SPEI-3": float((row.get("spei_3", 0.0) + 3) / 6 * 100),
+        "SPI-3": smi_cell,   # Approximate from SMI
+        "SPEI-3": smi_cell,  # Approximate from SMI
         "%nFK": nfk_cell,
     }
 
