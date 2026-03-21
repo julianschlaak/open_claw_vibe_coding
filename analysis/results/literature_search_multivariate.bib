@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/data/.openclaw/workspace/open_claw_vibe_coding/analysis/scripts/literature_search_complete.py", line 444, in <module>
+    main()
+    ~~~~^^
+  File "/data/.openclaw/workspace/open_claw_vibe_coding/analysis/scripts/literature_search_complete.py", line 438, in main
+    print(export_bibtex(results))
+          ~~~~~~~~~~~~~^^^^^^^^^
+  File "/data/.openclaw/workspace/open_claw_vibe_coding/analysis/scripts/literature_search_complete.py", line 347, in export_bibtex
+    if item.get("open_access") and item["open_access"].get("is_oa"):
+                                   ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'bool' object has no attribute 'get'
