@@ -66,12 +66,15 @@ A key advantage of the percentile-based MDI is the absence of parametric distrib
 - **SPEI**: Log-logistic distribution for water balance (P - PET)
 - **SSI**: Gamma or log-normal for streamflow
 
+**Critical Support: Tijdeman et al. (2020)** tested 7 parametric distributions and 2 fitting methods for SSI across 369 European rivers. They found that **parametric SSI is highly sensitive to method choice**, with rejection rates up to 30% and sensitivity to both low and high ends of the sample. The Tweedie distribution showed advantageous properties (2% rejection rate, lower bound at zero), but no single method was universally optimal. They concluded that "shown approach-specific sensitivities and uncertainties should be carefully considered."
+
 **Problems with Parametric Approaches:**
 
 1. **Distribution misspecification**: Real-world hydrological data often deviate from assumed distributions, particularly in tails (extreme events)
 2. **Non-stationarity**: Climate change alters distribution parameters over time, violating the assumption of a stationary reference period
 3. **Zero-inflation**: Recharge and streamflow can be zero or near-zero, problematic for distributions requiring positive values
 4. **Complexity**: Distribution fitting and transformation add computational overhead and potential for errors
+5. **Method sensitivity**: Tijdeman et al. (2020) showed 369 rivers had highly variable SSI time series depending on distribution choice
 
 **Percentile Advantages:**
 
@@ -79,6 +82,7 @@ A key advantage of the percentile-based MDI is the absence of parametric distrib
 2. **Robust to outliers**: Empirical ranking naturally handles extremes
 3. **Simple implementation**: Only requires sorting and ranking
 4. **Direct interpretability**: "5th percentile" is more intuitive than "SPI = -1.645"
+5. **Methodological robustness**: Avoids the sensitivities identified by Tijdeman et al. (2020)
 
 ### 4.2.2 Seasonal Stratification
 

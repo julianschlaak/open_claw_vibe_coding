@@ -16,9 +16,19 @@ Streamflow drought indices (e.g., Standardized Streamflow Index, SSI) capture hy
 
 ## 1.3 Multi-Component Drought Indices: Recent Developments
 
-Recognizing these limitations, recent research has focused on multi-component drought indices that integrate information from multiple hydrological compartments. The Multivariate Standardized Drought Index (MSDI; Hao and AghaKouchak, 2013) combines precipitation and soil moisture using copula-based joint probability distributions, demonstrating improved drought detection compared to SPI or SMI alone. Similarly, the Standardized Precipitation Evapotranspiration Index (SPEI; Vicente-Serrano et al., 2010) incorporates temperature effects through potential evapotranspiration, addressing climate change impacts on drought severity.
+Recognizing these limitations, recent research has focused on multi-component drought indices that integrate information from multiple hydrological compartments. Hao & AghaKouchak (2013) introduced the Multivariate Standardized Drought Index (MSDI), a **parametric** multi-index model coupling precipitation and soil moisture using copula functions. The MSDI demonstrated higher probability of drought detection compared to individual indices and showed consistency with the U.S. Drought Monitor (USDM).
 
-However, existing multi-component approaches face several challenges. First, many rely on parametric distributional assumptions (e.g., gamma distribution for precipitation, log-normal for streamflow) that may not hold across diverse climatic regions or under non-stationary conditions. Second, the mathematical complexity of copula-based or multivariate standardization methods can limit operational implementation and interpretability for end-users. Third, most existing indices focus on two-component systems (precipitation-soil moisture or precipitation-streamflow), neglecting the full cascade through soil moisture, recharge, and discharge.
+Recognizing parametric limitations, Hao & AghaKouchak (2014) developed a **nonparametric MSDI** framework based on rank statistics, eliminating distributional assumptions while maintaining multivariate integration. This methodological advancement provides the foundation for percentile-based multivariate indices that avoid parametric constraints.
+
+Rajsekhar et al. (2015) extended the multivariate concept beyond two variables, developing an information theory-based drought index integrating **precipitation, runoff, soil moisture, and evapotranspiration** (four variables). Their approach demonstrated that multivariate integration captures compound drought conditions more effectively than univariate indices, particularly in regions where meteorological and hydrological droughts exhibit temporal lags.
+
+Popat & Döll (2021) proposed a **deficit-anomaly framework** combining soil moisture and streamflow into two complementary indices (SMDAI, QDAI). Their approach distinguishes between deficit (demand-based shortfall) and anomaly (statistical deviation) concepts, providing nuanced characterization of hydrological drought.
+
+Similarly, the Standardized Precipitation Evapotranspiration Index (SPEI; Vicente-Serrano et al., 2010) incorporates temperature effects through potential evapotranspiration, addressing climate change impacts on drought severity.
+
+**Critical Gap:** Existing multivariate indices couple **meteorological + hydrological** components (precipitation + soil moisture, or precipitation + runoff + ET). No existing index integrates **three purely hydrological components** (soil moisture, recharge, discharge) using a percentile-based approach. Your innovation addresses this gap.
+
+However, existing multi-component approaches face several challenges. First, many rely on parametric distributional assumptions (e.g., gamma distribution for precipitation, log-normal for streamflow, copula families) that may not hold across diverse climatic regions or under non-stationary conditions. Second, the mathematical complexity of copula-based or multivariate standardization methods can limit operational implementation and interpretability for end-users. Third, most existing indices focus on two-component systems, neglecting the full cascade through soil moisture, recharge, and discharge.
 
 ## 1.4 Percentile-Based Approaches: Advantages and Applications
 
