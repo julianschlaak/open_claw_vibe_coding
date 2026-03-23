@@ -1,0 +1,36 @@
+{
+  "methodology": {
+    "description": "Cross-correlation analysis at monthly time step",
+    "time_period": "1991-2020 (360 months)",
+    "catchments": 6,
+    "max_lag_tested": 24
+  },
+  "findings": {
+    "sm_to_recharge": {
+      "lag": "0 months (all catchments)",
+      "correlation": "Weak (r = 0.47\u20130.54)",
+      "interpretation": "Soil moisture and recharge respond simultaneously in mHM. The weak correlation suggests other processes (ET, routing) mediate the relationship."
+    },
+    "sm_to_runoff": {
+      "lag": "0 months (all catchments)",
+      "correlation": "Strong (r = 0.77\u20130.87)",
+      "interpretation": "SM and runoff are tightly coupled. Fast surface/subsurface flow pathways dominate."
+    },
+    "recharge_to_runoff": {
+      "lag": "0 months (all catchments)",
+      "correlation": "Moderate (r = 0.57\u20130.69)",
+      "interpretation": "Recharge contributes to baseflow but other sources also contribute."
+    }
+  },
+  "parthe_analysis": {
+    "claim": "10-month groundwater lag (reported earlier)",
+    "finding": "NOT CONFIRMED - was a data processing bug",
+    "actual": "Parthe shows same 0-month lag as other catchments",
+    "explanation": "Monthly aggregation may be too coarse to capture slow groundwater dynamics"
+  },
+  "model_implications": {
+    "fast_coupling": "SM \u2194 Runoff responds within same month",
+    "groundwater_memory": "Not captured at monthly timescale",
+    "recommendation": "Use daily data for groundwater lag analysis"
+  }
+}

@@ -3,7 +3,21 @@ import ReactECharts from 'echarts-for-react';
 import { MonitorDataset, DroughtDataPoint } from './types';
 import { lttb } from './lib/lttb';
 
-const domains = ['catchment_custom', 'test_domain'] as const;
+// API base URL
+const API_BASE = 'http://localhost:8520/api';
+
+// Updated: 6 Saxonian catchments + Saxony aggregation (2026-03-21)
+const domains = [
+  'saxony',
+  'chemnitz2',
+  'wesenitz2',
+  'parthe',
+  'wyhra',
+  'goeltzsch2',
+  'zwoenitz1',
+  'catchment_custom',
+  'test_domain',
+] as const;
 
 type Domain = (typeof domains)[number];
 type TabKey = 'spatial' | 'time' | 'propagation' | 'extreme' | 'diagnostics' | 'validation';
@@ -13,6 +27,13 @@ type EventKey = 'drought_2003' | 'drought_2018' | 'drought_2019' | 'drought_2020
 type CorrelationCell = [number, number, number];
 
 const domainCoords: Record<Domain, { lon: number; lat: number; label: string }> = {
+  saxony: { lon: 13.0, lat: 51.0, label: 'Saxony (Aggregation)' },
+  chemnitz2: { lon: 12.9, lat: 50.8, label: 'Chemnitz2' },
+  wesenitz2: { lon: 14.0, lat: 51.1, label: 'Wesenitz2' },
+  parthe: { lon: 12.8, lat: 51.4, label: 'Parthe' },
+  wyhra: { lon: 12.5, lat: 51.2, label: 'Wyhra' },
+  goeltzsch2: { lon: 12.4, lat: 51.3, label: 'Goeltzsch2' },
+  zwoenitz1: { lon: 12.7, lat: 50.6, label: 'Zwoenitz1' },
   catchment_custom: { lon: 11.0, lat: 51.0, label: 'Catchment Custom' },
   test_domain: { lon: 10.2, lat: 50.2, label: 'Test Domain' },
 };
@@ -93,7 +114,7 @@ function norm01(arr: Array<number | null>): Array<number | null> {
 }
 
 export default function App() {
-  const [domain, setDomain] = useState<Domain>('catchment_custom');
+  const [domain, setDomain] = useState<Domain>('saxony');  // Default to Saxony aggregation
   const [allData, setAllData] = useState<Record<string, MonitorDataset>>({});
   const [error, setError] = useState<string>('');
   const [tab, setTab] = useState<TabKey>('spatial');
@@ -104,9 +125,10 @@ export default function App() {
 
   useEffect(() => {
     setError('');
+    // Load data from API server
     Promise.all(
       domains.map((d) =>
-        fetch(`/data/${d}_monitor.json`)
+        fetch(`${API_BASE}/data/${d}`)
           .then((r) => {
             if (!r.ok) throw new Error(`${d}: HTTP ${r.status}`);
             return r.json();

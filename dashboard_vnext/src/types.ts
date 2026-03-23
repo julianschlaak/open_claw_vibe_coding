@@ -13,6 +13,10 @@ export interface DroughtDataPoint {
   smi: number | null;
   discharge_observed: number | null;
   discharge_simulated: number | null;
+  // MDI fields (added 2026-03-21)
+  mdi: number | null;
+  recharge_percent: number | null;
+  runoff_percent: number | null;
 }
 
 export interface ValidationMetrics {

@@ -3,4 +3,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    host: '0.0.0.0',
+    port: 8511,
+    allowedHosts: ['srv1435633.hstgr.cloud', 'localhost', '127.0.0.1'],
+    cors: true,
+  },
 });

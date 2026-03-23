@@ -119,6 +119,10 @@ SMI(d) = P(SM_LALL_volumetric, d)
 
 where SM_LALL_volumetric = SM_LALL / soil_depth (mm/mm).
 
+**Methodological Note:** Rakovec et al. (2022) used SMI defined as the **conditional cumulative distribution function (CDF)** of root-zone soil moisture relative to seasonal climatology, with a **fixed drought threshold (0.2)**. While their threshold is fixed, the SMI itself is **already distribution-based** (percentile-like), making it methodologically closer to nonparametric approaches than raw soil moisture thresholds.
+
+**Our Innovation:** We extend beyond univariate SMI (1 component) to **multivariate MDI** (3 components: SM + Recharge + Discharge) with **explicit percentile** (no CDF assumptions) and **propagation lags quantified**.
+
 SMI values range from 0 (driest) to 100 (wettest), with lower values indicating drier conditions.
 
 ### 2.3.3 Recharge Percentile (R-Pctl)
@@ -199,7 +203,9 @@ Following Vicente-Serrano et al. (2010), we calculate climatic water balance (P 
 
 ### 2.4.3 Standardized Streamflow Index (SSI)
 
-Following Vicente-Serrano et al. (2012), we fit a gamma distribution to streamflow and transform to standard normal quantiles.
+Following Vicente-Serrano et al. (2012), we fit a gamma distribution to streamflow and transform to standard normal quantiles. However, Tijdeman et al. (2020) demonstrated that SSI time series and derived drought characteristics are **highly sensitive to the method of choice**. Testing 7 parametric distributions and 2 fitting methods across 369 European rivers, they found rejection rates up to 30% for some distributions and sensitivity to both low and high ends of the sample. The Tweedie distribution showed advantageous properties (2% rejection rate, lower bound at zero), but no single method was universally optimal.
+
+**Implication for This Study:** The methodological uncertainty identified by Tijdeman et al. (2020) supports our percentile-based MDI approach, which avoids distributional assumptions entirely. Our comparison against SSI (parametric, univariate) across 30 years (1991–2020) addresses the methodological uncertainty they highlighted.
 
 These standardized indices serve as benchmarks for evaluating MDI performance, though they are not the focus of this study.
 

@@ -1,0 +1,13 @@
+{
+  "current_month": "1993-12",
+  "current_smi": 50.0,
+  "rank_driest": 24,
+  "percentile": 38.5,
+  "years_with_drier": [
+    "1990",
+    "1991",
+    "1992",
+    "1993"
+  ],
+  "return_period": "1-in-1-years"
+}
