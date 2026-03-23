@@ -1,39 +1,92 @@
-# PhD Paper #1: Percentile-Based Multi-Component Drought Index
+# EGU26 PICO Deck
 
-**Title:** "A Percentile-Based Multi-Component Drought Index for Hydrological Drought Monitoring in Central Europe"  
+**Title:** Good runoff ≠ Realistic soil water balance  
 **Author:** Julian Schlaak  
-**Status:** Draft complete (March 2026)  
-**Target Journal:** HESS or Journal of Hydrology
+**Event:** EGU General Assembly 2026  
+**Run:** calibration_mowax_saxony_RE_V2
 
-## Quick Start
+---
 
-```bash
-cd /docker/openclaw-1lxa/data/.openclaw/workspace/open_claw_vibe_coding
-export PATH="/docker/openclaw-1lxa/data/.openclaw/workspace/miniforge/bin:$PATH"
+## Final Deck Structure
 
-python analysis/scripts/01_load_data.py --catchment <name>
-python analysis/scripts/02_compute_indices.py --catchment <name>
-python analysis/scripts/03_create_plots.py --catchment <name>
-python analysis/scripts/04_advanced_analysis.py --catchment <name>
-```
+| # | Slide Title | Key Message |
+|---|-------------|-------------|
+| 1 | Good runoff ≠ Realistic soil water balance | Title + Research Question |
+| 2 | Independent soil moisture reveals hidden internal spread | **Headline figure** (SM spread) |
+| 3 | Independent observations constrain internal model behavior | **Map** (Saxony, catchments, CRNS, Tharandt) |
+| 4 | Runoff calibration leaves multiple plausible solutions | KGE distribution, top-20 sets |
+| 5 | Good runoff fit does not imply good soil moisture | Q-vs-SM scatter (structural) |
+| 6 | Soil moisture anomalies reveal process differences | Anomaly-based (process detail) |
+| 7 | ET anomalies reveal process differences beyond seasonality | FLUXCOM anomaly comparison |
+| 8 | Recharge shows long-term plausibility patterns | BGR climatology |
+| 9 | No single parameter set is best across all variables | Simplified scorecard |
+| 10 | Summary: Three key findings | + Implication statement |
 
-## Repository Structure
+**Implication:** Runoff-only calibration is insufficient when internal water-balance realism matters.
 
-- `paper/draft_v1/` — manuscript draft (sections 01-06)
-- `analysis/scripts/` — pipeline scripts (`01` to `05` + helpers)
-- `analysis/plots/` — standard and advanced figures
-- `analysis/results/` — reproducible result tables and parquet files
-- `memory/research/` — methodology notes
-- `memory/analysis/` — catchment/event analyses
-- `analysis/PIPELINE_README.md` — full pipeline usage guide
+---
 
-## Reproducing Paper Results
+## Backup Slides (14)
 
-See `analysis/PIPELINE_README.md` for full instructions.
+- SM: 2018-2020 drought anomalies
+- SM: Raw timeseries
+- SM: Metrics
+- SM: Benchmark comparison
+- ET: E_sp summary & heatmap
+- ET: Raw monthly (seasonality)
+- ET: Anomaly (alternative)
+- ET: Benchmark comparison
+- Recharge: Alternative view
+- Scorecard: Detailed v2
+- SM spread: Alternative view
+- Workflow
+- Concept
 
-## Data Sources
+---
 
-- mHM 5.13.2: own simulations (soil moisture, recharge, discharge)
-- CAMELS-DE: observed streamflow (Addor et al., 2018)
-- EDID/EDII: drought impacts (DOI: 10.6094/UNIFR/230922)
-- DWD: precipitation forcing
+## Figures Used
+
+Main deck figures (source: calibration_mowax_saxony_RE_V2):
+- `pico_s02_main_message_sm_spread_cunnersdorf.png`
+- `pico_s03_study_area_reference_map_main.png`
+- `pico_s04_runoff_multiple_plausible_solutions.png`
+- `pico_s06_q_vs_sm_scatter_all_sets.png`
+- `pico_s07d_sm_anomalies_selected_best_sets.png`
+- `pico_s07_aet_anomalies_main_revised.png`
+- `pico_s08_recharge_long_term_plausibility.png`
+- `pico_s09_tradeoff_scorecard_main_simplified.png`
+
+---
+
+## Best Sets
+
+| Set | Role | Description |
+|-----|------|-------------|
+| set_28 | Runoff-optimal | Best KGE(Q) median |
+| set_29 | SM-optimal | Best SM anomaly r |
+| set_59 | ET-optimal | Best aET anomaly RMSE |
+| set_152 | Recharge-optimal | Best recharge \|Error\| |
+
+**Top-20 rule:** median KGE(Q) across 23 catchments — these are "q_good_sets"
+
+---
+
+## Methodology Notes
+
+- **SM anomaly:** Day-of-year percentile (DOY) — non-parametric, no distributional assumption
+- **aET anomaly:** FLUXCOM reference, monthly anomaly
+- **E_sp:** Spatial pattern skill (Dembélé et al. 2020), Spearman + CV ratio + RMSE
+- **Recharge:** Annual sums, BGR climatology benchmark
+- **CRNS:** Cunnersdorf — independent site constraint, area-representative
+
+**Caution:** Reference products are not perfect truth — used for consistency checking.
+
+---
+
+## Usage
+
+Open `index.html` in browser for interactive presentation.
+
+Download `printable.html` for printer-friendly version (all figures embedded).
+
+**Presenter view:** Press `S` in Reveal.js for speaker notes.
