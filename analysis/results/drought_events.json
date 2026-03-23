@@ -1,0 +1,2879 @@
+[
+  {
+    "catchment": "chemnitz2",
+    "period": "1991-01-01 00:00:00 to 2020-12-01 00:00:00",
+    "n_months": 360,
+    "indices": {
+      "MDI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 7,
+          "mean_duration": 3.7142857142857144,
+          "max_duration": 6,
+          "min_duration": 3,
+          "total_drought_months": 26,
+          "mean_deficit": 12.426108374384237,
+          "max_deficit": 13.96551724137931,
+          "total_integrated_deficit": 327.9310344827586,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 7
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 3,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.551724137931034,
+            "mean_value": 9.195402298850574,
+            "max_value": 11.03448275862069,
+            "deficit": 10.804597701149426,
+            "integrated_deficit": 32.41379310344828
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 5.517241379310344,
+            "mean_value": 7.93103448275862,
+            "max_value": 11.379310344827584,
+            "deficit": 12.06896551724138,
+            "integrated_deficit": 36.20689655172414
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 279,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 2.413793103448276,
+            "mean_value": 6.0344827586206895,
+            "max_value": 12.413793103448276,
+            "deficit": 13.96551724137931,
+            "integrated_deficit": 55.86206896551724
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 334,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 1.0344827586206895,
+            "mean_value": 6.781609195402299,
+            "max_value": 13.448275862068964,
+            "deficit": 13.2183908045977,
+            "integrated_deficit": 79.3103448275862
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 343,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 2.413793103448276,
+            "mean_value": 7.126436781609196,
+            "max_value": 14.137931034482758,
+            "deficit": 12.873563218390803,
+            "integrated_deficit": 38.62068965517241
+          },
+          {
+            "start_idx": 346,
+            "end_idx": 348,
+            "start_date": "2019-11-01 00:00:00",
+            "end_date": "2020-01-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 2.068965517241379,
+            "mean_value": 9.310344827586206,
+            "max_value": 13.448275862068966,
+            "deficit": 10.689655172413794,
+            "integrated_deficit": 32.06896551724138
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 354,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-07-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 2.413793103448276,
+            "mean_value": 6.637931034482758,
+            "max_value": 16.551724137931032,
+            "deficit": 13.362068965517242,
+            "integrated_deficit": 53.44827586206897
+          }
+        ]
+      },
+      "SMI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 10,
+          "mean_duration": 5.3,
+          "max_duration": 10,
+          "min_duration": 3,
+          "total_drought_months": 53,
+          "mean_deficit": 12.28735632183908,
+          "max_deficit": 18.275862068965516,
+          "total_integrated_deficit": 708.2758620689656,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 1,
+            "moderate": 9
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 3,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 9.195402298850574,
+            "max_value": 17.24137931034483,
+            "deficit": 10.804597701149426,
+            "integrated_deficit": 32.41379310344828
+          },
+          {
+            "start_idx": 8,
+            "end_idx": 11,
+            "start_date": "1991-09-01 00:00:00",
+            "end_date": "1991-12-01 00:00:00",
+            "duration_months": 4,
+            "severity": "severe",
+            "min_value": 3.4482758620689653,
+            "mean_value": 6.034482758620689,
+            "max_value": 6.896551724137931,
+            "deficit": 13.965517241379311,
+            "integrated_deficit": 55.862068965517246
+          },
+          {
+            "start_idx": 24,
+            "end_idx": 26,
+            "start_date": "1993-01-01 00:00:00",
+            "end_date": "1993-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 10.344827586206897,
+            "mean_value": 13.793103448275863,
+            "max_value": 17.24137931034483,
+            "deficit": 6.206896551724137,
+            "integrated_deficit": 18.620689655172413
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 122,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-03-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 7.758620689655173,
+            "max_value": 17.24137931034483,
+            "deficit": 12.241379310344827,
+            "integrated_deficit": 48.96551724137931
+          },
+          {
+            "start_idx": 149,
+            "end_idx": 156,
+            "start_date": "2003-06-01 00:00:00",
+            "end_date": "2004-01-01 00:00:00",
+            "duration_months": 8,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 6.896551724137931,
+            "max_value": 13.79310344827586,
+            "deficit": 13.10344827586207,
+            "integrated_deficit": 104.82758620689656
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 281,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-06-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.1724137931034475,
+            "max_value": 13.79310344827586,
+            "deficit": 14.827586206896552,
+            "integrated_deficit": 88.96551724137932
+          },
+          {
+            "start_idx": 294,
+            "end_idx": 296,
+            "start_date": "2015-07-01 00:00:00",
+            "end_date": "2015-09-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 10.344827586206897,
+            "mean_value": 13.793103448275863,
+            "max_value": 17.24137931034483,
+            "deficit": 6.206896551724137,
+            "integrated_deficit": 18.620689655172413
+          },
+          {
+            "start_idx": 328,
+            "end_idx": 335,
+            "start_date": "2018-05-01 00:00:00",
+            "end_date": "2018-12-01 00:00:00",
+            "duration_months": 8,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 1.7241379310344827,
+            "max_value": 10.344827586206897,
+            "deficit": 18.275862068965516,
+            "integrated_deficit": 146.20689655172413
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 344,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-09-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 6.896551724137931,
+            "max_value": 10.344827586206897,
+            "deficit": 13.10344827586207,
+            "integrated_deficit": 52.41379310344828
+          },
+          {
+            "start_idx": 346,
+            "end_idx": 355,
+            "start_date": "2019-11-01 00:00:00",
+            "end_date": "2020-08-01 00:00:00",
+            "duration_months": 10,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.862068965517241,
+            "max_value": 13.79310344827586,
+            "deficit": 14.137931034482758,
+            "integrated_deficit": 141.3793103448276
+          }
+        ]
+      },
+      "Recharge": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 1,
+          "mean_duration": 3.0,
+          "max_duration": 3,
+          "min_duration": 3,
+          "total_drought_months": 3,
+          "mean_deficit": 11.954022988505747,
+          "max_deficit": 11.954022988505747,
+          "total_integrated_deficit": 35.86206896551724,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 1
+          }
+        },
+        "events": [
+          {
+            "start_idx": 60,
+            "end_idx": 62,
+            "start_date": "1996-01-01 00:00:00",
+            "end_date": "1996-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 8.045977011494253,
+            "max_value": 17.24137931034483,
+            "deficit": 11.954022988505747,
+            "integrated_deficit": 35.86206896551724
+          }
+        ]
+      },
+      "Runoff": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 9,
+          "mean_duration": 3.7777777777777777,
+          "max_duration": 6,
+          "min_duration": 3,
+          "total_drought_months": 34,
+          "mean_deficit": 14.38058748403576,
+          "max_deficit": 18.275862068965516,
+          "total_integrated_deficit": 497.2413793103448,
+          "severity_counts": {
+            "extreme": 1,
+            "severe": 4,
+            "moderate": 4
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 4,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-05-01 00:00:00",
+            "duration_months": 4,
+            "severity": "extreme",
+            "min_value": 3.4482758620689653,
+            "mean_value": 3.4482758620689653,
+            "max_value": 3.4482758620689653,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 66.20689655172414
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 3.4482758620689657,
+            "max_value": 6.896551724137931,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 49.6551724137931
+          },
+          {
+            "start_idx": 149,
+            "end_idx": 152,
+            "start_date": "2003-06-01 00:00:00",
+            "end_date": "2003-09-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 12.068965517241379,
+            "max_value": 17.24137931034483,
+            "deficit": 7.931034482758621,
+            "integrated_deficit": 31.724137931034484
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 279,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 4,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 1.7241379310344827,
+            "max_value": 6.896551724137931,
+            "deficit": 18.275862068965516,
+            "integrated_deficit": 73.10344827586206
+          },
+          {
+            "start_idx": 292,
+            "end_idx": 294,
+            "start_date": "2015-05-01 00:00:00",
+            "end_date": "2015-07-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 12.64367816091954,
+            "max_value": 17.24137931034483,
+            "deficit": 7.35632183908046,
+            "integrated_deficit": 22.06896551724138
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 334,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 4.022988505747126,
+            "max_value": 13.79310344827586,
+            "deficit": 15.977011494252874,
+            "integrated_deficit": 95.86206896551725
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 343,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 6.89655172413793,
+            "max_value": 10.344827586206897,
+            "deficit": 13.103448275862071,
+            "integrated_deficit": 39.310344827586206
+          },
+          {
+            "start_idx": 346,
+            "end_idx": 348,
+            "start_date": "2019-11-01 00:00:00",
+            "end_date": "2020-01-01 00:00:00",
+            "duration_months": 3,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 4.597701149425287,
+            "max_value": 6.896551724137931,
+            "deficit": 15.402298850574713,
+            "integrated_deficit": 46.20689655172414
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 354,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-07-01 00:00:00",
+            "duration_months": 4,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 1.7241379310344827,
+            "max_value": 6.896551724137931,
+            "deficit": 18.275862068965516,
+            "integrated_deficit": 73.10344827586206
+          }
+        ]
+      }
+    },
+    "compound_events": {
+      "threshold": 20,
+      "statistics": {
+        "n_events": 0,
+        "mean_duration": 0,
+        "max_duration": 0,
+        "total_drought_months": 0,
+        "mean_deficit": 0,
+        "total_integrated_deficit": 0
+      },
+      "events": []
+    },
+    "major_event_2018_2020": {
+      "period": "2018-01-01 to 2020-12-31",
+      "duration_months": 36,
+      "mdi": {
+        "min": 1.0344827586206895,
+        "mean": 28.438697318007662,
+        "months_below_20": 17,
+        "months_below_10": 9,
+        "months_below_5": 9
+      },
+      "sm": {
+        "min": 0.0,
+        "mean": 21.168582375478927,
+        "months_below_20": 23
+      },
+      "recharge": {
+        "min": 0.0,
+        "mean": 40.51724137931034,
+        "months_below_20": 12
+      },
+      "runoff": {
+        "min": 0.0,
+        "mean": 26.05363984674329,
+        "months_below_20": 18
+      }
+    }
+  },
+  {
+    "catchment": "wesenitz2",
+    "period": "1991-01-01 00:00:00 to 2020-12-01 00:00:00",
+    "n_months": 360,
+    "indices": {
+      "MDI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 6,
+          "mean_duration": 4.5,
+          "max_duration": 7,
+          "min_duration": 3,
+          "total_drought_months": 27,
+          "mean_deficit": 8.79857690202518,
+          "max_deficit": 11.839080459770114,
+          "total_integrated_deficit": 235.86206896551727,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 6
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 3,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.160919540229886,
+            "max_value": 15.172413793103448,
+            "deficit": 11.839080459770114,
+            "integrated_deficit": 35.51724137931035
+          },
+          {
+            "start_idx": 60,
+            "end_idx": 62,
+            "start_date": "1996-01-01 00:00:00",
+            "end_date": "1996-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 13.79310344827586,
+            "mean_value": 15.86206896551724,
+            "max_value": 18.620689655172413,
+            "deficit": 4.13793103448276,
+            "integrated_deficit": 12.413793103448278
+          },
+          {
+            "start_idx": 118,
+            "end_idx": 121,
+            "start_date": "2000-11-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 9.310344827586206,
+            "mean_value": 12.068965517241379,
+            "max_value": 17.93103448275862,
+            "deficit": 7.931034482758621,
+            "integrated_deficit": 31.724137931034484
+          },
+          {
+            "start_idx": 149,
+            "end_idx": 155,
+            "start_date": "2003-06-01 00:00:00",
+            "end_date": "2003-12-01 00:00:00",
+            "duration_months": 7,
+            "severity": "moderate",
+            "min_value": 5.517241379310344,
+            "mean_value": 12.11822660098522,
+            "max_value": 19.655172413793103,
+            "deficit": 7.881773399014779,
+            "integrated_deficit": 55.17241379310345
+          },
+          {
+            "start_idx": 277,
+            "end_idx": 279,
+            "start_date": "2014-02-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 2.068965517241379,
+            "mean_value": 8.50574712643678,
+            "max_value": 15.517241379310343,
+            "deficit": 11.49425287356322,
+            "integrated_deficit": 34.48275862068966
+          },
+          {
+            "start_idx": 328,
+            "end_idx": 334,
+            "start_date": "2018-05-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 7,
+            "severity": "moderate",
+            "min_value": 1.0344827586206895,
+            "mean_value": 10.492610837438423,
+            "max_value": 18.96551724137931,
+            "deficit": 9.507389162561577,
+            "integrated_deficit": 66.55172413793103
+          }
+        ]
+      },
+      "SMI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 7,
+          "mean_duration": 4.714285714285714,
+          "max_duration": 8,
+          "min_duration": 3,
+          "total_drought_months": 33,
+          "mean_deficit": 13.288177339901479,
+          "max_deficit": 16.982758620689655,
+          "total_integrated_deficit": 473.7931034482759,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 1,
+            "moderate": 6
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 3,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 9.195402298850576,
+            "max_value": 17.24137931034483,
+            "deficit": 10.804597701149424,
+            "integrated_deficit": 32.41379310344828
+          },
+          {
+            "start_idx": 118,
+            "end_idx": 121,
+            "start_date": "2000-11-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.89655172413793,
+            "max_value": 13.79310344827586,
+            "deficit": 13.103448275862071,
+            "integrated_deficit": 52.41379310344828
+          },
+          {
+            "start_idx": 149,
+            "end_idx": 156,
+            "start_date": "2003-06-01 00:00:00",
+            "end_date": "2004-01-01 00:00:00",
+            "duration_months": 8,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 3.4482758620689653,
+            "max_value": 10.344827586206897,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 132.41379310344828
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 279,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.03448275862069,
+            "max_value": 17.24137931034483,
+            "deficit": 13.96551724137931,
+            "integrated_deficit": 55.86206896551724
+          },
+          {
+            "start_idx": 328,
+            "end_idx": 335,
+            "start_date": "2018-05-01 00:00:00",
+            "end_date": "2018-12-01 00:00:00",
+            "duration_months": 8,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 3.0172413793103448,
+            "max_value": 6.896551724137931,
+            "deficit": 16.982758620689655,
+            "integrated_deficit": 135.86206896551724
+          },
+          {
+            "start_idx": 342,
+            "end_idx": 344,
+            "start_date": "2019-07-01 00:00:00",
+            "end_date": "2019-09-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 9.195402298850574,
+            "max_value": 13.79310344827586,
+            "deficit": 10.804597701149426,
+            "integrated_deficit": 32.41379310344828
+          },
+          {
+            "start_idx": 346,
+            "end_idx": 348,
+            "start_date": "2019-11-01 00:00:00",
+            "end_date": "2020-01-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 9.195402298850576,
+            "max_value": 17.24137931034483,
+            "deficit": 10.804597701149424,
+            "integrated_deficit": 32.41379310344828
+          }
+        ]
+      },
+      "Recharge": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 1,
+          "mean_duration": 3.0,
+          "max_duration": 3,
+          "min_duration": 3,
+          "total_drought_months": 3,
+          "mean_deficit": 9.655172413793105,
+          "max_deficit": 9.655172413793105,
+          "total_integrated_deficit": 28.965517241379313,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 1
+          }
+        },
+        "events": [
+          {
+            "start_idx": 0,
+            "end_idx": 2,
+            "start_date": "1991-01-01 00:00:00",
+            "end_date": "1991-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 10.344827586206895,
+            "max_value": 13.79310344827586,
+            "deficit": 9.655172413793105,
+            "integrated_deficit": 28.965517241379313
+          }
+        ]
+      },
+      "Runoff": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 9,
+          "mean_duration": 4.777777777777778,
+          "max_duration": 10,
+          "min_duration": 3,
+          "total_drought_months": 43,
+          "mean_deficit": 12.650063856960408,
+          "max_deficit": 17.413793103448278,
+          "total_integrated_deficit": 549.6551724137931,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 9
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 4,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-05-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 2.586206896551724,
+            "max_value": 10.344827586206897,
+            "deficit": 17.413793103448278,
+            "integrated_deficit": 69.65517241379311
+          },
+          {
+            "start_idx": 60,
+            "end_idx": 62,
+            "start_date": "1996-01-01 00:00:00",
+            "end_date": "1996-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 10.344827586206897,
+            "mean_value": 13.793103448275863,
+            "max_value": 17.24137931034483,
+            "deficit": 6.206896551724137,
+            "integrated_deficit": 18.620689655172413
+          },
+          {
+            "start_idx": 118,
+            "end_idx": 121,
+            "start_date": "2000-11-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.620689655172413,
+            "max_value": 17.24137931034483,
+            "deficit": 11.379310344827587,
+            "integrated_deficit": 45.51724137931035
+          },
+          {
+            "start_idx": 153,
+            "end_idx": 155,
+            "start_date": "2003-10-01 00:00:00",
+            "end_date": "2003-12-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.747126436781609,
+            "max_value": 10.344827586206897,
+            "deficit": 14.25287356321839,
+            "integrated_deficit": 42.758620689655174
+          },
+          {
+            "start_idx": 161,
+            "end_idx": 165,
+            "start_date": "2004-06-01 00:00:00",
+            "end_date": "2004-10-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 9.655172413793105,
+            "max_value": 17.24137931034483,
+            "deficit": 10.344827586206895,
+            "integrated_deficit": 51.724137931034484
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 281,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-06-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.89655172413793,
+            "max_value": 17.24137931034483,
+            "deficit": 13.103448275862071,
+            "integrated_deficit": 78.62068965517241
+          },
+          {
+            "start_idx": 325,
+            "end_idx": 334,
+            "start_date": "2018-02-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 10,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.896551724137931,
+            "max_value": 13.79310344827586,
+            "deficit": 13.10344827586207,
+            "integrated_deficit": 131.0344827586207
+          },
+          {
+            "start_idx": 346,
+            "end_idx": 348,
+            "start_date": "2019-11-01 00:00:00",
+            "end_date": "2020-01-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 5.747126436781609,
+            "max_value": 10.344827586206897,
+            "deficit": 14.25287356321839,
+            "integrated_deficit": 42.758620689655174
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 355,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-08-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.206896551724138,
+            "max_value": 17.24137931034483,
+            "deficit": 13.793103448275861,
+            "integrated_deficit": 68.9655172413793
+          }
+        ]
+      }
+    },
+    "compound_events": {
+      "threshold": 20,
+      "statistics": {
+        "n_events": 0,
+        "mean_duration": 0,
+        "max_duration": 0,
+        "total_drought_months": 0,
+        "mean_deficit": 0,
+        "total_integrated_deficit": 0
+      },
+      "events": []
+    },
+    "major_event_2018_2020": {
+      "period": "2018-01-01 to 2020-12-31",
+      "duration_months": 36,
+      "mdi": {
+        "min": 1.0344827586206895,
+        "mean": 30.450191570881227,
+        "months_below_20": 16,
+        "months_below_10": 7,
+        "months_below_5": 4
+      },
+      "sm": {
+        "min": 0.0,
+        "mean": 24.042145593869733,
+        "months_below_20": 19
+      },
+      "recharge": {
+        "min": 0.0,
+        "mean": 45.019157088122604,
+        "months_below_20": 11
+      },
+      "runoff": {
+        "min": 0.0,
+        "mean": 24.425287356321842,
+        "months_below_20": 20
+      }
+    }
+  },
+  {
+    "catchment": "parthe",
+    "period": "1991-01-01 00:00:00 to 2020-12-01 00:00:00",
+    "n_months": 360,
+    "indices": {
+      "MDI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 6,
+          "mean_duration": 3.8333333333333335,
+          "max_duration": 5,
+          "min_duration": 3,
+          "total_drought_months": 23,
+          "mean_deficit": 11.10823754789272,
+          "max_deficit": 14.367816091954023,
+          "total_integrated_deficit": 255.51724137931035,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 1,
+            "moderate": 5
+          }
+        },
+        "events": [
+          {
+            "start_idx": 0,
+            "end_idx": 4,
+            "start_date": "1991-01-01 00:00:00",
+            "end_date": "1991-05-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 5.862068965517242,
+            "mean_value": 9.172413793103448,
+            "max_value": 14.827586206896552,
+            "deficit": 10.827586206896552,
+            "integrated_deficit": 54.137931034482754
+          },
+          {
+            "start_idx": 6,
+            "end_idx": 10,
+            "start_date": "1991-07-01 00:00:00",
+            "end_date": "1991-11-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 1.0344827586206895,
+            "mean_value": 9.034482758620689,
+            "max_value": 19.655172413793103,
+            "deficit": 10.965517241379311,
+            "integrated_deficit": 54.827586206896555
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 8.96551724137931,
+            "mean_value": 12.298850574712644,
+            "max_value": 17.586206896551722,
+            "deficit": 7.7011494252873565,
+            "integrated_deficit": 23.10344827586207
+          },
+          {
+            "start_idx": 277,
+            "end_idx": 279,
+            "start_date": "2014-02-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 1.0344827586206895,
+            "mean_value": 9.195402298850576,
+            "max_value": 14.482758620689657,
+            "deficit": 10.804597701149424,
+            "integrated_deficit": 32.41379310344827
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 331,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "severe",
+            "min_value": 2.068965517241379,
+            "mean_value": 5.632183908045977,
+            "max_value": 8.96551724137931,
+            "deficit": 14.367816091954023,
+            "integrated_deficit": 43.103448275862064
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 354,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-07-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 8.017241379310345,
+            "max_value": 18.620689655172413,
+            "deficit": 11.982758620689655,
+            "integrated_deficit": 47.93103448275862
+          }
+        ]
+      },
+      "SMI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 9,
+          "mean_duration": 6.111111111111111,
+          "max_duration": 15,
+          "min_duration": 3,
+          "total_drought_months": 55,
+          "mean_deficit": 11.968618865170589,
+          "max_deficit": 16.551724137931036,
+          "total_integrated_deficit": 693.1034482758621,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 1,
+            "moderate": 8
+          }
+        },
+        "events": [
+          {
+            "start_idx": 0,
+            "end_idx": 14,
+            "start_date": "1991-01-01 00:00:00",
+            "end_date": "1992-03-01 00:00:00",
+            "duration_months": 15,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 7.586206896551725,
+            "max_value": 17.24137931034483,
+            "deficit": 12.413793103448274,
+            "integrated_deficit": 186.20689655172413
+          },
+          {
+            "start_idx": 19,
+            "end_idx": 21,
+            "start_date": "1992-08-01 00:00:00",
+            "end_date": "1992-10-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 13.793103448275863,
+            "max_value": 17.24137931034483,
+            "deficit": 6.206896551724137,
+            "integrated_deficit": 18.620689655172413
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 122,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-03-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.1724137931034475,
+            "max_value": 13.79310344827586,
+            "deficit": 14.827586206896552,
+            "integrated_deficit": 59.310344827586206
+          },
+          {
+            "start_idx": 154,
+            "end_idx": 156,
+            "start_date": "2003-11-01 00:00:00",
+            "end_date": "2004-01-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 13.79310344827586,
+            "mean_value": 14.942528735632182,
+            "max_value": 17.24137931034483,
+            "deficit": 5.057471264367818,
+            "integrated_deficit": 15.172413793103452
+          },
+          {
+            "start_idx": 277,
+            "end_idx": 280,
+            "start_date": "2014-02-01 00:00:00",
+            "end_date": "2014-05-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.1724137931034475,
+            "max_value": 13.79310344827586,
+            "deficit": 14.827586206896552,
+            "integrated_deficit": 59.310344827586206
+          },
+          {
+            "start_idx": 289,
+            "end_idx": 294,
+            "start_date": "2015-02-01 00:00:00",
+            "end_date": "2015-07-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 10.344827586206897,
+            "max_value": 17.24137931034483,
+            "deficit": 9.655172413793103,
+            "integrated_deficit": 57.93103448275862
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 335,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-12-01 00:00:00",
+            "duration_months": 7,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 3.448275862068965,
+            "max_value": 6.896551724137931,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 115.86206896551724
+          },
+          {
+            "start_idx": 338,
+            "end_idx": 344,
+            "start_date": "2019-03-01 00:00:00",
+            "end_date": "2019-09-01 00:00:00",
+            "duration_months": 7,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.374384236453201,
+            "max_value": 10.344827586206897,
+            "deficit": 11.625615763546799,
+            "integrated_deficit": 81.37931034482759
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 356,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-09-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 3.4482758620689657,
+            "max_value": 10.344827586206897,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 99.3103448275862
+          }
+        ]
+      },
+      "Recharge": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 2,
+          "mean_duration": 3.0,
+          "max_duration": 3,
+          "min_duration": 3,
+          "total_drought_months": 6,
+          "mean_deficit": 12.528735632183906,
+          "max_deficit": 14.25287356321839,
+          "total_integrated_deficit": 75.17241379310344,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 2
+          }
+        },
+        "events": [
+          {
+            "start_idx": 276,
+            "end_idx": 278,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 9.195402298850576,
+            "max_value": 17.24137931034483,
+            "deficit": 10.804597701149424,
+            "integrated_deficit": 32.41379310344827
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 331,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.747126436781609,
+            "max_value": 13.79310344827586,
+            "deficit": 14.25287356321839,
+            "integrated_deficit": 42.758620689655174
+          }
+        ]
+      },
+      "Runoff": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 8,
+          "mean_duration": 3.875,
+          "max_duration": 6,
+          "min_duration": 3,
+          "total_drought_months": 31,
+          "mean_deficit": 12.054597701149426,
+          "max_deficit": 20.0,
+          "total_integrated_deficit": 399.3103448275862,
+          "severity_counts": {
+            "extreme": 1,
+            "severe": 1,
+            "moderate": 6
+          }
+        },
+        "events": [
+          {
+            "start_idx": 0,
+            "end_idx": 4,
+            "start_date": "1991-01-01 00:00:00",
+            "end_date": "1991-05-01 00:00:00",
+            "duration_months": 5,
+            "severity": "extreme",
+            "min_value": 0.0,
+            "mean_value": 0.0,
+            "max_value": 0.0,
+            "deficit": 20.0,
+            "integrated_deficit": 100.0
+          },
+          {
+            "start_idx": 6,
+            "end_idx": 11,
+            "start_date": "1991-07-01 00:00:00",
+            "end_date": "1991-12-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.32183908045977,
+            "max_value": 17.24137931034483,
+            "deficit": 13.678160919540229,
+            "integrated_deficit": 82.06896551724138
+          },
+          {
+            "start_idx": 80,
+            "end_idx": 82,
+            "start_date": "1997-09-01 00:00:00",
+            "end_date": "1997-11-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 11.49425287356322,
+            "max_value": 17.24137931034483,
+            "deficit": 8.50574712643678,
+            "integrated_deficit": 25.51724137931034
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 10.344827586206897,
+            "max_value": 17.24137931034483,
+            "deficit": 9.655172413793103,
+            "integrated_deficit": 28.96551724137931
+          },
+          {
+            "start_idx": 277,
+            "end_idx": 279,
+            "start_date": "2014-02-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 10.344827586206895,
+            "max_value": 13.79310344827586,
+            "deficit": 9.655172413793105,
+            "integrated_deficit": 28.965517241379317
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 331,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "severe",
+            "min_value": 6.896551724137931,
+            "mean_value": 6.8965517241379315,
+            "max_value": 6.896551724137931,
+            "deficit": 13.103448275862068,
+            "integrated_deficit": 39.310344827586206
+          },
+          {
+            "start_idx": 338,
+            "end_idx": 340,
+            "start_date": "2019-03-01 00:00:00",
+            "end_date": "2019-05-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 12.64367816091954,
+            "max_value": 17.24137931034483,
+            "deficit": 7.35632183908046,
+            "integrated_deficit": 22.068965517241377
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 355,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-08-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.517241379310344,
+            "max_value": 10.344827586206897,
+            "deficit": 14.482758620689655,
+            "integrated_deficit": 72.41379310344827
+          }
+        ]
+      }
+    },
+    "compound_events": {
+      "threshold": 20,
+      "statistics": {
+        "n_events": 1,
+        "mean_duration": 3.0,
+        "max_duration": 3,
+        "min_duration": 3,
+        "total_drought_months": 3,
+        "mean_deficit": 0,
+        "max_deficit": 0,
+        "total_integrated_deficit": 43.103448275862064,
+        "severity_counts": {
+          "extreme": 0,
+          "severe": 1,
+          "moderate": 0
+        }
+      },
+      "events": [
+        {
+          "start_idx": 329,
+          "end_idx": 331,
+          "start_date": "2018-06-01 00:00:00",
+          "end_date": "2018-08-01 00:00:00",
+          "duration_months": 3,
+          "severity": "severe",
+          "min_mdi": 2.068965517241379,
+          "mean_mdi": 5.632183908045977,
+          "max_mdi": 8.96551724137931,
+          "integrated_deficit": 43.103448275862064
+        }
+      ]
+    },
+    "major_event_2018_2020": {
+      "period": "2018-01-01 to 2020-12-31",
+      "duration_months": 36,
+      "mdi": {
+        "min": 0.0,
+        "mean": 28.342911877394634,
+        "months_below_20": 14,
+        "months_below_10": 10,
+        "months_below_5": 4
+      },
+      "sm": {
+        "min": 0.0,
+        "mean": 19.348659003831415,
+        "months_below_20": 22
+      },
+      "recharge": {
+        "min": 0.0,
+        "mean": 42.816091954022994,
+        "months_below_20": 11
+      },
+      "runoff": {
+        "min": 0.0,
+        "mean": 25.862068965517242,
+        "months_below_20": 20
+      }
+    }
+  },
+  {
+    "catchment": "wyhra",
+    "period": "1991-01-01 00:00:00 to 2020-12-01 00:00:00",
+    "n_months": 360,
+    "indices": {
+      "MDI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 6,
+          "mean_duration": 4.333333333333333,
+          "max_duration": 8,
+          "min_duration": 3,
+          "total_drought_months": 26,
+          "mean_deficit": 9.669540229885058,
+          "max_deficit": 15.517241379310345,
+          "total_integrated_deficit": 235.17241379310346,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 6
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 3,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.551724137931035,
+            "mean_value": 10.57471264367816,
+            "max_value": 16.89655172413793,
+            "deficit": 9.42528735632184,
+            "integrated_deficit": 28.27586206896552
+          },
+          {
+            "start_idx": 8,
+            "end_idx": 10,
+            "start_date": "1991-09-01 00:00:00",
+            "end_date": "1991-11-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 4.482758620689656,
+            "max_value": 11.379310344827587,
+            "deficit": 15.517241379310345,
+            "integrated_deficit": 46.55172413793103
+          },
+          {
+            "start_idx": 20,
+            "end_idx": 27,
+            "start_date": "1992-09-01 00:00:00",
+            "end_date": "1993-04-01 00:00:00",
+            "duration_months": 8,
+            "severity": "moderate",
+            "min_value": 9.310344827586206,
+            "mean_value": 15.25862068965517,
+            "max_value": 18.620689655172413,
+            "deficit": 4.741379310344829,
+            "integrated_deficit": 37.931034482758626
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 5.517241379310345,
+            "mean_value": 10.459770114942527,
+            "max_value": 17.586206896551722,
+            "deficit": 9.540229885057473,
+            "integrated_deficit": 28.620689655172416
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 334,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 2.413793103448276,
+            "mean_value": 7.528735632183909,
+            "max_value": 16.89655172413793,
+            "deficit": 12.47126436781609,
+            "integrated_deficit": 74.82758620689656
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 343,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 11.379310344827584,
+            "mean_value": 13.67816091954023,
+            "max_value": 16.20689655172414,
+            "deficit": 6.321839080459769,
+            "integrated_deficit": 18.96551724137931
+          }
+        ]
+      },
+      "SMI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 8,
+          "mean_duration": 6.875,
+          "max_duration": 14,
+          "min_duration": 3,
+          "total_drought_months": 55,
+          "mean_deficit": 13.350220182116734,
+          "max_deficit": 16.551724137931036,
+          "total_integrated_deficit": 727.5862068965517,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 1,
+            "moderate": 7
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 14,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1992-03-01 00:00:00",
+            "duration_months": 14,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.89655172413793,
+            "max_value": 13.79310344827586,
+            "deficit": 13.103448275862071,
+            "integrated_deficit": 183.44827586206898
+          },
+          {
+            "start_idx": 19,
+            "end_idx": 29,
+            "start_date": "1992-08-01 00:00:00",
+            "end_date": "1993-06-01 00:00:00",
+            "duration_months": 11,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 7.836990595611287,
+            "max_value": 17.24137931034483,
+            "deficit": 12.163009404388713,
+            "integrated_deficit": 133.79310344827587
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 122,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-03-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.89655172413793,
+            "max_value": 13.79310344827586,
+            "deficit": 13.103448275862071,
+            "integrated_deficit": 52.413793103448285
+          },
+          {
+            "start_idx": 150,
+            "end_idx": 156,
+            "start_date": "2003-07-01 00:00:00",
+            "end_date": "2004-01-01 00:00:00",
+            "duration_months": 7,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.866995073891626,
+            "max_value": 17.24137931034483,
+            "deficit": 11.133004926108374,
+            "integrated_deficit": 77.93103448275862
+          },
+          {
+            "start_idx": 277,
+            "end_idx": 279,
+            "start_date": "2014-02-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 4.597701149425286,
+            "max_value": 13.79310344827586,
+            "deficit": 15.402298850574713,
+            "integrated_deficit": 46.20689655172414
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 335,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-12-01 00:00:00",
+            "duration_months": 7,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 3.448275862068965,
+            "max_value": 6.896551724137931,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 115.86206896551725
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 344,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-09-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 11.206896551724139,
+            "max_value": 17.24137931034483,
+            "deficit": 8.793103448275861,
+            "integrated_deficit": 35.172413793103445
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 355,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-08-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 3.4482758620689653,
+            "max_value": 10.344827586206897,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 82.75862068965517
+          }
+        ]
+      },
+      "Recharge": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 4,
+          "mean_duration": 3.0,
+          "max_duration": 3,
+          "min_duration": 3,
+          "total_drought_months": 12,
+          "mean_deficit": 11.954022988505745,
+          "max_deficit": 15.402298850574713,
+          "total_integrated_deficit": 143.44827586206898,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 1,
+            "moderate": 3
+          }
+        },
+        "events": [
+          {
+            "start_idx": 0,
+            "end_idx": 2,
+            "start_date": "1991-01-01 00:00:00",
+            "end_date": "1991-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 13.79310344827586,
+            "mean_value": 16.091954022988507,
+            "max_value": 17.24137931034483,
+            "deficit": 3.9080459770114935,
+            "integrated_deficit": 11.724137931034482
+          },
+          {
+            "start_idx": 103,
+            "end_idx": 105,
+            "start_date": "1999-08-01 00:00:00",
+            "end_date": "1999-10-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.747126436781609,
+            "max_value": 10.344827586206897,
+            "deficit": 14.25287356321839,
+            "integrated_deficit": 42.758620689655174
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 278,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 4.597701149425287,
+            "max_value": 6.896551724137931,
+            "deficit": 15.402298850574713,
+            "integrated_deficit": 46.20689655172414
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 331,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.747126436781609,
+            "max_value": 13.79310344827586,
+            "deficit": 14.25287356321839,
+            "integrated_deficit": 42.758620689655174
+          }
+        ]
+      },
+      "Runoff": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 8,
+          "mean_duration": 5.125,
+          "max_duration": 11,
+          "min_duration": 3,
+          "total_drought_months": 41,
+          "mean_deficit": 14.15491118077325,
+          "max_deficit": 18.850574712643677,
+          "total_integrated_deficit": 557.9310344827586,
+          "severity_counts": {
+            "extreme": 1,
+            "severe": 0,
+            "moderate": 7
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 4,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-05-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 4.310344827586206,
+            "max_value": 10.344827586206897,
+            "deficit": 15.689655172413794,
+            "integrated_deficit": 62.758620689655174
+          },
+          {
+            "start_idx": 6,
+            "end_idx": 11,
+            "start_date": "1991-07-01 00:00:00",
+            "end_date": "1991-12-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 4.022988505747126,
+            "max_value": 13.79310344827586,
+            "deficit": 15.977011494252874,
+            "integrated_deficit": 95.86206896551724
+          },
+          {
+            "start_idx": 19,
+            "end_idx": 29,
+            "start_date": "1992-08-01 00:00:00",
+            "end_date": "1993-06-01 00:00:00",
+            "duration_months": 11,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 9.404388714733543,
+            "max_value": 17.24137931034483,
+            "deficit": 10.595611285266457,
+            "integrated_deficit": 116.55172413793105
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "extreme",
+            "min_value": 0.0,
+            "mean_value": 1.1494252873563218,
+            "max_value": 3.4482758620689653,
+            "deficit": 18.850574712643677,
+            "integrated_deficit": 56.55172413793103
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 279,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 9.482758620689653,
+            "max_value": 13.79310344827586,
+            "deficit": 10.517241379310347,
+            "integrated_deficit": 42.06896551724139
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 334,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.747126436781609,
+            "max_value": 13.79310344827586,
+            "deficit": 14.25287356321839,
+            "integrated_deficit": 85.51724137931035
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 343,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 9.195402298850574,
+            "max_value": 10.344827586206897,
+            "deficit": 10.804597701149426,
+            "integrated_deficit": 32.41379310344828
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 354,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-07-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 3.448275862068965,
+            "max_value": 13.79310344827586,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 66.20689655172414
+          }
+        ]
+      }
+    },
+    "compound_events": {
+      "threshold": 20,
+      "statistics": {
+        "n_events": 1,
+        "mean_duration": 3.0,
+        "max_duration": 3,
+        "min_duration": 3,
+        "total_drought_months": 3,
+        "mean_deficit": 0,
+        "max_deficit": 0,
+        "total_integrated_deficit": 48.96551724137932,
+        "severity_counts": {
+          "extreme": 0,
+          "severe": 1,
+          "moderate": 0
+        }
+      },
+      "events": [
+        {
+          "start_idx": 329,
+          "end_idx": 331,
+          "start_date": "2018-06-01 00:00:00",
+          "end_date": "2018-08-01 00:00:00",
+          "duration_months": 3,
+          "severity": "severe",
+          "min_mdi": 2.413793103448276,
+          "mean_mdi": 3.6781609195402303,
+          "max_mdi": 5.172413793103448,
+          "integrated_deficit": 48.96551724137932
+        }
+      ]
+    },
+    "major_event_2018_2020": {
+      "period": "2018-01-01 to 2020-12-31",
+      "duration_months": 36,
+      "mdi": {
+        "min": 0.0,
+        "mean": 30.42145593869732,
+        "months_below_20": 13,
+        "months_below_10": 8,
+        "months_below_5": 6
+      },
+      "sm": {
+        "min": 0.0,
+        "mean": 26.053639846743298,
+        "months_below_20": 17
+      },
+      "recharge": {
+        "min": 0.0,
+        "mean": 37.64367816091955,
+        "months_below_20": 12
+      },
+      "runoff": {
+        "min": 0.0,
+        "mean": 29.022988505747126,
+        "months_below_20": 17
+      }
+    }
+  },
+  {
+    "catchment": "goeltzsch2",
+    "period": "1991-01-01 00:00:00 to 2020-12-01 00:00:00",
+    "n_months": 360,
+    "indices": {
+      "MDI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 6,
+          "mean_duration": 3.5,
+          "max_duration": 5,
+          "min_duration": 3,
+          "total_drought_months": 21,
+          "mean_deficit": 11.558429118773946,
+          "max_deficit": 14.206896551724139,
+          "total_integrated_deficit": 247.58620689655172,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 6
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 3,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 7.011494252873564,
+            "max_value": 10.344827586206897,
+            "deficit": 12.988505747126435,
+            "integrated_deficit": 38.96551724137931
+          },
+          {
+            "start_idx": 8,
+            "end_idx": 10,
+            "start_date": "1991-09-01 00:00:00",
+            "end_date": "1991-11-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 1.3793103448275863,
+            "mean_value": 8.160919540229886,
+            "max_value": 19.655172413793103,
+            "deficit": 11.839080459770114,
+            "integrated_deficit": 35.51724137931035
+          },
+          {
+            "start_idx": 19,
+            "end_idx": 21,
+            "start_date": "1992-08-01 00:00:00",
+            "end_date": "1992-10-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.206896551724138,
+            "mean_value": 12.298850574712644,
+            "max_value": 16.551724137931032,
+            "deficit": 7.7011494252873565,
+            "integrated_deficit": 23.10344827586207
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.793103448275862,
+            "mean_value": 8.50574712643678,
+            "max_value": 11.379310344827584,
+            "deficit": 11.49425287356322,
+            "integrated_deficit": 34.48275862068966
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 279,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 2.068965517241379,
+            "mean_value": 8.879310344827585,
+            "max_value": 15.517241379310343,
+            "deficit": 11.120689655172415,
+            "integrated_deficit": 44.48275862068965
+          },
+          {
+            "start_idx": 330,
+            "end_idx": 334,
+            "start_date": "2018-07-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.793103448275862,
+            "max_value": 14.482758620689657,
+            "deficit": 14.206896551724139,
+            "integrated_deficit": 71.03448275862068
+          }
+        ]
+      },
+      "SMI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 11,
+          "mean_duration": 3.6363636363636362,
+          "max_duration": 6,
+          "min_duration": 3,
+          "total_drought_months": 40,
+          "mean_deficit": 12.136886102403343,
+          "max_deficit": 19.42528735632184,
+          "total_integrated_deficit": 517.2413793103449,
+          "severity_counts": {
+            "extreme": 1,
+            "severe": 0,
+            "moderate": 10
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 3,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.045977011494253,
+            "max_value": 10.344827586206897,
+            "deficit": 11.954022988505747,
+            "integrated_deficit": 35.86206896551724
+          },
+          {
+            "start_idx": 8,
+            "end_idx": 11,
+            "start_date": "1991-09-01 00:00:00",
+            "end_date": "1991-12-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 4.310344827586206,
+            "max_value": 10.344827586206897,
+            "deficit": 15.689655172413794,
+            "integrated_deficit": 62.758620689655174
+          },
+          {
+            "start_idx": 19,
+            "end_idx": 21,
+            "start_date": "1992-08-01 00:00:00",
+            "end_date": "1992-10-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 9.195402298850574,
+            "max_value": 10.344827586206897,
+            "deficit": 10.804597701149426,
+            "integrated_deficit": 32.41379310344828
+          },
+          {
+            "start_idx": 24,
+            "end_idx": 26,
+            "start_date": "1993-01-01 00:00:00",
+            "end_date": "1993-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 13.79310344827586,
+            "mean_value": 16.091954022988507,
+            "max_value": 17.24137931034483,
+            "deficit": 3.9080459770114935,
+            "integrated_deficit": 11.724137931034482
+          },
+          {
+            "start_idx": 118,
+            "end_idx": 121,
+            "start_date": "2000-11-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.1724137931034475,
+            "max_value": 13.79310344827586,
+            "deficit": 14.827586206896552,
+            "integrated_deficit": 59.310344827586206
+          },
+          {
+            "start_idx": 178,
+            "end_idx": 181,
+            "start_date": "2005-11-01 00:00:00",
+            "end_date": "2006-02-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.620689655172415,
+            "max_value": 17.24137931034483,
+            "deficit": 11.379310344827585,
+            "integrated_deficit": 45.51724137931035
+          },
+          {
+            "start_idx": 242,
+            "end_idx": 244,
+            "start_date": "2011-03-01 00:00:00",
+            "end_date": "2011-05-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.89655172413793,
+            "max_value": 13.79310344827586,
+            "deficit": 13.103448275862071,
+            "integrated_deficit": 39.310344827586206
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 279,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 3.4482758620689653,
+            "max_value": 10.344827586206897,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 66.20689655172414
+          },
+          {
+            "start_idx": 292,
+            "end_idx": 294,
+            "start_date": "2015-05-01 00:00:00",
+            "end_date": "2015-07-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 13.79310344827586,
+            "mean_value": 14.942528735632182,
+            "max_value": 17.24137931034483,
+            "deficit": 5.057471264367818,
+            "integrated_deficit": 15.172413793103452
+          },
+          {
+            "start_idx": 330,
+            "end_idx": 335,
+            "start_date": "2018-07-01 00:00:00",
+            "end_date": "2018-12-01 00:00:00",
+            "duration_months": 6,
+            "severity": "extreme",
+            "min_value": 0.0,
+            "mean_value": 0.5747126436781609,
+            "max_value": 3.4482758620689653,
+            "deficit": 19.42528735632184,
+            "integrated_deficit": 116.55172413793103
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 343,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 9.195402298850576,
+            "max_value": 17.24137931034483,
+            "deficit": 10.804597701149424,
+            "integrated_deficit": 32.41379310344828
+          }
+        ]
+      },
+      "Recharge": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 3,
+          "mean_duration": 3.3333333333333335,
+          "max_duration": 4,
+          "min_duration": 3,
+          "total_drought_months": 10,
+          "mean_deficit": 8.601532567049809,
+          "max_deficit": 10.804597701149426,
+          "total_integrated_deficit": 86.20689655172413,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 3
+          }
+        },
+        "events": [
+          {
+            "start_idx": 0,
+            "end_idx": 3,
+            "start_date": "1991-01-01 00:00:00",
+            "end_date": "1991-04-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 11.206896551724139,
+            "max_value": 17.24137931034483,
+            "deficit": 8.793103448275861,
+            "integrated_deficit": 35.172413793103445
+          },
+          {
+            "start_idx": 15,
+            "end_idx": 17,
+            "start_date": "1992-04-01 00:00:00",
+            "end_date": "1992-06-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 10.344827586206897,
+            "mean_value": 13.793103448275863,
+            "max_value": 17.24137931034483,
+            "deficit": 6.206896551724137,
+            "integrated_deficit": 18.620689655172413
+          },
+          {
+            "start_idx": 60,
+            "end_idx": 62,
+            "start_date": "1996-01-01 00:00:00",
+            "end_date": "1996-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 9.195402298850574,
+            "max_value": 13.79310344827586,
+            "deficit": 10.804597701149426,
+            "integrated_deficit": 32.41379310344828
+          }
+        ]
+      },
+      "Runoff": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 9,
+          "mean_duration": 4.222222222222222,
+          "max_duration": 6,
+          "min_duration": 3,
+          "total_drought_months": 38,
+          "mean_deficit": 13.754789272030653,
+          "max_deficit": 17.701149425287355,
+          "total_integrated_deficit": 535.8620689655172,
+          "severity_counts": {
+            "extreme": 1,
+            "severe": 1,
+            "moderate": 7
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 4,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-05-01 00:00:00",
+            "duration_months": 4,
+            "severity": "extreme",
+            "min_value": 3.4482758620689653,
+            "mean_value": 3.4482758620689653,
+            "max_value": 3.4482758620689653,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 66.20689655172414
+          },
+          {
+            "start_idx": 8,
+            "end_idx": 10,
+            "start_date": "1991-09-01 00:00:00",
+            "end_date": "1991-11-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.747126436781609,
+            "max_value": 13.79310344827586,
+            "deficit": 14.25287356321839,
+            "integrated_deficit": 42.758620689655174
+          },
+          {
+            "start_idx": 17,
+            "end_idx": 21,
+            "start_date": "1992-06-01 00:00:00",
+            "end_date": "1992-10-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 10.344827586206895,
+            "max_value": 17.24137931034483,
+            "deficit": 9.655172413793105,
+            "integrated_deficit": 48.275862068965516
+          },
+          {
+            "start_idx": 61,
+            "end_idx": 63,
+            "start_date": "1996-02-01 00:00:00",
+            "end_date": "1996-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 11.494252873563218,
+            "max_value": 13.79310344827586,
+            "deficit": 8.505747126436782,
+            "integrated_deficit": 25.51724137931035
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 2.2988505747126435,
+            "max_value": 6.896551724137931,
+            "deficit": 17.701149425287355,
+            "integrated_deficit": 53.10344827586207
+          },
+          {
+            "start_idx": 149,
+            "end_idx": 151,
+            "start_date": "2003-06-01 00:00:00",
+            "end_date": "2003-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 11.49425287356322,
+            "max_value": 17.24137931034483,
+            "deficit": 8.50574712643678,
+            "integrated_deficit": 25.51724137931035
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 281,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-06-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 3.448275862068965,
+            "max_value": 10.344827586206897,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 99.3103448275862
+          },
+          {
+            "start_idx": 292,
+            "end_idx": 296,
+            "start_date": "2015-05-01 00:00:00",
+            "end_date": "2015-09-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 2.7586206896551717,
+            "max_value": 13.79310344827586,
+            "deficit": 17.24137931034483,
+            "integrated_deficit": 86.20689655172414
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 334,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.1724137931034475,
+            "max_value": 13.79310344827586,
+            "deficit": 14.827586206896552,
+            "integrated_deficit": 88.96551724137932
+          }
+        ]
+      }
+    },
+    "compound_events": {
+      "threshold": 20,
+      "statistics": {
+        "n_events": 1,
+        "mean_duration": 3.0,
+        "max_duration": 3,
+        "min_duration": 3,
+        "total_drought_months": 3,
+        "mean_deficit": 0,
+        "max_deficit": 0,
+        "total_integrated_deficit": 38.96551724137931,
+        "severity_counts": {
+          "extreme": 0,
+          "severe": 0,
+          "moderate": 1
+        }
+      },
+      "events": [
+        {
+          "start_idx": 1,
+          "end_idx": 3,
+          "start_date": "1991-02-01 00:00:00",
+          "end_date": "1991-04-01 00:00:00",
+          "duration_months": 3,
+          "severity": "moderate",
+          "min_mdi": 3.4482758620689653,
+          "mean_mdi": 7.011494252873564,
+          "max_mdi": 10.344827586206897,
+          "integrated_deficit": 38.96551724137931
+        }
+      ]
+    },
+    "major_event_2018_2020": {
+      "period": "2018-01-01 to 2020-12-31",
+      "duration_months": 36,
+      "mdi": {
+        "min": 0.0,
+        "mean": 38.314176245210724,
+        "months_below_20": 11,
+        "months_below_10": 4,
+        "months_below_5": 3
+      },
+      "sm": {
+        "min": 0.0,
+        "mean": 30.555555555555557,
+        "months_below_20": 16
+      },
+      "recharge": {
+        "min": 0.0,
+        "mean": 49.52107279693487,
+        "months_below_20": 9
+      },
+      "runoff": {
+        "min": 0.0,
+        "mean": 37.452107279693486,
+        "months_below_20": 12
+      }
+    }
+  },
+  {
+    "catchment": "zwoenitz1",
+    "period": "1991-01-01 00:00:00 to 2020-12-01 00:00:00",
+    "n_months": 360,
+    "indices": {
+      "MDI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 7,
+          "mean_duration": 3.7142857142857144,
+          "max_duration": 6,
+          "min_duration": 3,
+          "total_drought_months": 26,
+          "mean_deficit": 11.777504105090312,
+          "max_deficit": 15.057471264367816,
+          "total_integrated_deficit": 307.58620689655174,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 1,
+            "moderate": 6
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 3,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.275862068965518,
+            "max_value": 11.379310344827587,
+            "deficit": 11.724137931034482,
+            "integrated_deficit": 35.172413793103445
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.551724137931035,
+            "mean_value": 9.195402298850574,
+            "max_value": 13.448275862068964,
+            "deficit": 10.804597701149426,
+            "integrated_deficit": 32.41379310344828
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 279,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-04-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 3.103448275862069,
+            "mean_value": 8.879310344827587,
+            "max_value": 18.27586206896552,
+            "deficit": 11.120689655172413,
+            "integrated_deficit": 44.48275862068965
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 334,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 7.528735632183909,
+            "max_value": 16.89655172413793,
+            "deficit": 12.47126436781609,
+            "integrated_deficit": 74.82758620689656
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 343,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "severe",
+            "min_value": 2.413793103448276,
+            "mean_value": 4.942528735632184,
+            "max_value": 9.310344827586206,
+            "deficit": 15.057471264367816,
+            "integrated_deficit": 45.172413793103445
+          },
+          {
+            "start_idx": 346,
+            "end_idx": 348,
+            "start_date": "2019-11-01 00:00:00",
+            "end_date": "2020-01-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 7.241379310344827,
+            "mean_value": 10.459770114942527,
+            "max_value": 13.103448275862068,
+            "deficit": 9.540229885057473,
+            "integrated_deficit": 28.620689655172416
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 354,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-07-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 3.793103448275862,
+            "mean_value": 8.275862068965518,
+            "max_value": 15.517241379310343,
+            "deficit": 11.724137931034482,
+            "integrated_deficit": 46.896551724137936
+          }
+        ]
+      },
+      "SMI": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 10,
+          "mean_duration": 5.2,
+          "max_duration": 10,
+          "min_duration": 3,
+          "total_drought_months": 52,
+          "mean_deficit": 11.847701149425287,
+          "max_deficit": 17.413793103448278,
+          "total_integrated_deficit": 671.0344827586207,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 1,
+            "moderate": 9
+          }
+        },
+        "events": [
+          {
+            "start_idx": 8,
+            "end_idx": 11,
+            "start_date": "1991-09-01 00:00:00",
+            "end_date": "1991-12-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.620689655172413,
+            "max_value": 10.344827586206897,
+            "deficit": 11.379310344827587,
+            "integrated_deficit": 45.51724137931035
+          },
+          {
+            "start_idx": 24,
+            "end_idx": 26,
+            "start_date": "1993-01-01 00:00:00",
+            "end_date": "1993-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 13.79310344827586,
+            "mean_value": 14.942528735632182,
+            "max_value": 17.24137931034483,
+            "deficit": 5.057471264367818,
+            "integrated_deficit": 15.172413793103452
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 122,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-03-01 00:00:00",
+            "duration_months": 4,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 6.034482758620689,
+            "max_value": 13.79310344827586,
+            "deficit": 13.965517241379311,
+            "integrated_deficit": 55.862068965517246
+          },
+          {
+            "start_idx": 149,
+            "end_idx": 156,
+            "start_date": "2003-06-01 00:00:00",
+            "end_date": "2004-01-01 00:00:00",
+            "duration_months": 8,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 6.0344827586206895,
+            "max_value": 10.344827586206897,
+            "deficit": 13.96551724137931,
+            "integrated_deficit": 111.72413793103449
+          },
+          {
+            "start_idx": 243,
+            "end_idx": 245,
+            "start_date": "2011-04-01 00:00:00",
+            "end_date": "2011-06-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 11.494252873563218,
+            "max_value": 17.24137931034483,
+            "deficit": 8.505747126436782,
+            "integrated_deficit": 25.51724137931035
+          },
+          {
+            "start_idx": 260,
+            "end_idx": 262,
+            "start_date": "2012-09-01 00:00:00",
+            "end_date": "2012-11-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 10.344827586206897,
+            "mean_value": 13.793103448275863,
+            "max_value": 17.24137931034483,
+            "deficit": 6.206896551724137,
+            "integrated_deficit": 18.620689655172413
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 280,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-05-01 00:00:00",
+            "duration_months": 5,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 8.275862068965518,
+            "max_value": 17.24137931034483,
+            "deficit": 11.724137931034482,
+            "integrated_deficit": 58.62068965517241
+          },
+          {
+            "start_idx": 328,
+            "end_idx": 335,
+            "start_date": "2018-05-01 00:00:00",
+            "end_date": "2018-12-01 00:00:00",
+            "duration_months": 8,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 3.8793103448275854,
+            "max_value": 13.79310344827586,
+            "deficit": 16.120689655172413,
+            "integrated_deficit": 128.9655172413793
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 344,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-09-01 00:00:00",
+            "duration_months": 4,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 2.586206896551724,
+            "max_value": 6.896551724137931,
+            "deficit": 17.413793103448278,
+            "integrated_deficit": 69.65517241379311
+          },
+          {
+            "start_idx": 346,
+            "end_idx": 355,
+            "start_date": "2019-11-01 00:00:00",
+            "end_date": "2020-08-01 00:00:00",
+            "duration_months": 10,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 5.86206896551724,
+            "max_value": 13.79310344827586,
+            "deficit": 14.13793103448276,
+            "integrated_deficit": 141.3793103448276
+          }
+        ]
+      },
+      "Recharge": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 2,
+          "mean_duration": 3.0,
+          "max_duration": 3,
+          "min_duration": 3,
+          "total_drought_months": 6,
+          "mean_deficit": 9.655172413793103,
+          "max_deficit": 11.954022988505749,
+          "total_integrated_deficit": 57.931034482758626,
+          "severity_counts": {
+            "extreme": 0,
+            "severe": 0,
+            "moderate": 2
+          }
+        },
+        "events": [
+          {
+            "start_idx": 60,
+            "end_idx": 62,
+            "start_date": "1996-01-01 00:00:00",
+            "end_date": "1996-03-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.045977011494251,
+            "max_value": 13.79310344827586,
+            "deficit": 11.954022988505749,
+            "integrated_deficit": 35.862068965517246
+          },
+          {
+            "start_idx": 208,
+            "end_idx": 210,
+            "start_date": "2008-05-01 00:00:00",
+            "end_date": "2008-07-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 12.64367816091954,
+            "max_value": 17.24137931034483,
+            "deficit": 7.35632183908046,
+            "integrated_deficit": 22.06896551724138
+          }
+        ]
+      },
+      "Runoff": {
+        "threshold": 20,
+        "statistics": {
+          "n_events": 10,
+          "mean_duration": 4.3,
+          "max_duration": 8,
+          "min_duration": 3,
+          "total_drought_months": 43,
+          "mean_deficit": 13.678160919540229,
+          "max_deficit": 18.275862068965516,
+          "total_integrated_deficit": 601.3793103448276,
+          "severity_counts": {
+            "extreme": 1,
+            "severe": 3,
+            "moderate": 6
+          }
+        },
+        "events": [
+          {
+            "start_idx": 1,
+            "end_idx": 4,
+            "start_date": "1991-02-01 00:00:00",
+            "end_date": "1991-05-01 00:00:00",
+            "duration_months": 4,
+            "severity": "extreme",
+            "min_value": 3.4482758620689653,
+            "mean_value": 3.4482758620689653,
+            "max_value": 3.4482758620689653,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 66.20689655172414
+          },
+          {
+            "start_idx": 61,
+            "end_idx": 63,
+            "start_date": "1996-02-01 00:00:00",
+            "end_date": "1996-04-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 12.64367816091954,
+            "max_value": 17.24137931034483,
+            "deficit": 7.35632183908046,
+            "integrated_deficit": 22.06896551724138
+          },
+          {
+            "start_idx": 119,
+            "end_idx": 121,
+            "start_date": "2000-12-01 00:00:00",
+            "end_date": "2001-02-01 00:00:00",
+            "duration_months": 3,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 4.597701149425287,
+            "max_value": 6.896551724137931,
+            "deficit": 15.402298850574713,
+            "integrated_deficit": 46.20689655172414
+          },
+          {
+            "start_idx": 149,
+            "end_idx": 156,
+            "start_date": "2003-06-01 00:00:00",
+            "end_date": "2004-01-01 00:00:00",
+            "duration_months": 8,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 8.620689655172413,
+            "max_value": 17.24137931034483,
+            "deficit": 11.379310344827587,
+            "integrated_deficit": 91.0344827586207
+          },
+          {
+            "start_idx": 259,
+            "end_idx": 261,
+            "start_date": "2012-08-01 00:00:00",
+            "end_date": "2012-10-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 6.896551724137931,
+            "mean_value": 12.64367816091954,
+            "max_value": 17.24137931034483,
+            "deficit": 7.35632183908046,
+            "integrated_deficit": 22.06896551724138
+          },
+          {
+            "start_idx": 276,
+            "end_idx": 281,
+            "start_date": "2014-01-01 00:00:00",
+            "end_date": "2014-06-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 3.448275862068965,
+            "max_value": 10.344827586206897,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 99.3103448275862
+          },
+          {
+            "start_idx": 329,
+            "end_idx": 334,
+            "start_date": "2018-06-01 00:00:00",
+            "end_date": "2018-11-01 00:00:00",
+            "duration_months": 6,
+            "severity": "moderate",
+            "min_value": 0.0,
+            "mean_value": 3.448275862068965,
+            "max_value": 13.79310344827586,
+            "deficit": 16.551724137931036,
+            "integrated_deficit": 99.3103448275862
+          },
+          {
+            "start_idx": 341,
+            "end_idx": 343,
+            "start_date": "2019-06-01 00:00:00",
+            "end_date": "2019-08-01 00:00:00",
+            "duration_months": 3,
+            "severity": "moderate",
+            "min_value": 3.4482758620689653,
+            "mean_value": 8.045977011494253,
+            "max_value": 10.344827586206897,
+            "deficit": 11.954022988505747,
+            "integrated_deficit": 35.86206896551724
+          },
+          {
+            "start_idx": 346,
+            "end_idx": 348,
+            "start_date": "2019-11-01 00:00:00",
+            "end_date": "2020-01-01 00:00:00",
+            "duration_months": 3,
+            "severity": "severe",
+            "min_value": 3.4482758620689653,
+            "mean_value": 4.597701149425287,
+            "max_value": 6.896551724137931,
+            "deficit": 15.402298850574713,
+            "integrated_deficit": 46.20689655172414
+          },
+          {
+            "start_idx": 351,
+            "end_idx": 354,
+            "start_date": "2020-04-01 00:00:00",
+            "end_date": "2020-07-01 00:00:00",
+            "duration_months": 4,
+            "severity": "severe",
+            "min_value": 0.0,
+            "mean_value": 1.7241379310344827,
+            "max_value": 6.896551724137931,
+            "deficit": 18.275862068965516,
+            "integrated_deficit": 73.10344827586206
+          }
+        ]
+      }
+    },
+    "compound_events": {
+      "threshold": 20,
+      "statistics": {
+        "n_events": 0,
+        "mean_duration": 0,
+        "max_duration": 0,
+        "total_drought_months": 0,
+        "mean_deficit": 0,
+        "total_integrated_deficit": 0
+      },
+      "events": []
+    },
+    "major_event_2018_2020": {
+      "period": "2018-01-01 to 2020-12-31",
+      "duration_months": 36,
+      "mdi": {
+        "min": 0.0,
+        "mean": 29.18582375478927,
+        "months_below_20": 17,
+        "months_below_10": 11,
+        "months_below_5": 7
+      },
+      "sm": {
+        "min": 0.0,
+        "mean": 21.16858237547893,
+        "months_below_20": 24
+      },
+      "recharge": {
+        "min": 0.0,
+        "mean": 42.43295019157089,
+        "months_below_20": 11
+      },
+      "runoff": {
+        "min": 0.0,
+        "mean": 26.628352490421456,
+        "months_below_20": 17
+      }
+    }
+  }
+]

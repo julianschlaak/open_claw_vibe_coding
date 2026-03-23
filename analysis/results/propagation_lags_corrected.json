@@ -1,0 +1,62 @@
+[
+  {
+    "catchment": "chemnitz2",
+    "sm_r_lag": -1,
+    "sm_r_corr": 0.4870071510950557,
+    "sm_q_lag": 0,
+    "sm_q_corr": 0.8360029662588051,
+    "r_q_lag": 0,
+    "r_q_corr": 0.6911753800519091,
+    "n": 360
+  },
+  {
+    "catchment": "wesenitz2",
+    "sm_r_lag": 0,
+    "sm_r_corr": 0.5394662737276679,
+    "sm_q_lag": 0,
+    "sm_q_corr": 0.7664441972562098,
+    "r_q_lag": 0,
+    "r_q_corr": 0.5654557273979709,
+    "n": 360
+  },
+  {
+    "catchment": "parthe",
+    "sm_r_lag": -1,
+    "sm_r_corr": 0.46933793729937173,
+    "sm_q_lag": 0,
+    "sm_q_corr": 0.7793474230626616,
+    "r_q_lag": 0,
+    "r_q_corr": 0.642820097005007,
+    "n": 360
+  },
+  {
+    "catchment": "wyhra",
+    "sm_r_lag": -1,
+    "sm_r_corr": 0.4755769117629427,
+    "sm_q_lag": 0,
+    "sm_q_corr": 0.869447534297367,
+    "r_q_lag": 0,
+    "r_q_corr": 0.6549074725392139,
+    "n": 360
+  },
+  {
+    "catchment": "goeltzsch2",
+    "sm_r_lag": 0,
+    "sm_r_corr": 0.49181457405811924,
+    "sm_q_lag": 0,
+    "sm_q_corr": 0.8116425658138665,
+    "r_q_lag": 0,
+    "r_q_corr": 0.6080454923737074,
+    "n": 360
+  },
+  {
+    "catchment": "zwoenitz1",
+    "sm_r_lag": -1,
+    "sm_r_corr": 0.4657848059489414,
+    "sm_q_lag": 0,
+    "sm_q_corr": 0.8653318502039293,
+    "r_q_lag": 0,
+    "r_q_corr": 0.5932961376488758,
+    "n": 360
+  }
+]
