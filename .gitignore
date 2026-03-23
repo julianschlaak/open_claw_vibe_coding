@@ -15,6 +15,12 @@ build/
 *.grb
 *.grib
 
+# mHM runs archive (exclude binaries and large outputs)
+code/mhm_runs_archive/*/bin/
+code/mhm_runs_archive/*/output/*.out
+code/mhm_runs_archive/*/mhm
+code/mhm_runs_archive/*/*.out.current
+
 # Dashboard
 dashboard_vnext/node_modules/
 dashboard_vnext/dist/

@@ -1,0 +1,1 @@
+/docker/openclaw-1lxa/data/common/geology_classdefinition.txt

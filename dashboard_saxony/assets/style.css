@@ -3,179 +3,49 @@
   --secondary: #ff7f11;
   --success: #2a9d8f;
   --warning: #f4a261;
-  --danger: #b00020;
-  --background: #f7f7f2;
-  --card-bg: #e5e7eb;
-  --text: #1f2933;
+  --danger: #ef4444;
+  --background: #1e1e1e;
+  --card-bg: #2a2a2a;
+  --text: #f0f0f0;
 }
-
-.main > div {
-  padding-top: 0.35rem;
-  padding-bottom: 0.5rem;
-}
-
-div.block-container {
-  padding-top: 0.6rem;
-  padding-bottom: 0.8rem;
-}
-
-h1, h2, h3 {
-  margin-top: 0.2rem !important;
-  margin-bottom: 0.55rem !important;
-}
-
-.stTabs [data-baseweb="tab-list"] {
-  gap: 8px;
-}
-
-.stTabs [data-baseweb="tab"] {
-  height: 48px;
-  border-radius: 10px;
-  background: #f1f5f9;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-div[data-testid="stMetric"] {
-  background: var(--card-bg);
-  border: 1px solid #9ca3af;
-  border-radius: 10px;
-  padding: 0.35rem 0.5rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
-}
-
-div[data-testid="stMetricLabel"],
-div[data-testid="stMetricValue"],
-div[data-testid="stMetricDelta"] {
-  color: #111827 !important;
-}
-
-.dashboard-note {
-  color: #475569;
-  font-size: 0.92rem;
-}
-
-/* View selector as button bar */
-div[data-baseweb="segmented-control"] {
-  background: rgba(30, 41, 59, 0.55) !important;
-  border: 1px solid #334155 !important;
-  border-radius: 12px !important;
-  padding: 4px !important;
-  width: 100% !important;
-  display: flex !important;
-}
-
-div[data-baseweb="segmented-control"] button {
-  border-radius: 9px !important;
-  color: #cbd5e1 !important;
-  font-weight: 700 !important;
-  flex: 1 1 0 !important;
-  justify-content: center !important;
-}
-
-div[data-baseweb="segmented-control"] button[aria-pressed="true"] {
-  background: linear-gradient(180deg, #1f6f8b 0%, #15566d 100%) !important;
-  color: #f8fafc !important;
-}
-
-/* Fallback styling for horizontal radio */
-div[role="radiogroup"] {
-  background: rgba(30, 41, 59, 0.55);
-  border: 1px solid #334155;
-  border-radius: 12px;
-  padding: 6px 10px;
-}
-
-.current-value-card {
-  background: linear-gradient(180deg, #eef2f7 0%, #dde3ea 100%);
-  border: 1px solid #7b8794;
-  border-left: 6px solid #1f6f8b;
-  border-radius: 12px;
-  padding: 0.65rem 0.85rem;
-  margin: 0.1rem 0 0.55rem 0;
-}
-
-.cv-label {
-  color: #334155;
-  font-size: 0.86rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.cv-value {
-  color: #0f172a;
-  font-size: 1.75rem;
-  font-weight: 800;
-  line-height: 1.1;
-  margin-top: 0.1rem;
-}
-
-.cv-sub {
-  color: #334155;
-  font-size: 0.88rem;
-  margin-top: 0.35rem;
-  font-weight: 600;
-}
-
-.plot-frame {
-  border: 1px solid #334155;
-  border-radius: 12px;
-  padding: 0.2rem 0.25rem 0.05rem 0.25rem;
-  background: rgba(15, 23, 42, 0.18);
-  margin-bottom: 0.5rem;
-}
-
-.condition-note {
-  border: 1px solid #6b7280;
-  border-radius: 10px;
-  padding: 0.55rem 0.7rem;
-  background: rgba(148, 163, 184, 0.14);
-}
-
-.condition-title {
-  font-size: 0.84rem;
-  color: #cbd5e1;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.condition-main {
-  margin-top: 0.18rem;
-  color: #f8fafc;
-  font-size: 0.95rem;
-}
-
-.condition-body {
-  margin-top: 0.35rem;
-  color: #e2e8f0;
-  font-size: 0.9rem;
-  line-height: 1.35;
-}
-
-@media (max-width: 900px) {
-  .main > div {
-    padding-top: 0.2rem;
-    padding-bottom: 0.35rem;
-  }
-  h1 {
-    font-size: 2rem !important;
-  }
-  h2 {
-    font-size: 1.7rem !important;
-  }
-  div[data-testid="stMetric"] {
-    padding: 0.3rem 0.45rem;
-  }
-  .current-value-card {
-    padding: 0.55rem 0.65rem;
-    margin-bottom: 0.45rem;
-  }
-  .cv-value {
-    font-size: 1.5rem;
-  }
-  .plot-frame {
-    margin-bottom: 0.4rem;
-  }
-}
+.main, .stApp { background-color: #1e1e1e !important; }
+body, .stMarkdown, .stDataFrame, .stTable, h1, h2, h3, h4, h5, h6, label, p, span, div { color: #f0f0f0 !important; }
+.streamlit-expanderHeader, details > summary { background-color: #2a2a2a !important; color: #f0f0f0 !important; border: 1px solid #444 !important; }
+.streamlit-expanderHeader:hover, details > summary:hover { background-color: #333 !important; }
+details > div { background-color: #1e1e1e !important; border: 1px solid #444 !important; border-top: none !important; }
+details > div * { color: #f0f0f0 !important; }
+div[data-testid="stMetric"] { background: #2a2a2a !important; border: 1px solid #444 !important; }
+div[data-testid="stMetricLabel"], div[data-testid="stMetricValue"], div[data-testid="stMetricDelta"] { color: #f0f0f0 !important; }
+.stTabs [data-baseweb="tab"] { background: #2a2a2a !important; color: #f0f0f0 !important; border: 1px solid #444 !important; }
+.stTabs [data-baseweb="tab"][aria-selected="true"] { background: #1f6f8b !important; color: #fff !important; }
+.stTabs [data-baseweb="tab-list"] { background: #1e1e1e !important; }
+div[data-testid="stDataFrame"], div[data-testid="stTable"] { background: #2a2a2a !important; border: 1px solid #444 !important; }
+div[data-testid="stDataFrame"] *, div[data-testid="stTable"] * { color: #f0f0f0 !important; }
+section[data-testid="stSidebar"] { background: #1e1e1e !important; }
+section[data-testid="stSidebar"] * { color: #f0f0f0 !important; }
+.stButton > button { background: #2a2a2a !important; color: #f0f0f0 !important; border: 1px solid #444 !important; }
+.stButton > button:hover { background: #1f6f8b !important; color: #fff !important; }
+div[data-baseweb="select"] > div, div[data-baseweb="popover"] > div { background: #2a2a2a !important; color: #f0f0f0 !important; }
+div[data-testid="stCheckbox"] label, div[data-testid="stRadio"] label { color: #f0f0f0 !important; }
+div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input { background: #2a2a2a !important; color: #f0f0f0 !important; border: 1px solid #444 !important; }
+div[data-testid="stSlider"] { color: #f0f0f0 !important; }
+hr { border-color: #444 !important; }
+div[data-testid="stAlert"] { background: #2a2a2a !important; border: 1px solid #444 !important; }
+div[data-testid="stAlert"] * { color: #f0f0f0 !important; }
+.main .plotly, .main .plotly .main-svg, .main .plotly .layer-below { background: #1e1e1e !important; }
+.js-plotly-plot .plotly .hovertext { background: #2a2a2a !important; color: #f0f0f0 !important; border: 1px solid #444 !important; }
+.current-value-card { background: linear-gradient(180deg, #2a2a2a 0%, #1e1e1e 100%); border: 1px solid #444; border-left: 6px solid #1f6f8b; }
+.cv-label { color: #cbd5e1; }
+.cv-value { color: #f0f0f0; }
+.cv-sub { color: #cbd5e1; }
+.plot-frame, .condition-note { border: 1px solid #444; background: rgba(30, 30, 30, 0.8); }
+.condition-title { color: #cbd5e1; }
+.condition-main { color: #f0f0f0; }
+.condition-body { color: #e2e8f0; }
+.stMarkdown a { color: #60a5fa !important; }
+pre, code { background: #111 !important; color: #e5e5e5 !important; border: 1px solid #333 !important; }
+table th { background: #2a2a2a !important; color: #f0f0f0 !important; border: 1px solid #444 !important; }
+table td { background: #1e1e1e !important; color: #f0f0f0 !important; border: 1px solid #444 !important; }
+::-webkit-scrollbar-track { background: #1e1e1e; }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }

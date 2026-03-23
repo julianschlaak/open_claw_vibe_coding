@@ -1,0 +1,1 @@
+/docker/openclaw-1lxa/data/common/LAI_classdefinition.txt
